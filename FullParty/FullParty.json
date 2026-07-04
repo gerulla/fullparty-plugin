@@ -2,8 +2,8 @@
   "Author": "gerulla",
   "Name": "FullParty",
   "IconUrl": "https://raw.githubusercontent.com/gerulla/fullparty-plugin/master/Data/icon.png",
-  "Punchline": "A party-focused helper plugin.",
-  "Description": "FullParty is a party-focused helper plugin. Use /fullparty to open the main window.",
+  "Punchline": "Dalamud Plugin Companion for FullParty.gg",
+  "Description": "Dalamud Plugin Companion for FullParty.gg",
   "ApplicableVersion": "any",
   "Tags": [
     "party",
