@@ -1,9 +1,14 @@
 using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
-using System.IO;
+using System;
+using System.Collections.Generic;
+using FullParty.Api;
+using FullParty.Auth;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
+using FullParty.Models;
+using FullParty.Services;
 using FullParty.Windows;
 
 namespace FullParty;
@@ -16,32 +21,45 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IClientState ClientState { get; private set; } = null!;
     [PluginService] internal static IPlayerState PlayerState { get; private set; } = null!;
     [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
+    [PluginService] internal static IFramework Framework { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
 
     private const string CommandName = "/fullparty";
 
     public Configuration Configuration { get; init; }
+    public FullPartyEnvironment Environment { get; init; }
+    public AuthService AuthService { get; init; }
+    public FullPartyApiClient ApiClient { get; init; }
+    public RemoteImageCache ImageCache { get; init; }
+    public OccultCrescentRunMonitor OccultCrescentRunMonitor { get; init; }
+    public string VersionText { get; init; }
 
     public readonly WindowSystem WindowSystem = new("FullParty");
     private ConfigWindow ConfigWindow { get; init; }
     private MainWindow MainWindow { get; init; }
+    private readonly List<RunWindow> runWindows = [];
+    private readonly List<ApplicationWindow> applicationWindows = [];
 
     public Plugin()
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-
-        // You might normally want to embed resources and load them from the manifest stream
-        var logoImagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "logo.jpg");
+        Environment = FullPartyEnvironment.Load(PluginInterface.AssemblyLocation.Directory?.FullName ?? AppContext.BaseDirectory);
+        AuthService = new AuthService(Configuration, Environment);
+        AuthService.RestoreSavedSession();
+        ApiClient = new FullPartyApiClient(AuthService);
+        ImageCache = new RemoteImageCache(AuthService);
+        OccultCrescentRunMonitor = new OccultCrescentRunMonitor(this);
+        VersionText = PluginInterface.Manifest.AssemblyVersion?.ToString() ?? "dev";
 
         ConfigWindow = new ConfigWindow(this);
-        MainWindow = new MainWindow(this, logoImagePath);
+        MainWindow = new MainWindow(this);
 
         WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(MainWindow);
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "A useful message to display in /xlhelp"
+            HelpMessage = "Open FullParty. Use /fullparty debug for settings and auth debug info."
         });
 
         // Tell the UI system that we want our windows to be drawn through the window system
@@ -62,6 +80,8 @@ public sealed class Plugin : IDalamudPlugin
 
     public void Dispose()
     {
+        OccultCrescentRunMonitor.Dispose();
+
         // Unregister all actions to not leak anything during disposal of plugin
         PluginInterface.UiBuilder.Draw -= WindowSystem.Draw;
         PluginInterface.UiBuilder.OpenConfigUi -= ToggleConfigUi;
@@ -71,16 +91,65 @@ public sealed class Plugin : IDalamudPlugin
 
         ConfigWindow.Dispose();
         MainWindow.Dispose();
+        foreach (var runWindow in runWindows)
+        {
+            runWindow.Dispose();
+        }
+
+        foreach (var applicationWindow in applicationWindows)
+        {
+            applicationWindow.Dispose();
+        }
+
+        ImageCache.Dispose();
+        AuthService.Dispose();
 
         CommandManager.RemoveHandler(CommandName);
     }
 
     private void OnCommand(string command, string args)
     {
-        // In response to the slash command, toggle the display status of our main ui
-        MainWindow.Toggle();
+        if (args.Trim().Equals("debug", StringComparison.OrdinalIgnoreCase))
+        {
+            ToggleConfigUi();
+            return;
+        }
+
+        ToggleMainUi();
     }
     
     public void ToggleConfigUi() => ConfigWindow.Toggle();
     public void ToggleMainUi() => MainWindow.Toggle();
+
+    public void OpenRunWindow(FullPartyRun run)
+    {
+        var existing = runWindows.Find(window => window.Run.Id == run.Id);
+        if (existing != null)
+        {
+            existing.IsOpen = true;
+            return;
+        }
+
+        var runWindow = new RunWindow(run, this);
+        runWindows.Add(runWindow);
+        WindowSystem.AddWindow(runWindow);
+    }
+
+    public void OpenApplicationWindow(FullPartyRun run, FullPartyRosterSlot slot)
+    {
+        if (slot.ApplicationId == null)
+            return;
+
+        var existing = applicationWindows.Find(window => window.RunId == run.Id && window.SlotId == slot.Id);
+        if (existing != null)
+        {
+            existing.IsOpen = true;
+            return;
+        }
+
+        var title = slot.AssignedCharacter?.Name ?? slot.SlotLabel;
+        var applicationWindow = new ApplicationWindow(run.Id, slot.Id, title, this);
+        applicationWindows.Add(applicationWindow);
+        WindowSystem.AddWindow(applicationWindow);
+    }
 }

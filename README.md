@@ -33,6 +33,29 @@ FullParty/bin/x64/Debug/FullParty.dll
 6. Enable `FullParty`.
 7. Open the main window with `/fullparty`.
 
+## Publishing
+
+Releases are automated through `.github/workflows/release.yml`.
+
+Before publishing, configure these GitHub repository variables:
+
+* `FULLPARTY_CLIENT_ID` - required production OAuth device client ID. This can also be a repository secret.
+* `FULLPARTY_BASE_URL` - optional, defaults to `https://fullparty.gg`.
+* `FULLPARTY_DEBUG` - optional, defaults to `False`.
+
+To publish a release, push a SemVer tag:
+
+```powershell
+git tag v0.0.1
+git push origin v0.0.1
+```
+
+The workflow builds the plugin, uploads `FullParty.zip` to the GitHub release, and updates `repo.json` on the default branch. Users can install from the custom repository URL:
+
+```text
+https://raw.githubusercontent.com/gerulla/fullparty-plugin/master/repo.json
+```
+
 ## References
 
 * [Dalamud Developer Docs](https://dalamud.dev)

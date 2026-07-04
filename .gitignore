@@ -1,4 +1,8 @@
 .vs/
 obj/
+obj_verify/
 bin/
 *.user
+.env
+.env.*
+!.env.example

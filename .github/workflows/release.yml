@@ -1,0 +1,176 @@
+name: Release FullParty
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "SemVer release version, e.g. 0.0.1"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-2022
+
+    env:
+      PROJECT_NAME: FullParty
+      PROJECT_PATH: FullParty
+      SOLUTION_NAME: FullParty.sln
+      DALAMUD_API_LEVEL: 15
+      FULLPARTY_BASE_URL: ${{ vars.FULLPARTY_BASE_URL || 'https://fullparty.gg' }}
+      FULLPARTY_CLIENT_ID: ${{ vars.FULLPARTY_CLIENT_ID || secrets.FULLPARTY_CLIENT_ID }}
+      FULLPARTY_DEBUG: ${{ vars.FULLPARTY_DEBUG || 'False' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Download Dalamud
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/latest.zip -OutFile latest.zip
+          Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev"
+
+      - name: Prepare release values
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $rawVersion = "${{ inputs.version }}"
+          } else {
+            $rawVersion = "${{ github.ref_name }}"
+          }
+
+          $version = $rawVersion.Trim()
+          if ($version.StartsWith("v", [System.StringComparison]::OrdinalIgnoreCase)) {
+            $version = $version.Substring(1)
+          }
+
+          if ($version -notmatch '^\d+\.\d+\.\d+$') {
+            throw "Release version '$rawVersion' must be SemVer with three numeric parts, e.g. v0.0.1."
+          }
+
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "ASSEMBLY_VERSION=$version.0" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "TAG_NAME=v$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "DEFAULT_BRANCH=${{ github.event.repository.default_branch }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "REPOSITORY_URL=https://github.com/${{ github.repository }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "DOWNLOAD_URL=https://github.com/${{ github.repository }}/releases/download/v$version/$($env:PROJECT_NAME).zip" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "ICON_URL=https://raw.githubusercontent.com/${{ github.repository }}/${{ github.event.repository.default_branch }}/Data/icon.png" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Write production environment
+        shell: pwsh
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:FULLPARTY_CLIENT_ID)) {
+            throw "Set repository variable FULLPARTY_CLIENT_ID before publishing a release."
+          }
+
+          @(
+            "FULLPARTY_BASE_URL=$env:FULLPARTY_BASE_URL"
+            "FULLPARTY_CLIENT_ID=$env:FULLPARTY_CLIENT_ID"
+            "DEBUG=$env:FULLPARTY_DEBUG"
+          ) | Set-Content -Path .env -Encoding utf8
+
+      - name: Build
+        shell: pwsh
+        run: |
+          dotnet build $env:SOLUTION_NAME `
+            --configuration Release `
+            /p:Version=$env:VERSION `
+            /p:AssemblyVersion=$env:VERSION `
+            /p:FileVersion=$env:ASSEMBLY_VERSION `
+            /p:InformationalVersion=$env:VERSION `
+            /p:ContinuousIntegrationBuild=true
+
+      - name: Prepare release artifact
+        shell: pwsh
+        run: |
+          $releaseDir = Join-Path $env:RUNNER_TEMP "fullparty-release"
+          New-Item -ItemType Directory -Force -Path $releaseDir | Out-Null
+
+          $latestZip = Join-Path $env:PROJECT_PATH "bin\x64\Release\$($env:PROJECT_NAME)\latest.zip"
+          if (!(Test-Path $latestZip)) {
+            throw "Expected Dalamud.NET.Sdk package was not found at $latestZip."
+          }
+
+          Copy-Item -Path $latestZip -Destination (Join-Path $releaseDir "$($env:PROJECT_NAME).zip") -Force
+          Copy-Item -Path (Join-Path $env:PROJECT_PATH "bin\x64\Release\$($env:PROJECT_NAME)\$($env:PROJECT_NAME).json") -Destination (Join-Path $releaseDir "$($env:PROJECT_NAME).json") -Force
+          $normalizedReleaseDir = $releaseDir.Replace('\', '/')
+          "RELEASE_DIR=$normalizedReleaseDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Generate repo.json
+        shell: pwsh
+        run: |
+          $manifestPath = Join-Path $env:PROJECT_PATH "bin\x64\Release\$($env:PROJECT_NAME)\$($env:PROJECT_NAME).json"
+          $manifest = Get-Content -Path $manifestPath -Raw | ConvertFrom-Json
+          $repoJsonPath = Join-Path $env:RUNNER_TEMP "repo.json"
+          $lastUpdate = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds().ToString()
+
+          $entry = [ordered]@{
+            Author = $manifest.Author
+            Name = $manifest.Name
+            Punchline = $manifest.Punchline
+            Description = $manifest.Description
+            InternalName = $manifest.InternalName
+            AssemblyVersion = $manifest.AssemblyVersion
+            TestingAssemblyVersion = $null
+            RepoUrl = $env:REPOSITORY_URL
+            ApplicableVersion = $manifest.ApplicableVersion
+            DalamudApiLevel = $manifest.DalamudApiLevel
+            IsHide = $false
+            IsTestingExclusive = $false
+            DownloadLinkInstall = $env:DOWNLOAD_URL
+            DownloadLinkUpdate = $env:DOWNLOAD_URL
+            LastUpdate = $lastUpdate
+            IconUrl = $env:ICON_URL
+          }
+
+          if ($manifest.Tags -ne $null) {
+            $entry["Tags"] = @($manifest.Tags)
+          }
+
+          ConvertTo-Json -InputObject @($entry) -Depth 10 | Set-Content -Path $repoJsonPath -Encoding utf8
+          "REPO_JSON_PATH=$repoJsonPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          target_commitish: ${{ github.sha }}
+          name: FullParty ${{ env.VERSION }}
+          generate_release_notes: true
+          files: |
+            ${{ env.RELEASE_DIR }}/FullParty.zip
+            ${{ env.RELEASE_DIR }}/FullParty.json
+
+      - name: Update custom repository manifest
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin $env:DEFAULT_BRANCH
+          git switch -C $env:DEFAULT_BRANCH "origin/$env:DEFAULT_BRANCH"
+
+          Copy-Item -Path $env:REPO_JSON_PATH -Destination repo.json -Force
+          git add repo.json
+
+          git diff --cached --quiet
+          $hasChanges = $LASTEXITCODE -ne 0
+          if ($hasChanges) {
+            git commit -m "Update repo.json for $env:TAG_NAME"
+            git push origin $env:DEFAULT_BRANCH
+          } else {
+            Write-Host "repo.json is already up to date."
+          }
