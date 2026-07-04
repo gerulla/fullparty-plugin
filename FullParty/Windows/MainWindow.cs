@@ -7,18 +7,18 @@ using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using Lumina.Excel.Sheets;
 
-namespace SamplePlugin.Windows;
+namespace FullParty.Windows;
 
 public class MainWindow : Window, IDisposable
 {
-    private readonly string goatImagePath;
+    private readonly string logoImagePath;
     private readonly Plugin plugin;
 
     // We give this window a hidden ID using ##.
-    // The user will see "My Amazing Window" as window title,
-    // but for ImGui the ID is "My Amazing Window##With a hidden ID"
-    public MainWindow(Plugin plugin, string goatImagePath)
-        : base("My Amazing Window##With a hidden ID", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
+    // The user will see "FullParty" as window title,
+    // but for ImGui the ID is "FullParty##Main".
+    public MainWindow(Plugin plugin, string logoImagePath)
+        : base("FullParty##Main", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
     {
         SizeConstraints = new WindowSizeConstraints
         {
@@ -26,7 +26,7 @@ public class MainWindow : Window, IDisposable
             MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
         };
 
-        this.goatImagePath = goatImagePath;
+        this.logoImagePath = logoImagePath;
         this.plugin = plugin;
     }
 
@@ -51,14 +51,24 @@ public class MainWindow : Window, IDisposable
             // Check if this child is drawing
             if (child.Success)
             {
-                ImGui.Text("Have a goat:");
-                var goatImage = Plugin.TextureProvider.GetFromFile(goatImagePath).GetWrapOrDefault();
-                if (goatImage != null)
+                ImGui.Text("FullParty");
+                var logoImage = Plugin.TextureProvider.GetFromFile(logoImagePath).GetWrapOrDefault();
+                if (logoImage != null)
                 {
-                    using (ImRaii.PushIndent(55f))
+                    var logoSize = logoImage.Size;
+                    var maxLogoSize = new Vector2(
+                        MathF.Min(ImGui.GetContentRegionAvail().X, 360f * ImGuiHelpers.GlobalScale),
+                        180f * ImGuiHelpers.GlobalScale);
+
+                    if (logoSize.X > maxLogoSize.X || logoSize.Y > maxLogoSize.Y)
                     {
-                        ImGui.Image(goatImage.Handle, goatImage.Size);
+                        logoSize *= MathF.Min(maxLogoSize.X / logoSize.X, maxLogoSize.Y / logoSize.Y);
                     }
+
+                    var cursorX = ImGui.GetCursorPosX();
+                    var centeredOffset = MathF.Max(0, (ImGui.GetContentRegionAvail().X - logoSize.X) * 0.5f);
+                    ImGui.SetCursorPosX(cursorX + centeredOffset);
+                    ImGui.Image(logoImage.Handle, logoSize);
                 }
                 else
                 {

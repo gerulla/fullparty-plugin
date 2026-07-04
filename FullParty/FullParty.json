@@ -1,0 +1,12 @@
+{
+  "Author": "gerulla",
+  "Name": "FullParty",
+  "IconUrl": "https://raw.githubusercontent.com/gerulla/fullparty-plugin/master/Data/icon.png",
+  "Punchline": "A party-focused helper plugin.",
+  "Description": "FullParty is a party-focused helper plugin. Use /fullparty to open the main window.",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "party",
+    "utility"
+  ]
+}
