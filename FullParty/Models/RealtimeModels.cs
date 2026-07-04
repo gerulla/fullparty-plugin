@@ -39,6 +39,7 @@ public sealed record FullPartyLiveMember(
     string? Datacenter,
     string? AvatarUrl,
     IReadOnlyList<string> SlotLabels,
+    IReadOnlyList<int> SlotIds,
     bool IsHost,
     bool IsPartyLead)
 {
@@ -55,3 +56,12 @@ public sealed record FullPartyLiveMember(
         }
     }
 }
+
+public sealed record FullPartyRunCommand(
+    string Id,
+    string Command,
+    string? IdempotencyKey,
+    string? TargetType,
+    DateTimeOffset? ExpiresAt,
+    IReadOnlyList<string> ResolvedUserIds,
+    IReadOnlyList<int> ResolvedSlotIds);

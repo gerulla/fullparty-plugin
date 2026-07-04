@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.WebSockets;
@@ -8,6 +10,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Dalamud.Plugin.Services;
 using FullParty.Api;
 using FullParty.Models;
 
@@ -28,22 +31,30 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     private readonly int runId;
+    private readonly Plugin plugin;
     private readonly FullPartyApiClient apiClient;
     private readonly object stateLock = new();
     private readonly Dictionary<string, FullPartyLiveMember> members = new(StringComparer.Ordinal);
+    private readonly HashSet<string> handledCommandIds = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentQueue<PendingCommandExecution> pendingCommandExecutions = new();
 
     private CancellationTokenSource? cancellation;
     private Task? connectionTask;
+    private Task? commandIssueTask;
     private ClientWebSocket? webSocket;
 
-    public RealtimeRunRoomClient(int runId, FullPartyApiClient apiClient)
+    public RealtimeRunRoomClient(int runId, Plugin plugin)
     {
         this.runId = runId;
-        this.apiClient = apiClient;
+        this.plugin = plugin;
+        apiClient = plugin.ApiClient;
+
+        Plugin.Framework.Update += OnFrameworkUpdate;
     }
 
     public RealtimeRunRoomState State { get; private set; } = RealtimeRunRoomState.Disconnected;
     public string StatusMessage { get; private set; } = "Disconnected";
+    public string? CommandStatusMessage { get; private set; }
     public string? ChannelName { get; private set; }
 
     public bool IsActive => State is RealtimeRunRoomState.Connecting
@@ -54,6 +65,8 @@ public sealed class RealtimeRunRoomClient : IDisposable
     public bool IsBusy => State is RealtimeRunRoomState.Connecting
         or RealtimeRunRoomState.Authorizing
         or RealtimeRunRoomState.Subscribing;
+
+    public bool IsIssuingCommand => commandIssueTask is { IsCompleted: false };
 
     public IReadOnlyList<FullPartyLiveMember> Members
     {
@@ -80,6 +93,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             cancellation?.Dispose();
             cancellation = new CancellationTokenSource();
             members.Clear();
+            handledCommandIds.Clear();
             SetStateNoLock(RealtimeRunRoomState.Connecting, "Connecting to live room...");
             connectionTask = Task.Run(() => RunAsync(cancellation.Token));
         }
@@ -97,6 +111,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             cancellation = null;
             webSocket = null;
             members.Clear();
+            handledCommandIds.Clear();
             ChannelName = null;
             SetStateNoLock(RealtimeRunRoomState.Disconnected, "Disconnected");
         }
@@ -107,7 +122,21 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     public void Dispose()
     {
+        Plugin.Framework.Update -= OnFrameworkUpdate;
         Disconnect();
+    }
+
+    public void SendReadyCheckAlliance()
+    {
+        StartCommandIssue("ready_check", new Dictionary<string, object?>(), "Ready check alliance");
+    }
+
+    public void SendCountdown(int seconds)
+    {
+        StartCommandIssue("countdown", new Dictionary<string, object?>
+        {
+            ["seconds"] = seconds,
+        }, $"Countdown {seconds}s");
     }
 
     private async Task RunAsync(CancellationToken cancellationToken)
@@ -148,7 +177,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
             await SendEventAsync(socket, "pusher:subscribe", subscriptionData, cancellationToken);
 
-            await ReceiveLoopAsync(socket, channelName, cancellationToken);
+            await ReceiveLoopAsync(socket, channelName, config, cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -201,7 +230,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
         return null;
     }
 
-    private async Task ReceiveLoopAsync(ClientWebSocket socket, string channelName, CancellationToken cancellationToken)
+    private async Task ReceiveLoopAsync(ClientWebSocket socket, string channelName, FullPartyRealtimeConfig config, CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested && socket.State == WebSocketState.Open)
         {
@@ -258,7 +287,159 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
                     break;
             }
+
+            if (EventMatches(envelope.Event, config.CommandEventName))
+            {
+                using var data = ParseDataDocument(envelope.Data);
+                if (data != null)
+                    HandleRunCommand(data.RootElement);
+            }
         }
+    }
+
+    private void StartCommandIssue(string command, object payload, string label)
+    {
+        CancellationToken token;
+        lock (stateLock)
+        {
+            if (State != RealtimeRunRoomState.Connected)
+            {
+                CommandStatusMessage = "Connect to the live room first.";
+                return;
+            }
+
+            if (commandIssueTask is { IsCompleted: false })
+                return;
+
+            if (cancellation == null)
+            {
+                CommandStatusMessage = "Live room is not connected.";
+                return;
+            }
+
+            token = cancellation.Token;
+            CommandStatusMessage = $"Sending {label}...";
+            var idempotencyKey = $"{command}-{runId}-{Guid.NewGuid():N}";
+            commandIssueTask = Task.Run(() => SendCommandAsync(command, payload, idempotencyKey, label, token), token);
+        }
+    }
+
+    private async Task SendCommandAsync(string command, object payload, string idempotencyKey, string label, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await apiClient.SendRunCommandAsync(runId, command, payload, idempotencyKey, cancellationToken);
+            SetCommandStatus($"{label} sent. Waiting for live command...");
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Warning(ex, "Could not send FullParty live command {Command} for run {RunId}.", command, runId);
+            SetCommandStatus($"Could not send {label}: {ex.Message}");
+        }
+    }
+
+    private void HandleRunCommand(JsonElement root)
+    {
+        var command = ParseRunCommand(root);
+        if (command == null)
+            return;
+
+        lock (stateLock)
+        {
+            if (!handledCommandIds.Add(command.Id))
+                return;
+        }
+
+        if (command.ExpiresAt != null && DateTimeOffset.UtcNow > command.ExpiresAt.Value)
+        {
+            QueueAck(command.Id, "expired");
+            return;
+        }
+
+        if (!IsTargeted(command))
+        {
+            QueueAck(command.Id, "ignored_not_targeted");
+            return;
+        }
+
+        var localCommand = GetLocalCommand(command.Command);
+        if (localCommand == null)
+        {
+            QueueAck(command.Id, "failed");
+            SetCommandStatus($"Unsupported live command: {command.Command}");
+            return;
+        }
+
+        pendingCommandExecutions.Enqueue(new PendingCommandExecution(command.Id, command.Command, localCommand));
+        SetCommandStatus($"Received {FormatCommandName(command.Command)}.");
+    }
+
+    private void OnFrameworkUpdate(IFramework framework)
+    {
+        while (pendingCommandExecutions.TryDequeue(out var pending))
+        {
+            try
+            {
+                Plugin.CommandManager.ProcessCommand(pending.LocalCommand);
+                QueueAck(pending.CommandId, "executed");
+                SetCommandStatus($"Executed {FormatCommandName(pending.CommandName)}.");
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.Warning(ex, "Could not execute FullParty live command {Command} for run {RunId}.", pending.CommandName, runId);
+                QueueAck(pending.CommandId, "failed");
+                SetCommandStatus($"Failed to execute {FormatCommandName(pending.CommandName)}.");
+            }
+        }
+    }
+
+    private void QueueAck(string commandId, string status)
+    {
+        var token = cancellation?.Token ?? CancellationToken.None;
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await apiClient.AcknowledgeRunCommandAsync(runId, commandId, status, token);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.Warning(ex, "Could not acknowledge FullParty live command {CommandId} as {Status}.", commandId, status);
+            }
+        }, CancellationToken.None);
+    }
+
+    private bool IsTargeted(FullPartyRunCommand command)
+    {
+        var currentUserId = plugin.AuthService.User?.Id.ToString(CultureInfo.InvariantCulture);
+        if (string.IsNullOrWhiteSpace(currentUserId))
+            return false;
+
+        FullPartyLiveMember? currentMember;
+        lock (stateLock)
+        {
+            members.TryGetValue(currentUserId, out currentMember);
+        }
+
+        if (command.ResolvedUserIds.Count > 0)
+            return command.ResolvedUserIds.Contains(currentUserId, StringComparer.OrdinalIgnoreCase);
+
+        if (command.ResolvedSlotIds.Count > 0)
+            return currentMember?.SlotIds.Any(command.ResolvedSlotIds.Contains) == true;
+
+        return command.TargetType switch
+        {
+            "party_leads" => currentMember?.IsPartyLead == true,
+            "hosts" => currentMember?.IsHost == true,
+            "all_assigned" => currentMember?.SlotIds.Count > 0,
+            _ => false,
+        };
     }
 
     private static Uri BuildWebSocketUri(FullPartyRealtimeConfig config)
@@ -435,6 +616,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
         var hasCharacter = character.ValueKind == JsonValueKind.Object;
         var slotLabels = GetAssignedSlotLabels(userInfo);
+        var slotIds = GetAssignedSlotIds(userInfo);
 
         return new FullPartyLiveMember(
             userId,
@@ -444,6 +626,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             hasCharacter ? GetString(character, "datacenter") : null,
             hasCharacter ? GetString(character, "avatar_url") : GetString(user, "avatar_url"),
             slotLabels,
+            slotIds,
             HasAssignedSlotFlag(userInfo, "is_host") || GetBool(userInfo, "is_host") == true,
             HasAssignedSlotFlag(userInfo, "is_raid_leader") ||
             HasAssignedSlotFlag(userInfo, "is_party_lead") ||
@@ -463,6 +646,19 @@ public sealed class RealtimeRunRoomClient : IDisposable
             .Where(label => !string.IsNullOrWhiteSpace(label))
             .Select(label => label!)
             .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private static IReadOnlyList<int> GetAssignedSlotIds(JsonElement userInfo)
+    {
+        if (!TryGetArray(userInfo, "assigned_slots", out var assignedSlots))
+            return [];
+
+        return assignedSlots.EnumerateArray()
+            .Select(slot => GetInt(slot, "id"))
+            .Where(id => id != null)
+            .Select(id => id!.Value)
+            .Distinct()
             .ToList();
     }
 
@@ -497,6 +693,152 @@ public sealed class RealtimeRunRoomClient : IDisposable
             return false;
 
         return assignedSlots.EnumerateArray().Any(slot => GetBool(slot, propertyName) == true);
+    }
+
+    private static FullPartyRunCommand? ParseRunCommand(JsonElement root)
+    {
+        var commandRoot = NormalizeCommandRoot(root);
+        var id = GetString(commandRoot, "id") ?? GetString(commandRoot, "command_id");
+        var command = GetString(commandRoot, "command") ?? GetString(commandRoot, "type") ?? GetString(commandRoot, "name");
+        if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(command))
+            return null;
+
+        return new FullPartyRunCommand(
+            id,
+            command,
+            GetString(commandRoot, "idempotency_key"),
+            GetTargetType(commandRoot),
+            GetDateTimeOffset(commandRoot, "expires_at"),
+            GetStringList(commandRoot, ["resolved_user_ids", "user_ids"]),
+            GetIntList(commandRoot, ["resolved_slot_ids", "slot_ids"]));
+    }
+
+    private static JsonElement NormalizeCommandRoot(JsonElement root)
+    {
+        if (TryGetObject(root, "data", out var data))
+            root = data;
+
+        if (TryGetObject(root, "command", out var command))
+            return command;
+
+        return root;
+    }
+
+    private static string? GetTargetType(JsonElement root)
+    {
+        if (TryGetObject(root, "target", out var target))
+            return GetString(target, "type");
+
+        return GetString(root, "target_type");
+    }
+
+    private static IReadOnlyList<string> GetStringList(JsonElement root, IReadOnlyList<string> propertyNames)
+    {
+        foreach (var propertyName in propertyNames)
+        {
+            if (!TryGetProperty(root, propertyName, out var value))
+                continue;
+
+            if (value.ValueKind == JsonValueKind.Array)
+                return value.EnumerateArray()
+                    .Select(GetJsonValueAsString)
+                    .Where(item => !string.IsNullOrWhiteSpace(item))
+                    .Select(item => item!)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+        }
+
+        if (TryGetObject(root, "resolved", out var resolved))
+            return GetStringList(resolved, propertyNames);
+
+        if (TryGetObject(root, "targets", out var targets))
+            return GetStringList(targets, propertyNames);
+
+        return [];
+    }
+
+    private static IReadOnlyList<int> GetIntList(JsonElement root, IReadOnlyList<string> propertyNames)
+    {
+        foreach (var propertyName in propertyNames)
+        {
+            if (!TryGetProperty(root, propertyName, out var value))
+                continue;
+
+            if (value.ValueKind == JsonValueKind.Array)
+                return value.EnumerateArray()
+                    .Select(GetJsonValueAsInt)
+                    .Where(item => item != null)
+                    .Select(item => item!.Value)
+                    .Distinct()
+                    .ToList();
+        }
+
+        if (TryGetObject(root, "resolved", out var resolved))
+            return GetIntList(resolved, propertyNames);
+
+        if (TryGetObject(root, "targets", out var targets))
+            return GetIntList(targets, propertyNames);
+
+        return [];
+    }
+
+    private static string? GetJsonValueAsString(JsonElement value)
+    {
+        return value.ValueKind switch
+        {
+            JsonValueKind.String => value.GetString(),
+            JsonValueKind.Number => value.ToString(),
+            _ => null,
+        };
+    }
+
+    private static int? GetJsonValueAsInt(JsonElement value)
+    {
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out var number))
+            return number;
+
+        if (value.ValueKind == JsonValueKind.String && int.TryParse(value.GetString(), out number))
+            return number;
+
+        return null;
+    }
+
+    private static DateTimeOffset? GetDateTimeOffset(JsonElement root, string propertyName)
+    {
+        var value = GetString(root, propertyName);
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        return DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed)
+            ? parsed
+            : null;
+    }
+
+    private static string? GetLocalCommand(string command)
+    {
+        if (command.Equals("ready_check", StringComparison.OrdinalIgnoreCase))
+            return "/readycheck";
+
+        if (command.Equals("countdown", StringComparison.OrdinalIgnoreCase))
+            return "/countdown 20";
+
+        return null;
+    }
+
+    private static string FormatCommandName(string command)
+    {
+        return command switch
+        {
+            "ready_check" => "ready check",
+            "countdown" => "countdown",
+            _ => command,
+        };
+    }
+
+    private static bool EventMatches(string actual, string expected)
+    {
+        return actual.Equals(expected, StringComparison.OrdinalIgnoreCase) ||
+               actual.TrimStart('.').Equals(expected.TrimStart('.'), StringComparison.OrdinalIgnoreCase);
     }
 
     private void ReplaceMembers(IEnumerable<FullPartyLiveMember> nextMembers)
@@ -537,6 +879,14 @@ public sealed class RealtimeRunRoomClient : IDisposable
     {
         State = state;
         StatusMessage = statusMessage;
+    }
+
+    private void SetCommandStatus(string statusMessage)
+    {
+        lock (stateLock)
+        {
+            CommandStatusMessage = statusMessage;
+        }
     }
 
     private static bool TryGetObject(JsonElement root, string propertyName, out JsonElement value)
@@ -641,4 +991,9 @@ public sealed class RealtimeRunRoomClient : IDisposable
         [JsonPropertyName("data")]
         public JsonElement Data { get; set; }
     }
+
+    private sealed record PendingCommandExecution(
+        string CommandId,
+        string CommandName,
+        string LocalCommand);
 }

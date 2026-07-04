@@ -75,6 +75,9 @@ public sealed class AuthService : IDisposable
             throw new InvalidOperationException($"FullParty API request failed ({(int)response.StatusCode}).");
         }
 
+        if (string.IsNullOrWhiteSpace(content))
+            return default;
+
         return JsonSerializer.Deserialize<T>(content, jsonOptions);
     }
 

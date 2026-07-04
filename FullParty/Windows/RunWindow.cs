@@ -32,7 +32,7 @@ public sealed class RunWindow : Window, IDisposable
     {
         Run = run;
         this.plugin = plugin;
-        liveRoom = new RealtimeRunRoomClient(run.Id, plugin.ApiClient);
+        liveRoom = new RealtimeRunRoomClient(run.Id, plugin);
         SizeConstraints = new WindowSizeConstraints
         {
             MinimumSize = new Vector2(720, 420),
@@ -97,16 +97,23 @@ public sealed class RunWindow : Window, IDisposable
 
         ImGui.SameLine();
 
-        if (!canModerate)
+        var canSendLiveCommand = canModerate && liveRoom.State == RealtimeRunRoomState.Connected && !liveRoom.IsIssuingCommand;
+        if (!canSendLiveCommand)
             ImGui.BeginDisabled();
 
-        ImGui.Button("Ready Check Alliance");
+        if (ImGui.Button("Ready Check Alliance"))
+            liveRoom.SendReadyCheckAlliance();
+
+        ImGui.SameLine();
+
+        if (ImGui.Button("Start Countdown"))
+            liveRoom.SendCountdown(20);
 
         ImGui.SameLine();
 
         ImGui.Button("Run Check-In");
 
-        if (!canModerate)
+        if (!canSendLiveCommand)
             ImGui.EndDisabled();
     }
 
@@ -140,6 +147,12 @@ public sealed class RunWindow : Window, IDisposable
         };
 
         ImGui.TextColored(statusColor, liveRoom.StatusMessage);
+
+        if (!string.IsNullOrWhiteSpace(liveRoom.CommandStatusMessage))
+        {
+            ImGui.SameLine();
+            ImGui.TextDisabled(liveRoom.CommandStatusMessage);
+        }
 
         var members = liveRoom.Members;
         if (!liveRoom.IsActive && members.Count == 0 && liveRoom.State != RealtimeRunRoomState.Error)

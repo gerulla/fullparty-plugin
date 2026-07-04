@@ -147,6 +147,26 @@ public sealed class FullPartyApiClient
         return new FullPartyBroadcastAuth(response.Auth, channelData);
     }
 
+    public async Task SendRunCommandAsync(int runId, string command, object payload, string idempotencyKey, CancellationToken cancellationToken)
+    {
+        _ = await authService.PostJsonAsync<JsonElement>(
+            $"/api/xivplugin/runs/{runId}/commands",
+            new RunCommandRequest(
+                command,
+                new RunCommandTarget("party_leads"),
+                payload,
+                idempotencyKey),
+            cancellationToken);
+    }
+
+    public async Task AcknowledgeRunCommandAsync(int runId, string commandId, string status, CancellationToken cancellationToken)
+    {
+        _ = await authService.PostJsonAsync<JsonElement>(
+            $"/api/xivplugin/runs/{runId}/commands/{Uri.EscapeDataString(commandId)}/ack",
+            new RunCommandAckRequest(status),
+            cancellationToken);
+    }
+
     private static FullPartyRun MapRun(RunDto run, bool? canModerate)
     {
         return new FullPartyRun(
@@ -587,6 +607,18 @@ public sealed class FullPartyApiClient
         [JsonPropertyName("channel_data")]
         public JsonElement ChannelData { get; set; }
     }
+
+    private sealed record RunCommandRequest(
+        [property: JsonPropertyName("command")] string Command,
+        [property: JsonPropertyName("target")] RunCommandTarget Target,
+        [property: JsonPropertyName("payload")] object Payload,
+        [property: JsonPropertyName("idempotency_key")] string IdempotencyKey);
+
+    private sealed record RunCommandTarget(
+        [property: JsonPropertyName("type")] string Type);
+
+    private sealed record RunCommandAckRequest(
+        [property: JsonPropertyName("status")] string Status);
 
     private sealed class GroupsResponse
     {
