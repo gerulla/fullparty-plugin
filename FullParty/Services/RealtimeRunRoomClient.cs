@@ -37,6 +37,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private readonly Dictionary<string, FullPartyLiveMember> members = new(StringComparer.Ordinal);
     private readonly HashSet<string> handledCommandIds = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentQueue<PendingCommandExecution> pendingCommandExecutions = new();
+    private const int CommandExpirySeconds = 30;
 
     private CancellationTokenSource? cancellation;
     private Task? connectionTask;
@@ -128,15 +129,27 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     public void SendReadyCheckAlliance()
     {
-        StartCommandIssue("ready_check", new Dictionary<string, object?>(), "Ready check alliance");
+        StartCommandIssue(
+            "ready_check",
+            "all_assigned",
+            new Dictionary<string, object?>
+            {
+                ["message"] = "Ready check started",
+            },
+            "Ready check alliance");
     }
 
     public void SendCountdown(int seconds)
     {
-        StartCommandIssue("countdown", new Dictionary<string, object?>
-        {
-            ["seconds"] = seconds,
-        }, $"Countdown {seconds}s");
+        StartCommandIssue(
+            "countdown",
+            "party_leads",
+            new Dictionary<string, object?>
+            {
+                ["seconds"] = seconds,
+                ["label"] = "Pull timer",
+            },
+            $"Countdown {seconds}s");
     }
 
     private async Task RunAsync(CancellationToken cancellationToken)
@@ -297,7 +310,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
         }
     }
 
-    private void StartCommandIssue(string command, object payload, string label)
+    private void StartCommandIssue(string command, string targetType, object payload, string label)
     {
         CancellationToken token;
         lock (stateLock)
@@ -320,15 +333,15 @@ public sealed class RealtimeRunRoomClient : IDisposable
             token = cancellation.Token;
             CommandStatusMessage = $"Sending {label}...";
             var idempotencyKey = $"{command}-{runId}-{Guid.NewGuid():N}";
-            commandIssueTask = Task.Run(() => SendCommandAsync(command, payload, idempotencyKey, label, token), token);
+            commandIssueTask = Task.Run(() => SendCommandAsync(command, targetType, payload, idempotencyKey, label, token), token);
         }
     }
 
-    private async Task SendCommandAsync(string command, object payload, string idempotencyKey, string label, CancellationToken cancellationToken)
+    private async Task SendCommandAsync(string command, string targetType, object payload, string idempotencyKey, string label, CancellationToken cancellationToken)
     {
         try
         {
-            await apiClient.SendRunCommandAsync(runId, command, payload, idempotencyKey, cancellationToken);
+            await apiClient.SendRunCommandAsync(runId, command, targetType, payload, CommandExpirySeconds, idempotencyKey, cancellationToken);
             SetCommandStatus($"{label} sent. Waiting for live command...");
         }
         catch (OperationCanceledException)
@@ -365,7 +378,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             return;
         }
 
-        var localCommand = GetLocalCommand(command.Command);
+        var localCommand = GetLocalCommand(command);
         if (localCommand == null)
         {
             QueueAck(command.Id, "failed");
@@ -709,6 +722,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             GetString(commandRoot, "idempotency_key"),
             GetTargetType(commandRoot),
             GetDateTimeOffset(commandRoot, "expires_at"),
+            GetPayloadInt(commandRoot, "seconds"),
             GetStringList(commandRoot, ["resolved_user_ids", "user_ids"]),
             GetIntList(commandRoot, ["resolved_slot_ids", "slot_ids"]));
     }
@@ -814,13 +828,21 @@ public sealed class RealtimeRunRoomClient : IDisposable
             : null;
     }
 
-    private static string? GetLocalCommand(string command)
+    private static int? GetPayloadInt(JsonElement root, string propertyName)
     {
-        if (command.Equals("ready_check", StringComparison.OrdinalIgnoreCase))
+        if (TryGetObject(root, "payload", out var payload))
+            return GetInt(payload, propertyName);
+
+        return GetInt(root, propertyName);
+    }
+
+    private static string? GetLocalCommand(FullPartyRunCommand command)
+    {
+        if (command.Command.Equals("ready_check", StringComparison.OrdinalIgnoreCase))
             return "/readycheck";
 
-        if (command.Equals("countdown", StringComparison.OrdinalIgnoreCase))
-            return "/countdown 20";
+        if (command.Command.Equals("countdown", StringComparison.OrdinalIgnoreCase))
+            return $"/countdown {Math.Clamp(command.CountdownSeconds ?? 20, 1, 99)}";
 
         return null;
     }

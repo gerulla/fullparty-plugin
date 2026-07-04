@@ -63,5 +63,6 @@ public sealed record FullPartyRunCommand(
     string? IdempotencyKey,
     string? TargetType,
     DateTimeOffset? ExpiresAt,
+    int? CountdownSeconds,
     IReadOnlyList<string> ResolvedUserIds,
     IReadOnlyList<int> ResolvedSlotIds);

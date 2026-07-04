@@ -147,14 +147,22 @@ public sealed class FullPartyApiClient
         return new FullPartyBroadcastAuth(response.Auth, channelData);
     }
 
-    public async Task SendRunCommandAsync(int runId, string command, object payload, string idempotencyKey, CancellationToken cancellationToken)
+    public async Task SendRunCommandAsync(
+        int runId,
+        string command,
+        string targetType,
+        object payload,
+        int expiresInSeconds,
+        string? idempotencyKey,
+        CancellationToken cancellationToken)
     {
         _ = await authService.PostJsonAsync<JsonElement>(
             $"/api/xivplugin/runs/{runId}/commands",
             new RunCommandRequest(
                 command,
-                new RunCommandTarget("party_leads"),
+                new RunCommandTarget(targetType),
                 payload,
+                expiresInSeconds,
                 idempotencyKey),
             cancellationToken);
     }
@@ -612,7 +620,8 @@ public sealed class FullPartyApiClient
         [property: JsonPropertyName("command")] string Command,
         [property: JsonPropertyName("target")] RunCommandTarget Target,
         [property: JsonPropertyName("payload")] object Payload,
-        [property: JsonPropertyName("idempotency_key")] string IdempotencyKey);
+        [property: JsonPropertyName("expires_in_seconds")] int ExpiresInSeconds,
+        [property: JsonPropertyName("idempotency_key")] string? IdempotencyKey);
 
     private sealed record RunCommandTarget(
         [property: JsonPropertyName("type")] string Type);
