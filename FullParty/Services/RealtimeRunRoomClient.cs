@@ -332,7 +332,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
             token = cancellation.Token;
             CommandStatusMessage = $"Sending {label}...";
-            var idempotencyKey = $"{command}-{runId}-{Guid.NewGuid():N}";
+            var idempotencyKey = CreateIdempotencyKey(command);
             commandIssueTask = Task.Run(() => SendCommandAsync(command, targetType, payload, idempotencyKey, label, token), token);
         }
     }
@@ -861,6 +861,13 @@ public sealed class RealtimeRunRoomClient : IDisposable
     {
         return actual.Equals(expected, StringComparison.OrdinalIgnoreCase) ||
                actual.TrimStart('.').Equals(expected.TrimStart('.'), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private string CreateIdempotencyKey(string command)
+    {
+        var commandPrefix = command.Replace('_', '-');
+        var suffix = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString("x", CultureInfo.InvariantCulture);
+        return $"{commandPrefix}-{runId}-{suffix}";
     }
 
     private void ReplaceMembers(IEnumerable<FullPartyLiveMember> nextMembers)

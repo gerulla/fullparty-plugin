@@ -86,6 +86,9 @@ public sealed class AuthService : IDisposable
         var bearerToken = GetValidAccessToken();
         var json = JsonSerializer.Serialize(payload, jsonOptions);
 
+        if (Debug)
+            Plugin.Log.Debug("FullParty API POST {Path} payload: {Payload}", path, json);
+
         using var request = new HttpRequestMessage(HttpMethod.Post, ResolveUrl(path));
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -96,8 +99,11 @@ public sealed class AuthService : IDisposable
         if (!response.IsSuccessStatusCode)
         {
             Plugin.Log.Warning("FullParty API POST {Path} failed: {StatusCode} {Content}", path, response.StatusCode, content);
-            throw new InvalidOperationException($"FullParty API request failed ({(int)response.StatusCode}).");
+            throw new InvalidOperationException(BuildApiFailureMessage(response.StatusCode, content));
         }
+
+        if (string.IsNullOrWhiteSpace(content))
+            return default;
 
         return JsonSerializer.Deserialize<T>(content, jsonOptions);
     }
@@ -277,6 +283,14 @@ public sealed class AuthService : IDisposable
 
             return accessToken;
         }
+    }
+
+    private static string BuildApiFailureMessage(HttpStatusCode statusCode, string responseContent)
+    {
+        var message = $"FullParty API request failed ({(int)statusCode}).";
+        return string.IsNullOrWhiteSpace(responseContent)
+            ? message
+            : $"{message} {responseContent}";
     }
 
     private async Task RestoreSavedSessionAsync(CancellationToken cancellationToken)
