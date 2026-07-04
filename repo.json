@@ -5,16 +5,20 @@
     "Punchline": "Dalamud Plugin Companion for FullParty.gg",
     "Description": "Dalamud Plugin Companion for FullParty.gg",
     "InternalName": "FullParty",
-    "AssemblyVersion": "0.0.0.1",
-    "TestingAssemblyVersion": "0.0.0.1",
+    "AssemblyVersion": "0.0.1.0",
+    "TestingAssemblyVersion": null,
     "RepoUrl": "https://github.com/gerulla/fullparty-plugin",
     "ApplicableVersion": "any",
     "DalamudApiLevel": 15,
     "IsHide": false,
     "IsTestingExclusive": false,
-    "DownloadLinkInstall": "https://github.com/gerulla/fullparty-plugin/releases/download/0.0.0.1/FullParty.zip",
-    "DownloadLinkTesting": "https://github.com/gerulla/fullparty-plugin/releases/download/0.0.0.1/FullParty.zip",
-    "DownloadLinkUpdate": "https://github.com/gerulla/fullparty-plugin/releases/download/0.0.0.1/FullParty.zip",
-    "IconUrl": "https://raw.githubusercontent.com/gerulla/fullparty-plugin/master/Data/icon.png"
+    "DownloadLinkInstall": "https://github.com/gerulla/fullparty-plugin/releases/download/v0.0.1/FullParty.zip",
+    "DownloadLinkUpdate": "https://github.com/gerulla/fullparty-plugin/releases/download/v0.0.1/FullParty.zip",
+    "LastUpdate": "1783199342",
+    "IconUrl": "https://raw.githubusercontent.com/gerulla/fullparty-plugin/master/Data/icon.png",
+    "Tags": [
+      "party",
+      "utility"
+    ]
   }
 ]
