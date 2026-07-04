@@ -765,6 +765,9 @@ public sealed class RealtimeRunRoomClient : IDisposable
         if (TryGetObject(root, "resolved", out var resolved))
             return GetStringList(resolved, propertyNames);
 
+        if (TryGetObject(root, "target", out var target))
+            return GetStringList(target, propertyNames);
+
         if (TryGetObject(root, "targets", out var targets))
             return GetStringList(targets, propertyNames);
 
@@ -789,6 +792,9 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
         if (TryGetObject(root, "resolved", out var resolved))
             return GetIntList(resolved, propertyNames);
+
+        if (TryGetObject(root, "target", out var target))
+            return GetIntList(target, propertyNames);
 
         if (TryGetObject(root, "targets", out var targets))
             return GetIntList(targets, propertyNames);
