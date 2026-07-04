@@ -396,7 +396,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
         {
             try
             {
-                Plugin.CommandManager.ProcessCommand(pending.LocalCommand);
+                GameCommandExecutor.Execute(pending.LocalCommand);
                 QueueAck(pending.CommandId, "executed");
                 SetCommandStatus($"Executed {FormatCommandName(pending.CommandName)}.");
             }

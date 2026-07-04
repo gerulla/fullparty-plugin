@@ -2,6 +2,7 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using FullParty.Services;
 
 namespace FullParty.Windows;
 
@@ -9,6 +10,7 @@ public class ConfigWindow : Window, IDisposable
 {
     private readonly Configuration configuration;
     private readonly Plugin plugin;
+    private string? localCommandStatus;
 
     // We give this window a constant ID using ###.
     // This allows for labels to be dynamic, like "{FPS Counter}fps###XYZ counter window",
@@ -112,6 +114,43 @@ public class ConfigWindow : Window, IDisposable
         if (ImGui.Button("Sign out"))
         {
             auth.SignOut();
+        }
+
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+
+        ImGui.Text("Local Command Tests");
+        ImGui.TextDisabled("Runs the vanilla game command locally without websocket.");
+
+        if (ImGui.Button("Test /readycheck"))
+        {
+            RunLocalCommandTest("/readycheck", "ready check");
+        }
+
+        ImGui.SameLine();
+        if (ImGui.Button("Test /countdown 20"))
+        {
+            RunLocalCommandTest("/countdown 20", "countdown");
+        }
+
+        if (!string.IsNullOrWhiteSpace(localCommandStatus))
+        {
+            ImGui.TextWrapped(localCommandStatus);
+        }
+    }
+
+    private void RunLocalCommandTest(string command, string label)
+    {
+        try
+        {
+            GameCommandExecutor.Execute(command);
+            localCommandStatus = $"Executed local {label}.";
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Warning(ex, "Could not execute local FullParty test command {Command}.", command);
+            localCommandStatus = $"Failed to execute local {label}: {ex.Message}";
         }
     }
 

@@ -1,0 +1,99 @@
+name: Create Release Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "SemVer part to bump"
+        required: true
+        type: choice
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+concurrency:
+  group: create-release-tag
+  cancel-in-progress: false
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+
+      - name: Create next SemVer tag
+        id: tag
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch --tags --force
+
+          latest_tag="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)"
+          if [[ -z "$latest_tag" ]]; then
+            latest_tag="v0.0.0"
+          fi
+
+          version="${latest_tag#v}"
+          IFS='.' read -r major minor patch <<< "$version"
+
+          if [[ ! "$major" =~ ^[0-9]+$ || ! "$minor" =~ ^[0-9]+$ || ! "$patch" =~ ^[0-9]+$ ]]; then
+            echo "Latest tag '$latest_tag' is not a supported three-part SemVer tag." >&2
+            exit 1
+          fi
+
+          case "${{ inputs.bump }}" in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+            *)
+              echo "Unsupported bump '${{ inputs.bump }}'." >&2
+              exit 1
+              ;;
+          esac
+
+          next_tag="v${major}.${minor}.${patch}"
+
+          if git rev-parse "$next_tag" >/dev/null 2>&1; then
+            echo "Tag '$next_tag' already exists." >&2
+            exit 1
+          fi
+
+          git tag "$next_tag"
+          git push origin "$next_tag"
+
+          {
+            echo "latest_tag=$latest_tag"
+            echo "next_tag=$next_tag"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Summarize
+        shell: bash
+        run: |
+          {
+            echo "### Release tag created"
+            echo ""
+            echo "- Previous tag: \`${{ steps.tag.outputs.latest_tag }}\`"
+            echo "- New tag: \`${{ steps.tag.outputs.next_tag }}\`"
+            echo ""
+            echo "The \`Release FullParty\` workflow will run from the new tag."
+          } >> "$GITHUB_STEP_SUMMARY"

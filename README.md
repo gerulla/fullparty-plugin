@@ -145,7 +145,7 @@ FullParty/bin/x64/Debug/FullParty.dll
 
 ## Publishing
 
-Releases are automated through `.github/workflows/release.yml`.
+Releases are automated through GitHub Actions.
 
 Before publishing, configure these GitHub repository variables:
 
@@ -153,15 +153,22 @@ Before publishing, configure these GitHub repository variables:
 * `FULLPARTY_BASE_URL` - optional, defaults to `https://fullparty.gg`.
 * `FULLPARTY_DEBUG` - optional, defaults to `False`.
 
-To publish a release, push a SemVer tag:
+To publish a release from GitHub:
+
+1. Go to `Actions`.
+2. Select `Create Release Tag`.
+3. Click `Run workflow`.
+4. Pick `patch`, `minor`, or `major`.
+
+The tag workflow creates the next three-part SemVer tag, such as `v0.0.2`. That tag automatically starts `Release FullParty`, which builds the plugin, uploads `FullParty.zip` to the GitHub release, and updates `repo.json` on the default branch.
+
+To publish manually instead, push a SemVer tag:
 
 ```powershell
 git tag v0.0.1
 git push origin master
 git push origin v0.0.1
 ```
-
-The workflow builds the plugin, uploads `FullParty.zip` to the GitHub release, and updates `repo.json` on the default branch.
 
 ---
 
