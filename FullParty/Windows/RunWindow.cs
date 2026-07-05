@@ -170,13 +170,7 @@ public sealed class RunWindow : Window, IDisposable
             return;
         }
 
-        var currentSize = ImGui.GetWindowSize();
-        if (currentSize.X < RunWindowMinWidth || currentSize.Y < RunWindowMinHeight)
-        {
-            ImGui.SetWindowSize(
-                new Vector2(Math.Max(currentSize.X, RunWindowDefaultWidth), Math.Max(currentSize.Y, RunWindowDefaultHeight)),
-                ImGuiCond.Always);
-        }
+        ImGui.SetWindowSize(new Vector2(RunWindowDefaultWidth, RunWindowDefaultHeight), ImGuiCond.Always);
     }
 
     private void ApplySizeConstraints()
