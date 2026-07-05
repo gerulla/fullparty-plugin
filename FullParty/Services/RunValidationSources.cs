@@ -48,15 +48,14 @@ internal sealed class GamePresenceList
 
 internal static class RunValidationSources
 {
+    private const int MaxPartyMembers = 8;
     private const string CurrentPartySnapshotKey = "current-party";
 
     public static GamePresenceList BuildLocalPartyPresence(FullPartyRunDetail runDetail)
     {
         var members = new Dictionary<string, GamePresenceMember>(StringComparer.OrdinalIgnoreCase);
-        try
-        {
-            foreach (var member in Plugin.PartyList)
-            {
+        foreach (var bucket in BuildObservedPartyBuckets(GetActivePartyCount(runDetail)))
+            foreach (var member in bucket.Members)
                 try
                 {
                     AddPresence(
@@ -70,12 +69,6 @@ internal static class RunValidationSources
                 {
                     Plugin.Log.Debug("Could not read a party member for FullParty validation presence: {Message}", ex.Message);
                 }
-            }
-        }
-        catch (Exception ex)
-        {
-            Plugin.Log.Debug("Could not enumerate the party list for FullParty validation presence: {Message}", ex.Message);
-        }
 
         return new GamePresenceList([.. members.Values]);
     }
@@ -127,44 +120,30 @@ internal static class RunValidationSources
         FullPartyRunDetail runDetail,
         IReadOnlyList<IReadOnlyList<FullPartyRosterSlot>> parties)
     {
-        var slotsByListPosition = parties
-            .SelectMany(party => party.Select((slot, index) => (Slot: slot, Position: index + 1)))
-            .ToList();
-        if (slotsByListPosition.Count == 0)
+        if (parties.Count == 0)
             return [];
 
         var rosterByName = BuildRosterByName(runDetail);
-        var groupedMembers = new Dictionary<string, List<FullPartyPartySnapshotMember>>(StringComparer.OrdinalIgnoreCase);
-        var orderedPartyMembers = Plugin.PartyList
-            .Where(member => !string.IsNullOrWhiteSpace(GetName(member)))
-            .ToList();
-
-        for (var i = 0; i < orderedPartyMembers.Count && i < slotsByListPosition.Count; i++)
-        {
-            var plannedSlot = slotsByListPosition[i].Slot;
-            if (!groupedMembers.TryGetValue(plannedSlot.GroupKey, out var members))
-            {
-                members = [];
-                groupedMembers[plannedSlot.GroupKey] = members;
-            }
-
-            members.Add(MapPartyMember(
-                orderedPartyMembers[i],
-                plannedSlot.PositionInGroup ?? slotsByListPosition[i].Position,
-                runDetail,
-                rosterByName));
-        }
+        var observedParties = BuildObservedPartyBuckets(parties.Count);
+        var observedByRosterParty = MapObservedPartiesToRosterParties(parties, observedParties);
 
         return parties
-            .Select(party => party[0].GroupKey)
-            .Where(groupedMembers.ContainsKey)
-            .Select(partyKey => new FullPartyPartySnapshot(
-                runDetail.Id,
-                0,
-                partyKey,
-                0,
-                DateTimeOffset.UtcNow,
-                groupedMembers[partyKey]))
+            .Where(party => observedByRosterParty.ContainsKey(party[0].GroupKey))
+            .Select(party =>
+            {
+                var partyKey = party[0].GroupKey;
+                var members = observedByRosterParty[partyKey].Members
+                    .Select((member, index) => MapPartyMember(member, index + 1, runDetail, rosterByName))
+                    .ToList();
+
+                return new FullPartyPartySnapshot(
+                    runDetail.Id,
+                    0,
+                    partyKey,
+                    0,
+                    DateTimeOffset.UtcNow,
+                    members);
+            })
             .ToList();
     }
 
@@ -184,6 +163,140 @@ internal static class RunValidationSources
             .Where(slot => slot.AssignedCharacter != null)
             .GroupBy(slot => GetCharacterKey(slot.AssignedCharacter!.Name, slot.AssignedCharacter.World), StringComparer.OrdinalIgnoreCase)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static IReadOnlyList<ObservedPartyBucket> BuildObservedPartyBuckets(int rosterPartyCount)
+    {
+        var buckets = new List<ObservedPartyBucket>();
+        var localMembers = ReadLocalPartyMembers();
+        if (localMembers.Count > 0)
+            buckets.Add(new ObservedPartyBucket(0, localMembers));
+
+        if (!Plugin.PartyList.IsAlliance)
+            return buckets;
+
+        var alliancePartyCount = Math.Max(0, rosterPartyCount - 1);
+        for (var partyIndex = 0; partyIndex < alliancePartyCount; partyIndex++)
+        {
+            var allianceMembers = ReadAlliancePartyMembers(partyIndex);
+            if (allianceMembers.Count > 0)
+                buckets.Add(new ObservedPartyBucket(partyIndex + 1, allianceMembers));
+        }
+
+        return buckets;
+    }
+
+    private static IReadOnlyList<IPartyMember> ReadLocalPartyMembers()
+    {
+        try
+        {
+            return Plugin.PartyList
+                .Where(member => !string.IsNullOrWhiteSpace(GetName(member)))
+                .Take(MaxPartyMembers)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Debug("Could not enumerate the party list for FullParty validation: {Message}", ex.Message);
+            return [];
+        }
+    }
+
+    private static IReadOnlyList<IPartyMember> ReadAlliancePartyMembers(int partyIndex)
+    {
+        var members = new List<IPartyMember>();
+        var startIndex = partyIndex * MaxPartyMembers;
+
+        for (var slotIndex = 0; slotIndex < MaxPartyMembers; slotIndex++)
+        {
+            try
+            {
+                var address = Plugin.PartyList.GetAllianceMemberAddress(startIndex + slotIndex);
+                if (address == IntPtr.Zero)
+                    continue;
+
+                var member = Plugin.PartyList.CreateAllianceMemberReference(address);
+                if (member == null || string.IsNullOrWhiteSpace(GetName(member)))
+                    continue;
+
+                members.Add(member);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.Debug("Could not read alliance member {Index} for FullParty validation: {Message}", startIndex + slotIndex, ex.Message);
+            }
+        }
+
+        return members;
+    }
+
+    private static IReadOnlyDictionary<string, ObservedPartyBucket> MapObservedPartiesToRosterParties(
+        IReadOnlyList<IReadOnlyList<FullPartyRosterSlot>> rosterParties,
+        IReadOnlyList<ObservedPartyBucket> observedParties)
+    {
+        var mapped = new Dictionary<string, ObservedPartyBucket>(StringComparer.OrdinalIgnoreCase);
+        var usedObservedIndexes = new HashSet<int>();
+
+        foreach (var rosterParty in rosterParties)
+        {
+            var leadCharacters = rosterParty
+                .Where(slot => (slot.IsHost || slot.IsRaidLeader) && slot.AssignedCharacter != null)
+                .Select(slot => slot.AssignedCharacter!)
+                .ToList();
+            if (leadCharacters.Count == 0)
+                continue;
+
+            var bestMatch = observedParties
+                .Where(observed => !usedObservedIndexes.Contains(observed.Index))
+                .Select(observed => new
+                {
+                    Observed = observed,
+                    Matches = leadCharacters.Count(lead => ContainsCharacter(observed, lead)),
+                })
+                .OrderByDescending(candidate => candidate.Matches)
+                .FirstOrDefault(candidate => candidate.Matches > 0);
+
+            if (bestMatch == null)
+                continue;
+
+            mapped[rosterParty[0].GroupKey] = bestMatch.Observed;
+            usedObservedIndexes.Add(bestMatch.Observed.Index);
+        }
+
+        foreach (var (rosterParty, index) in rosterParties.Select((party, index) => (party, index)))
+        {
+            var partyKey = rosterParty[0].GroupKey;
+            if (mapped.ContainsKey(partyKey))
+                continue;
+
+            var observed = observedParties.FirstOrDefault(candidate =>
+                candidate.Index == index && !usedObservedIndexes.Contains(candidate.Index));
+            observed ??= observedParties.FirstOrDefault(candidate => !usedObservedIndexes.Contains(candidate.Index));
+            if (observed == null)
+                continue;
+
+            mapped[partyKey] = observed;
+            usedObservedIndexes.Add(observed.Index);
+        }
+
+        return mapped;
+    }
+
+    private static bool ContainsCharacter(ObservedPartyBucket bucket, FullPartyRosterCharacter character)
+    {
+        return bucket.Members.Any(member =>
+            GetCharacterKey(GetName(member), GetWorld(member))
+                .Equals(GetCharacterKey(character.Name, character.World), StringComparison.OrdinalIgnoreCase) ||
+            NormalizeKeyPart(GetName(member)).Equals(NormalizeKeyPart(character.Name), StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static int GetActivePartyCount(FullPartyRunDetail runDetail)
+    {
+        return runDetail.Slots
+            .Where(slot => !IsBenchSlot(slot))
+            .Select(slot => slot.GroupKey)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Count();
     }
 
     private static FullPartyPartySnapshotMember MapPartyMember(
@@ -230,4 +343,12 @@ internal static class RunValidationSources
     {
         return member.World.Value.Name.ToString();
     }
+
+    private static bool IsBenchSlot(FullPartyRosterSlot slot)
+    {
+        return slot.GroupKey.Contains("bench", StringComparison.OrdinalIgnoreCase) ||
+               slot.GroupLabel.Contains("bench", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private sealed record ObservedPartyBucket(int Index, IReadOnlyList<IPartyMember> Members);
 }
