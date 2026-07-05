@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dalamud.Game;
 using Dalamud.Game.ClientState.Party;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using Lumina.Excel.Sheets;
@@ -11,6 +12,13 @@ internal static unsafe class PartyListDebugDumper
 {
     private const int MaxPartyMembers = 8;
     private const int MaxAllianceSlotsToProbe = 48;
+    private static readonly ClientLanguage[] DebugLanguages =
+    [
+        ClientLanguage.English,
+        ClientLanguage.German,
+        ClientLanguage.French,
+        ClientLanguage.Japanese,
+    ];
 
     public static void Dump()
     {
@@ -21,6 +29,7 @@ internal static unsafe class PartyListDebugDumper
         };
 
         DumpLocalParty(lines);
+        DumpLocalPlayerStatuses(lines);
         DumpCrossRealmParty(lines);
         DumpInfoProxyPartyMembers(lines);
         DumpAllianceMembers(lines);
@@ -153,6 +162,43 @@ internal static unsafe class PartyListDebugDumper
             lines.Add("  (no local party members found)");
     }
 
+    private static void DumpLocalPlayerStatuses(ICollection<string> lines)
+    {
+        lines.Add("Local player statuses:");
+
+        try
+        {
+            var localPlayer = Plugin.ObjectTable.LocalPlayer;
+            if (localPlayer == null)
+            {
+                lines.Add("  (local player unavailable)");
+                return;
+            }
+
+            var classJobRow = localPlayer.ClassJob.RowId;
+            lines.Add(
+                $"  class={classJobRow}:{ClassJobResolver.GetCombatClassJobShorthand(classJobRow) ?? "unknown"} names={FormatClassJobNames(classJobRow)}");
+
+            var count = 0;
+            foreach (var status in localPlayer.StatusList)
+            {
+                if (status.StatusId == 0)
+                    continue;
+
+                lines.Add(
+                    $"  status[{count}] id={status.StatusId} names={FormatStatusNames((uint)status.StatusId)}");
+                count++;
+            }
+
+            if (count == 0)
+                lines.Add("  (no active local player statuses)");
+        }
+        catch (Exception ex)
+        {
+            lines.Add($"  local status read failed: {ex.Message}");
+        }
+    }
+
     private static void DumpAllianceMembers(ICollection<string> lines)
     {
         lines.Add($"Alliance address probe 0..{MaxAllianceSlotsToProbe - 1}:");
@@ -229,6 +275,35 @@ internal static unsafe class PartyListDebugDumper
         return Plugin.DataManager.GetExcelSheet<ClassJob>().TryGetRow(classJobId, out var classJob)
             ? classJob.Name.ToString()
             : null;
+    }
+
+    private static string FormatClassJobNames(uint classJobId)
+    {
+        var names = new List<string>();
+        foreach (var language in DebugLanguages)
+        {
+            try
+            {
+                if (!Plugin.DataManager.GetExcelSheet<ClassJob>(language).TryGetRow(classJobId, out var classJob))
+                    continue;
+
+                var name = classJob.Name.ToString();
+                if (!string.IsNullOrWhiteSpace(name))
+                    names.Add($"{language}=\"{name}\"");
+            }
+            catch
+            {
+                names.Add($"{language}=<error>");
+            }
+        }
+
+        return names.Count == 0 ? "(none)" : string.Join(", ", names);
+    }
+
+    private static string FormatStatusNames(uint statusId)
+    {
+        var names = PartySnapshotBuilder.GetStatusNames(statusId);
+        return names.Count == 0 ? "(none)" : string.Join(" | ", names.Select(name => $"\"{name}\""));
     }
 
     private static string? GetWorldName(ushort worldId)

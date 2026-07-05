@@ -155,13 +155,14 @@ public sealed class FullPartyApiClient
         object payload,
         int expiresInSeconds,
         string? idempotencyKey,
+        IReadOnlyList<long>? userIds,
         CancellationToken cancellationToken)
     {
         _ = await authService.PostJsonAsync<JsonElement>(
             $"/api/xivplugin/runs/{runId}/commands",
             new RunCommandRequest(
                 command,
-                new RunCommandTarget(targetType),
+                new RunCommandTarget(targetType, userIds),
                 payload,
                 expiresInSeconds,
                 idempotencyKey),
@@ -655,7 +656,8 @@ public sealed class FullPartyApiClient
         [property: JsonPropertyName("idempotency_key")] string? IdempotencyKey);
 
     private sealed record RunCommandTarget(
-        [property: JsonPropertyName("type")] string Type);
+        [property: JsonPropertyName("type")] string Type,
+        [property: JsonPropertyName("user_ids")] IReadOnlyList<long>? UserIds);
 
     private sealed record RunCommandAckRequest(
         [property: JsonPropertyName("status")] string Status);

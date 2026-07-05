@@ -29,6 +29,13 @@ internal enum ValidationState
     Error,
 }
 
+internal enum ReadyCheckGlyph
+{
+    Check,
+    Cross,
+    Clock,
+}
+
 internal sealed record ObservedSnapshotMember(
     FullPartyPartySnapshot Snapshot,
     FullPartyPartySnapshotMember Member);
@@ -69,6 +76,12 @@ public sealed class RunWindow : Window, IDisposable
     private static readonly Dictionary<string, uint?> JobIconCache = new(StringComparer.OrdinalIgnoreCase);
     private const float RunWindowDefaultWidth = 420f;
     private const float RunWindowDefaultHeight = 560f;
+    private const float RunWindowMinWidth = 420f;
+    private const float RunWindowMinHeight = 360f;
+    private const float CompactRunWindowDefaultWidth = 340f;
+    private const float CompactRunWindowDefaultHeight = 260f;
+    private const float CompactRunWindowMinWidth = 260f;
+    private const float CompactRunWindowMinHeight = 160f;
     private const float RosterCompanionDefaultWidth = 980f;
     private const float RosterCompanionDefaultHeight = 560f;
     private const float RosterCompanionMinWidth = 620f;
@@ -88,6 +101,7 @@ public sealed class RunWindow : Window, IDisposable
     private Vector2 rosterCompanionSize = new(RosterCompanionDefaultWidth, RosterCompanionDefaultHeight);
     private bool hasRosterCompanionSize;
     private bool applyRosterCompanionSizeNextDraw = true;
+    private bool compactMode;
     private bool? lastOccultState;
 
     public FullPartyRun Run { get; }
@@ -98,11 +112,7 @@ public sealed class RunWindow : Window, IDisposable
         Run = run;
         this.plugin = plugin;
         liveRoom = new RealtimeRunRoomClient(run.Id, plugin);
-        SizeConstraints = new WindowSizeConstraints
-        {
-            MinimumSize = new Vector2(420, 360),
-            MaximumSize = new Vector2(float.MaxValue, float.MaxValue),
-        };
+        ApplySizeConstraints();
         Size = new Vector2(RunWindowDefaultWidth, RunWindowDefaultHeight);
         SizeCondition = ImGuiCond.FirstUseEver;
         IsOpen = true;
@@ -115,6 +125,16 @@ public sealed class RunWindow : Window, IDisposable
         liveRoom.Dispose();
     }
 
+    public override void OnClose()
+    {
+        liveRoom.Disconnect();
+    }
+
+    public override void PreDraw()
+    {
+        ApplySizeConstraints();
+    }
+
     public override void Draw()
     {
         EnsureDetailLoaded();
@@ -124,11 +144,50 @@ public sealed class RunWindow : Window, IDisposable
         var runWindowSize = ImGui.GetWindowSize();
         var isLoading = detailTask is { IsCompleted: false };
         DrawPartyActionsSection(detail?.CanModerate == true);
-        DrawSectionSeparator();
-        DrawRosterControls(isLoading);
+        if (!compactMode)
+        {
+            DrawSectionSeparator();
+            DrawRosterControls(isLoading);
+        }
+
         DrawSectionSeparator();
         DrawLiveRoom();
-        DrawRosterCompanion(runWindowPosition, runWindowSize, isLoading);
+        if (!compactMode)
+            DrawRosterCompanion(runWindowPosition, runWindowSize, isLoading);
+    }
+
+    private void SetCompactMode(bool value)
+    {
+        if (compactMode == value)
+            return;
+
+        compactMode = value;
+        ApplySizeConstraints();
+
+        if (compactMode)
+        {
+            ImGui.SetWindowSize(new Vector2(CompactRunWindowDefaultWidth, CompactRunWindowDefaultHeight), ImGuiCond.Always);
+            return;
+        }
+
+        var currentSize = ImGui.GetWindowSize();
+        if (currentSize.X < RunWindowMinWidth || currentSize.Y < RunWindowMinHeight)
+        {
+            ImGui.SetWindowSize(
+                new Vector2(Math.Max(currentSize.X, RunWindowDefaultWidth), Math.Max(currentSize.Y, RunWindowDefaultHeight)),
+                ImGuiCond.Always);
+        }
+    }
+
+    private void ApplySizeConstraints()
+    {
+        SizeConstraints = new WindowSizeConstraints
+        {
+            MinimumSize = compactMode
+                ? new Vector2(CompactRunWindowMinWidth, CompactRunWindowMinHeight)
+                : new Vector2(RunWindowMinWidth, RunWindowMinHeight),
+            MaximumSize = new Vector2(float.MaxValue, float.MaxValue),
+        };
     }
 
     private void DrawPartyActionsSection(bool canModerate)
@@ -140,18 +199,19 @@ public sealed class RunWindow : Window, IDisposable
         if (!canSendLiveCommand)
             ImGui.BeginDisabled();
 
-        if (ImGui.Button("Ready Check Alliance"))
+        if (ImGui.Button(compactMode ? "Ready" : "Ready Check Alliance"))
             liveRoom.SendReadyCheckAlliance();
 
         ImGui.SameLine();
 
-        if (ImGui.Button("Start Countdown"))
+        if (ImGui.Button(compactMode ? "Countdown" : "Start Countdown"))
             liveRoom.SendCountdown(20);
 
         if (!canSendLiveCommand)
             ImGui.EndDisabled();
 
-        ImGui.SameLine();
+        if (!compactMode)
+            ImGui.SameLine();
 
         var isCheckingIn = checkInTask is { IsCompleted: false };
         var waitingForAdventurerList = OccultCrescentTerritory.IsCurrent() && plugin.AdventurerList.IsRefreshing;
@@ -159,11 +219,18 @@ public sealed class RunWindow : Window, IDisposable
         if (!canCheckIn)
             ImGui.BeginDisabled();
 
-        if (ImGui.Button(isCheckingIn ? "Checking In..." : "Run Check-In"))
+        var checkInLabel = isCheckingIn
+            ? compactMode ? "Checking..." : "Checking In..."
+            : compactMode ? "Check-In" : "Run Check-In";
+        if (ImGui.Button(checkInLabel))
             StartRunCheckIn();
 
         if (!canCheckIn)
             ImGui.EndDisabled();
+
+        ImGui.SameLine();
+        if (ImGui.Button(compactMode ? "Uncompact" : "Compact"))
+            SetCompactMode(!compactMode);
 
         if (!string.IsNullOrWhiteSpace(checkInStatusMessage))
         {
@@ -243,55 +310,61 @@ public sealed class RunWindow : Window, IDisposable
 
     private void DrawLiveRoom()
     {
-        ImGui.Text("Live Room");
-        ImGui.Spacing();
-
-        var isBusy = liveRoom.IsBusy;
-        if (liveRoom.IsActive)
+        if (!compactMode)
         {
-            if (ImGui.Button("Disconnect Live Room"))
-                liveRoom.Disconnect();
-        }
-        else
-        {
-            if (isBusy)
-                ImGui.BeginDisabled();
+            ImGui.Text("Live Room");
+            ImGui.Spacing();
 
-            if (ImGui.Button("Connect To Live Room"))
-                liveRoom.Connect();
+            var isBusy = liveRoom.IsBusy;
+            if (liveRoom.IsActive)
+            {
+                if (ImGui.Button("Disconnect Live Room"))
+                    liveRoom.Disconnect();
+            }
+            else
+            {
+                if (isBusy)
+                    ImGui.BeginDisabled();
 
-            if (isBusy)
-                ImGui.EndDisabled();
-        }
+                if (ImGui.Button("Connect To Live Room"))
+                    liveRoom.Connect();
 
-        var statusColor = liveRoom.State switch
-        {
-            RealtimeRunRoomState.Connected => new Vector4(0.35f, 0.92f, 0.55f, 1f),
-            RealtimeRunRoomState.Error => new Vector4(1f, 0.42f, 0.42f, 1f),
-            RealtimeRunRoomState.Disconnected => new Vector4(0.65f, 0.65f, 0.70f, 1f),
-            _ => new Vector4(0.90f, 0.82f, 0.50f, 1f),
-        };
+                if (isBusy)
+                    ImGui.EndDisabled();
+            }
 
-        ImGui.SameLine();
-        ImGui.TextColored(statusColor, liveRoom.StatusMessage);
+            var statusColor = liveRoom.State switch
+            {
+                RealtimeRunRoomState.Connected => new Vector4(0.35f, 0.92f, 0.55f, 1f),
+                RealtimeRunRoomState.Error => new Vector4(1f, 0.42f, 0.42f, 1f),
+                RealtimeRunRoomState.Disconnected => new Vector4(0.65f, 0.65f, 0.70f, 1f),
+                _ => new Vector4(0.90f, 0.82f, 0.50f, 1f),
+            };
 
-        if (!string.IsNullOrWhiteSpace(liveRoom.CommandStatusMessage))
-        {
-            ImGui.TextDisabled(liveRoom.CommandStatusMessage);
-        }
+            ImGui.SameLine();
+            ImGui.TextColored(statusColor, liveRoom.StatusMessage);
 
-        if (!string.IsNullOrWhiteSpace(liveRoom.PartySnapshotStatusMessage))
-        {
-            ImGui.TextDisabled(liveRoom.PartySnapshotStatusMessage);
+            if (!string.IsNullOrWhiteSpace(liveRoom.CommandStatusMessage))
+            {
+                ImGui.TextDisabled(liveRoom.CommandStatusMessage);
+            }
+
+            if (!string.IsNullOrWhiteSpace(liveRoom.PartySnapshotStatusMessage))
+            {
+                ImGui.TextDisabled(liveRoom.PartySnapshotStatusMessage);
+            }
         }
 
         var members = liveRoom.Members;
         if (!liveRoom.IsActive && members.Count == 0 && liveRoom.State != RealtimeRunRoomState.Error)
             return;
 
-        ImGui.Spacing();
-        ImGui.Separator();
-        ImGui.Spacing();
+        if (!compactMode)
+        {
+            ImGui.Spacing();
+            ImGui.Separator();
+            ImGui.Spacing();
+        }
 
         if (members.Count == 0)
         {
@@ -302,13 +375,18 @@ public sealed class RunWindow : Window, IDisposable
         }
 
         var flags = ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp;
-        if (!ImGui.BeginTable("##fullparty_live_room_members", 4, flags))
+        var columnCount = compactMode ? 2 : 4;
+        if (!ImGui.BeginTable($"##fullparty_live_room_members_{(compactMode ? "compact" : "full")}", columnCount, flags))
             return;
 
-        ImGui.TableSetupColumn("Character", ImGuiTableColumnFlags.WidthStretch, 1.4f);
-        ImGui.TableSetupColumn("User", ImGuiTableColumnFlags.WidthStretch, 1f);
+        ImGui.TableSetupColumn("Profile", ImGuiTableColumnFlags.WidthStretch, 1.4f);
+        if (!compactMode)
+            ImGui.TableSetupColumn("Account", ImGuiTableColumnFlags.WidthStretch, 1f);
+
         ImGui.TableSetupColumn("Command", ImGuiTableColumnFlags.WidthStretch, 1.2f);
-        ImGui.TableSetupColumn("Role", ImGuiTableColumnFlags.WidthFixed, 96f);
+        if (!compactMode)
+            ImGui.TableSetupColumn("Role", ImGuiTableColumnFlags.WidthFixed, 96f);
+
         ImGui.TableHeadersRow();
 
         foreach (var member in members)
@@ -316,17 +394,22 @@ public sealed class RunWindow : Window, IDisposable
             ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
-            DrawLiveMemberCharacter(member);
+            DrawLiveMemberCharacter(member, compactMode);
+
+            if (!compactMode)
+            {
+                ImGui.TableNextColumn();
+                ImGui.TextUnformatted(member.UserName);
+            }
 
             ImGui.TableNextColumn();
-            ImGui.TextUnformatted(member.UserName);
+            DrawLiveCommandStatus(member);
 
-            ImGui.TableNextColumn();
-            var commandStatus = liveRoom.GetCommandStatus(member);
-            ImGui.TextColored(GetLiveCommandStatusColor(commandStatus), commandStatus);
-
-            ImGui.TableNextColumn();
-            ImGui.TextUnformatted(GetLiveMemberRole(member));
+            if (!compactMode)
+            {
+                ImGui.TableNextColumn();
+                ImGui.TextUnformatted(GetLiveMemberRole(member));
+            }
         }
 
         ImGui.EndTable();
@@ -590,7 +673,51 @@ public sealed class RunWindow : Window, IDisposable
 
         ImGui.EndTable();
 
+        DrawValidationDetectedPlayers(runDetail, parties, computedSnapshots);
         DrawValidationStatusText(computedSnapshots.InOccult, computedSnapshots.Snapshots.Count, computedSnapshots.OccultPresence.Count, computedSnapshots.OccultPartyCount);
+    }
+
+    private void DrawValidationDetectedPlayers(
+        FullPartyRunDetail runDetail,
+        IReadOnlyList<IReadOnlyList<FullPartyRosterSlot>> parties,
+        ComputedPartySnapshots computedSnapshots)
+    {
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+        ImGui.TextUnformatted("Game detected");
+
+        var printedAny = false;
+        foreach (var party in parties)
+        {
+            if (party.Count == 0)
+                continue;
+
+            var partyKey = party[0].GroupKey;
+            if (!computedSnapshots.ByParty.TryGetValue(partyKey, out var snapshot) || snapshot.Members.Count == 0)
+                continue;
+
+            printedAny = true;
+            ImGui.TextDisabled(party[0].GroupLabel);
+            ImGui.Indent(10f);
+            foreach (var member in snapshot.Members.OrderBy(member => member.Position))
+                ImGui.TextDisabled(FormatDetectedPlayer(runDetail, member));
+            ImGui.Unindent(10f);
+        }
+
+        if (!printedAny)
+            ImGui.TextDisabled("No detected party players yet.");
+    }
+
+    private static string FormatDetectedPlayer(FullPartyRunDetail runDetail, FullPartyPartySnapshotMember member)
+    {
+        var name = ResolveCharacter(runDetail, member)?.Name ?? member.DisplayName;
+        var classJob = NormalizeClassJob(member.ClassJob) ?? "unknown class";
+        var phantomJob = string.IsNullOrWhiteSpace(member.PhantomJob)
+            ? "unknown phantom job"
+            : GetPhantomJobDisplayName(runDetail, member.PhantomJob);
+
+        return $"{name} - {classJob} - {phantomJob}";
     }
 
     private void DrawValidationStatusText(bool inOccult, int snapshotCount, int occultPresenceCount, int occultPartyCount)
@@ -1152,7 +1279,7 @@ public sealed class RunWindow : Window, IDisposable
         drawList.AddRectFilled(position, position + new Vector2(24, 24), ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, 0.10f)), 3f);
     }
 
-    private void DrawLiveMemberCharacter(FullPartyLiveMember member)
+    private void DrawLiveMemberCharacter(FullPartyLiveMember member, bool compact = false)
     {
         var avatarDrawn = false;
         var path = plugin.ImageCache.GetImagePath(member.AvatarUrl, $"live-member-{member.UserId}");
@@ -1176,9 +1303,94 @@ public sealed class RunWindow : Window, IDisposable
         ImGui.SameLine();
         ImGui.BeginGroup();
         ImGui.TextUnformatted(member.DisplayName);
-        if (!string.IsNullOrWhiteSpace(member.Location))
+        if (!compact && !string.IsNullOrWhiteSpace(member.Location))
             ImGui.TextDisabled(member.Location);
         ImGui.EndGroup();
+    }
+
+    private void DrawLiveCommandStatus(FullPartyLiveMember member)
+    {
+        if (liveRoom.TryGetReadyCheckSummary(member, out var summary))
+        {
+            DrawReadyCheckSummary(summary);
+            return;
+        }
+
+        var commandStatus = liveRoom.GetCommandStatus(member);
+        ImGui.TextColored(GetLiveCommandStatusColor(commandStatus), commandStatus);
+    }
+
+    private static void DrawReadyCheckSummary(ReadyCheckSummary summary)
+    {
+        if (summary.Total == 0)
+        {
+            ImGui.TextDisabled("No responses");
+            return;
+        }
+
+        ImGui.BeginGroup();
+        DrawReadyCheckCounter($"{summary.Ready}/{summary.Total}", ReadyCheckGlyph.Check, new Vector4(0.35f, 0.92f, 0.55f, 1f));
+        ImGui.SameLine(0f, 8f);
+        DrawReadyCheckCounter(summary.NotReady.ToString(), ReadyCheckGlyph.Cross, new Vector4(1f, 0.42f, 0.42f, 1f));
+        ImGui.SameLine(0f, 8f);
+        DrawReadyCheckCounter(summary.Pending.ToString(), ReadyCheckGlyph.Clock, new Vector4(0.94f, 0.78f, 0.32f, 1f));
+        ImGui.EndGroup();
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            ImGui.TextUnformatted($"Ready: {summary.Ready}/{summary.Total}");
+            ImGui.TextUnformatted($"Not ready: {summary.NotReady}");
+            ImGui.TextUnformatted($"Pending: {summary.Pending}");
+            if (summary.Waiting > 0)
+                ImGui.TextUnformatted($"Raw waiting: {summary.Waiting}");
+            if (summary.Missing > 0)
+                ImGui.TextUnformatted($"Missing: {summary.Missing}");
+            if (summary.Unknown > 0)
+                ImGui.TextUnformatted($"Unknown: {summary.Unknown}");
+            ImGui.EndTooltip();
+        }
+    }
+
+    private static void DrawReadyCheckCounter(string value, ReadyCheckGlyph glyph, Vector4 color)
+    {
+        ImGui.TextColored(color, value);
+        ImGui.SameLine(0f, 4f);
+        DrawReadyCheckGlyph(glyph, color);
+    }
+
+    private static void DrawReadyCheckGlyph(ReadyCheckGlyph glyph, Vector4 color)
+    {
+        const float size = 14f;
+        var cursor = ImGui.GetCursorScreenPos() + new Vector2(0f, 2f);
+        ImGui.Dummy(new Vector2(size, size));
+
+        var drawList = ImGui.GetWindowDrawList();
+        var iconColor = ImGui.ColorConvertFloat4ToU32(color);
+        var shadowColor = ImGui.ColorConvertFloat4ToU32(new Vector4(0f, 0f, 0f, 0.42f));
+        var center = cursor + new Vector2(size * 0.5f, size * 0.5f);
+
+        switch (glyph)
+        {
+            case ReadyCheckGlyph.Check:
+                drawList.AddLine(cursor + new Vector2(2.5f, 7.5f), cursor + new Vector2(5.5f, 10.5f), shadowColor, 3f);
+                drawList.AddLine(cursor + new Vector2(5.5f, 10.5f), cursor + new Vector2(11.5f, 3.5f), shadowColor, 3f);
+                drawList.AddLine(cursor + new Vector2(2.5f, 7.5f), cursor + new Vector2(5.5f, 10.5f), iconColor, 2f);
+                drawList.AddLine(cursor + new Vector2(5.5f, 10.5f), cursor + new Vector2(11.5f, 3.5f), iconColor, 2f);
+                break;
+            case ReadyCheckGlyph.Cross:
+                drawList.AddLine(cursor + new Vector2(3.5f, 3.5f), cursor + new Vector2(10.5f, 10.5f), shadowColor, 3f);
+                drawList.AddLine(cursor + new Vector2(10.5f, 3.5f), cursor + new Vector2(3.5f, 10.5f), shadowColor, 3f);
+                drawList.AddLine(cursor + new Vector2(3.5f, 3.5f), cursor + new Vector2(10.5f, 10.5f), iconColor, 2f);
+                drawList.AddLine(cursor + new Vector2(10.5f, 3.5f), cursor + new Vector2(3.5f, 10.5f), iconColor, 2f);
+                break;
+            case ReadyCheckGlyph.Clock:
+                drawList.AddCircle(center, 5.5f, shadowColor, 16, 2.5f);
+                drawList.AddCircle(center, 5.5f, iconColor, 16, 1.6f);
+                drawList.AddLine(center, center + new Vector2(0f, -3.5f), iconColor, 1.6f);
+                drawList.AddLine(center, center + new Vector2(3f, 1.5f), iconColor, 1.6f);
+                break;
+        }
     }
 
     private static void DrawPartyLeadCrown(ImDrawListPtr drawList, ref Vector2 cursor)

@@ -13,7 +13,16 @@ namespace FullParty.Services;
 
 internal static class PartySnapshotBuilder
 {
-    private static readonly Dictionary<uint, string?> StatusNameCache = new();
+    private static readonly ClientLanguage[] StatusLanguages =
+    [
+        ClientLanguage.English,
+        ClientLanguage.German,
+        ClientLanguage.French,
+        ClientLanguage.Japanese,
+    ];
+
+    private static readonly Dictionary<(uint StatusId, ClientLanguage Language), string?> StatusNameCache = new();
+    private static readonly Dictionary<string, HashSet<string>> PhantomJobAliasCache = new(StringComparer.Ordinal);
 
     public static FullPartyPartySnapshot? TryBuild(
         int runId,
@@ -227,9 +236,10 @@ internal static class PartySnapshotBuilder
         var expectedJobs = runDetail.Slots
             .Where(slot => !string.IsNullOrWhiteSpace(slot.PhantomJob))
             .GroupBy(slot => NormalizePhantomJobToken(slot.PhantomJob!), StringComparer.Ordinal)
-            .Select(group => (Name: group.Key, SnapshotName: GetSnapshotPhantomJobName(group.First().PhantomJob)))
-            .Where(job => job.Name.Length > 0 && !string.IsNullOrWhiteSpace(job.SnapshotName))
-            .OrderByDescending(job => job.Name.Length)
+            .Select(group => CreateExpectedPhantomJob(group.Key, group.First().PhantomJob))
+            .Where(job => job != null)
+            .Select(job => job!)
+            .OrderByDescending(job => job.MaxAliasLength)
             .ToList();
 
         if (expectedJobs.Count == 0)
@@ -243,23 +253,67 @@ internal static class PartySnapshotBuilder
             if (statusObject is not IStatus status)
                 continue;
 
-            var statusName = GetStatusName((uint)status.StatusId);
-            var statusJobToken = NormalizePhantomJobToken(statusName ?? string.Empty);
-            if (statusJobToken.Length == 0)
-                continue;
+            var statusTokens = GetStatusNames((uint)status.StatusId)
+                .Select(NormalizePhantomJobToken)
+                .Where(token => token.Length > 0)
+                .Distinct(StringComparer.Ordinal);
 
-            var exactMatch = expectedJobs.FirstOrDefault(job => statusJobToken.Equals(job.Name, StringComparison.Ordinal));
-            if (!string.IsNullOrWhiteSpace(exactMatch.SnapshotName))
-                return exactMatch.SnapshotName;
-
-            foreach (var job in expectedJobs)
+            foreach (var statusToken in statusTokens)
             {
-                if (statusJobToken.Contains(job.Name, StringComparison.Ordinal))
-                    return job.SnapshotName;
+                var exactMatch = expectedJobs.FirstOrDefault(job => job.Aliases.Contains(statusToken));
+                if (exactMatch != null)
+                    return exactMatch.SnapshotName;
             }
         }
 
         return null;
+    }
+
+    private sealed record ExpectedPhantomJob(string SnapshotName, HashSet<string> Aliases)
+    {
+        public int MaxAliasLength => Aliases.Count == 0 ? 0 : Aliases.Max(alias => alias.Length);
+    }
+
+    private static ExpectedPhantomJob? CreateExpectedPhantomJob(string token, string? phantomJob)
+    {
+        if (token.Length == 0)
+            return null;
+
+        var snapshotName = GetSnapshotPhantomJobName(phantomJob);
+        return string.IsNullOrWhiteSpace(snapshotName)
+            ? null
+            : new ExpectedPhantomJob(snapshotName, GetPhantomJobAliases(token));
+    }
+
+    private static HashSet<string> GetPhantomJobAliases(string token)
+    {
+        if (PhantomJobAliasCache.TryGetValue(token, out var cached))
+            return cached;
+
+        var aliases = new HashSet<string>(StringComparer.Ordinal) { token };
+        try
+        {
+            foreach (var status in Plugin.DataManager.GetExcelSheet<LuminaStatus>(ClientLanguage.English))
+            {
+                var englishToken = NormalizePhantomJobToken(status.Name.ToString());
+                if (!englishToken.Equals(token, StringComparison.Ordinal))
+                    continue;
+
+                foreach (var statusName in GetStatusNames(status.RowId))
+                {
+                    var alias = NormalizePhantomJobToken(statusName);
+                    if (alias.Length > 0)
+                        aliases.Add(alias);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Debug(ex, "Could not build FullParty phantom job aliases for {Token}.", token);
+        }
+
+        PhantomJobAliasCache[token] = aliases;
+        return aliases;
     }
 
     private static string? GetSnapshotPhantomJobName(string? phantomJob)
@@ -273,26 +327,48 @@ internal static class PartySnapshotBuilder
             : $"Phantom {trimmed}";
     }
 
-    private static string? GetStatusName(uint statusId)
+    internal static IReadOnlyList<string> GetStatusNames(uint statusId)
+    {
+        if (statusId == 0)
+            return [];
+
+        var names = new List<string>();
+        foreach (var language in StatusLanguages)
+        {
+            var name = GetStatusName(statusId, language);
+            if (!string.IsNullOrWhiteSpace(name) &&
+                !names.Contains(name, StringComparer.OrdinalIgnoreCase))
+            {
+                names.Add(name);
+            }
+        }
+
+        return names;
+    }
+
+    private static string? GetStatusName(uint statusId, ClientLanguage language)
     {
         if (statusId == 0)
             return null;
 
-        if (StatusNameCache.TryGetValue(statusId, out var cached))
+        var key = (statusId, language);
+        if (StatusNameCache.TryGetValue(key, out var cached))
             return cached;
 
-        foreach (var status in Plugin.DataManager.GetExcelSheet<LuminaStatus>(ClientLanguage.English))
+        try
         {
-            if (status.RowId != statusId)
-                continue;
-
-            var name = status.Name.ToString();
-            StatusNameCache[statusId] = name;
+            var name = Plugin.DataManager.GetExcelSheet<LuminaStatus>(language).TryGetRow(statusId, out var status)
+                ? status.Name.ToString()
+                : null;
+            StatusNameCache[key] = name;
             return name;
         }
-
-        StatusNameCache[statusId] = null;
-        return null;
+        catch (Exception ex)
+        {
+            Plugin.Log.Debug(ex, "Could not read FullParty status {StatusId} for {Language}.", statusId, language);
+            StatusNameCache[key] = null;
+            return null;
+        }
     }
 
     private static string GetName(IPartyMember member)
@@ -335,9 +411,12 @@ internal static class PartySnapshotBuilder
     private static string NormalizePhantomJobToken(string value)
     {
         var token = NormalizeToken(value);
-        return token.StartsWith("phantom", StringComparison.Ordinal)
-            ? token["phantom".Length..]
-            : token;
+        if (token.StartsWith("phantom", StringComparison.Ordinal))
+            token = token["phantom".Length..];
+        if (token.StartsWith("job", StringComparison.Ordinal))
+            token = token["job".Length..];
+
+        return token;
     }
 
     private static bool IsBenchSlot(FullPartyRosterSlot slot)

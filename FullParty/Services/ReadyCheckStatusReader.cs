@@ -19,21 +19,11 @@ internal sealed record ReadyCheckSummary(
             if (Total == 0)
                 return "Ready check: no responses yet";
 
-            var text = $"Ready {Ready}/{Total}";
-            if (NotReady > 0)
-                text += $", {NotReady} not ready";
-            if (Waiting > 0)
-                text += $", {Waiting} waiting";
-            if (Missing > 0)
-                text += $", {Missing} missing";
-            if (Unknown > 0)
-                text += $", {Unknown} unknown";
-
-            return text;
+            return $"Ready {Ready}/{Total}, No {NotReady}, Waiting {Pending}";
         }
     }
 
-    public bool IsComplete => Total > 0 && Waiting == 0 && Unknown == 0;
+    public int Pending => Math.Max(Waiting + Missing + Unknown, Total - Ready - NotReady);
 }
 
 internal static unsafe class ReadyCheckStatusReader
@@ -53,11 +43,14 @@ internal static unsafe class ReadyCheckStatusReader
 
         foreach (var entry in agent->ReadyCheckEntries)
         {
-            if (entry.ContentId == 0)
+            var status = entry.Status;
+            var hasContentId = entry.ContentId != 0;
+            var isPendingStatus = status is ReadyCheckStatus.AwaitingResponse or ReadyCheckStatus.MemberNotPresent;
+            if (!hasContentId && !isPendingStatus)
                 continue;
 
             total++;
-            switch (entry.Status)
+            switch (status)
             {
                 case ReadyCheckStatus.Ready:
                     ready++;

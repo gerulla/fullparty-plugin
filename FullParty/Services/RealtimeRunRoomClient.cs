@@ -45,7 +45,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private static readonly TimeSpan CommandStatusRetention = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan CommandExpiryClockSkewTolerance = TimeSpan.FromHours(2);
     private static readonly TimeSpan PartySnapshotInterval = TimeSpan.FromMilliseconds(2200);
-    private static readonly TimeSpan ReadyCheckTrackingDuration = TimeSpan.FromSeconds(45);
+    private static readonly TimeSpan ReadyCheckTrackingDuration = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan ReadyCheckStatusBroadcastInterval = TimeSpan.FromSeconds(1);
     private DateTimeOffset latestCommandUpdatedAt = DateTimeOffset.MinValue;
     private DateTimeOffset commandStatusUpdatedAt = DateTimeOffset.MinValue;
@@ -140,6 +140,22 @@ public sealed class RealtimeRunRoomClient : IDisposable
         }
     }
 
+    internal bool TryGetReadyCheckSummary(FullPartyLiveMember member, out ReadyCheckSummary summary)
+    {
+        lock (stateLock)
+        {
+            if (latestCommand != null &&
+                latestCommand.CommandName.Equals("ready_check", StringComparison.OrdinalIgnoreCase) &&
+                latestCommand.ReadyCheckStatusByUserId.TryGetValue(member.UserId, out summary!))
+            {
+                return true;
+            }
+        }
+
+        summary = null!;
+        return false;
+    }
+
     public void SetRunDetail(FullPartyRunDetail detail)
     {
         lock (stateLock)
@@ -221,6 +237,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
         StartCommandIssue(
             "ready_check",
             "all_assigned",
+            null,
             new Dictionary<string, object?>
             {
                 ["message"] = "Ready check started",
@@ -230,9 +247,17 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     public void SendCountdown(int seconds)
     {
+        var targetUserIds = GetHostAndPartyLeadUserIds();
+        if (targetUserIds.Count == 0)
+        {
+            SetCommandStatus("Countdown unavailable: no connected hosts or party leads.");
+            return;
+        }
+
         StartCommandIssue(
             "countdown",
-            "party_leads",
+            "users",
+            targetUserIds,
             new Dictionary<string, object?>
             {
                 ["seconds"] = seconds,
@@ -420,7 +445,12 @@ public sealed class RealtimeRunRoomClient : IDisposable
         }
     }
 
-    private void StartCommandIssue(string command, string targetType, object payload, string label)
+    private void StartCommandIssue(
+        string command,
+        string targetType,
+        IReadOnlyList<long>? targetUserIds,
+        object payload,
+        string label)
     {
         CancellationToken token;
         lock (stateLock)
@@ -443,15 +473,22 @@ public sealed class RealtimeRunRoomClient : IDisposable
             token = cancellation.Token;
             SetCommandStatusNoLock($"Sending {label}...");
             var idempotencyKey = CreateIdempotencyKey(command);
-            commandIssueTask = Task.Run(() => SendCommandAsync(command, targetType, payload, idempotencyKey, label, token), token);
+            commandIssueTask = Task.Run(() => SendCommandAsync(command, targetType, targetUserIds, payload, idempotencyKey, label, token), token);
         }
     }
 
-    private async Task SendCommandAsync(string command, string targetType, object payload, string idempotencyKey, string label, CancellationToken cancellationToken)
+    private async Task SendCommandAsync(
+        string command,
+        string targetType,
+        IReadOnlyList<long>? targetUserIds,
+        object payload,
+        string idempotencyKey,
+        string label,
+        CancellationToken cancellationToken)
     {
         try
         {
-            await apiClient.SendRunCommandAsync(runId, command, targetType, payload, CommandExpirySeconds, idempotencyKey, cancellationToken);
+            await apiClient.SendRunCommandAsync(runId, command, targetType, payload, CommandExpirySeconds, idempotencyKey, targetUserIds, cancellationToken);
             SetCommandStatus($"{label} sent. Waiting for live command...");
         }
         catch (OperationCanceledException)
@@ -801,6 +838,30 @@ public sealed class RealtimeRunRoomClient : IDisposable
         return targetUserIds;
     }
 
+    private IReadOnlyList<long> GetHostAndPartyLeadUserIds()
+    {
+        lock (stateLock)
+        {
+            var userIds = members.Values
+                .Where(member => member.IsHost || member.IsPartyLead)
+                .Select(member => long.TryParse(member.UserId, NumberStyles.Integer, CultureInfo.InvariantCulture, out var userId)
+                    ? userId
+                    : (long?)null)
+                .Where(userId => userId != null)
+                .Select(userId => userId!.Value)
+                .ToHashSet();
+
+            var currentUserId = GetCurrentUserId();
+            if (!string.IsNullOrWhiteSpace(currentUserId) &&
+                long.TryParse(currentUserId, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedCurrentUserId))
+            {
+                userIds.Add(parsedCurrentUserId);
+            }
+
+            return userIds.OrderBy(userId => userId).ToList();
+        }
+    }
+
     private void UpdateCurrentUserCommandStatus(string commandId, string status)
     {
         var currentUserId = GetCurrentUserId();
@@ -858,6 +919,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             if (GetServerTimeNow() > readyCheckTrackUntil)
                 return;
 
+            summary = StabilizeReadyCheckSummary(summary, readyCheckSummary);
             readyCheckSummary = summary;
             SetCommandStatusNoLock(summary.DisplayText);
             userId = GetCurrentUserId();
@@ -871,8 +933,6 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 TouchCommandTrackerNoLock();
             }
 
-            if (summary.IsComplete)
-                readyCheckTrackUntil = GetServerTimeNow() + TimeSpan.FromSeconds(5);
         }
 
         if (!string.IsNullOrWhiteSpace(commandId) && !string.IsNullOrWhiteSpace(userId))
@@ -970,6 +1030,24 @@ public sealed class RealtimeRunRoomClient : IDisposable
             summary.Missing.ToString(CultureInfo.InvariantCulture),
             summary.Unknown.ToString(CultureInfo.InvariantCulture),
             summary.Total.ToString(CultureInfo.InvariantCulture));
+    }
+
+    private static ReadyCheckSummary StabilizeReadyCheckSummary(ReadyCheckSummary current, ReadyCheckSummary? previous)
+    {
+        if (previous == null)
+            return current;
+
+        var expectedTotal = Math.Max(current.Total, previous.Total);
+        var currentKnown = current.Ready + current.NotReady + current.Pending;
+        var extraWaiting = Math.Max(0, expectedTotal - currentKnown);
+        if (expectedTotal == current.Total && extraWaiting == 0)
+            return current;
+
+        return current with
+        {
+            Waiting = current.Waiting + extraWaiting,
+            Total = expectedTotal,
+        };
     }
 
     private bool IsCurrentUser(string userId)
