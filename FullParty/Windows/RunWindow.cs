@@ -229,11 +229,26 @@ public sealed class RunWindow : Window, IDisposable
         if (ImGui.Button(compactMode ? "Uncompact" : "Compact"))
             SetCompactMode(!compactMode);
 
+        DrawReadyCheckConfirmationInline();
+
         if (!string.IsNullOrWhiteSpace(checkInStatusMessage))
         {
             ImGui.Spacing();
             ImGui.TextWrapped(checkInStatusMessage);
         }
+    }
+
+    private void DrawReadyCheckConfirmationInline()
+    {
+        var prompt = liveRoom.ReadyCheckConfirmationPrompt;
+        if (prompt == null)
+            return;
+
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+        ImGui.TextColored(new Vector4(0.95f, 0.82f, 0.45f, 1f), "Ready check confirmation");
+        DrawReadyCheckConfirmationPrompt(prompt, false);
     }
 
     private void DrawReadyCheckConfirmationPopup()
@@ -256,21 +271,8 @@ public sealed class RunWindow : Window, IDisposable
         if (!ImGui.BeginPopupModal(PopupName, ref popupOpen, ImGuiWindowFlags.AlwaysAutoResize))
             return;
 
-        ImGui.TextWrapped($"{prompt.InitiatorName} wants to start an alliance ready check.");
-        ImGui.TextWrapped("Confirm when you are ready for your party to receive the in-game ready check.");
-        ImGui.Spacing();
-        ImGui.TextDisabled($"Expires at {prompt.ExpiresAt:HH:mm:ss}.");
-        ImGui.Spacing();
-
-        if (ImGui.Button("I'm Ready", new Vector2(110f, 0)))
-        {
-            liveRoom.ConfirmReadyCheck(true);
-            readyCheckPromptPopupRequestId = null;
-            ImGui.CloseCurrentPopup();
-        }
-
-        ImGui.SameLine();
-        if (ImGui.Button("Not Ready", new Vector2(110f, 0)) || !popupOpen)
+        DrawReadyCheckConfirmationPrompt(prompt, true);
+        if (!popupOpen)
         {
             liveRoom.ConfirmReadyCheck(false);
             readyCheckPromptPopupRequestId = null;
@@ -278,6 +280,32 @@ public sealed class RunWindow : Window, IDisposable
         }
 
         ImGui.EndPopup();
+    }
+
+    private void DrawReadyCheckConfirmationPrompt(FullPartyReadyCheckConfirmationPrompt prompt, bool closePopupOnAction)
+    {
+        ImGui.TextWrapped($"{prompt.InitiatorName} wants to start an alliance ready check.");
+        ImGui.TextWrapped("Confirm when you are ready for your party to receive the in-game ready check.");
+        ImGui.Spacing();
+        ImGui.TextDisabled($"Expires at {prompt.ExpiresAt:HH:mm:ss}.");
+        ImGui.Spacing();
+
+        if (ImGui.Button($"I'm Ready##fullparty_ready_check_confirm_ready_{(closePopupOnAction ? "popup" : "inline")}", new Vector2(110f, 0)))
+        {
+            liveRoom.ConfirmReadyCheck(true);
+            readyCheckPromptPopupRequestId = null;
+            if (closePopupOnAction)
+                ImGui.CloseCurrentPopup();
+        }
+
+        ImGui.SameLine();
+        if (ImGui.Button($"Not Ready##fullparty_ready_check_confirm_not_ready_{(closePopupOnAction ? "popup" : "inline")}", new Vector2(110f, 0)))
+        {
+            liveRoom.ConfirmReadyCheck(false);
+            readyCheckPromptPopupRequestId = null;
+            if (closePopupOnAction)
+                ImGui.CloseCurrentPopup();
+        }
     }
 
     private void DrawRosterControls(bool isLoading)
