@@ -1826,13 +1826,22 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
             return value.ValueKind switch
             {
-                JsonValueKind.String => string.IsNullOrWhiteSpace(value.GetString()) ? null : value.GetString()!.Trim(),
+                JsonValueKind.String => NormalizeIncomingPhantomJob(value.GetString()),
                 JsonValueKind.Number => value.ToString(),
                 _ => null,
             };
         }
 
         return null;
+    }
+
+    private static string? NormalizeIncomingPhantomJob(string? phantomJob)
+    {
+        if (string.IsNullOrWhiteSpace(phantomJob))
+            return null;
+
+        var trimmed = phantomJob.Trim();
+        return PhantomJobResolver.Normalize(trimmed) ?? trimmed;
     }
 
     private static JsonElement NormalizeCommandRoot(JsonElement root)
