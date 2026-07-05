@@ -280,10 +280,10 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     public void SendReadyCheckParty()
     {
-        var targetUserIds = GetHostAndPartyLeadUserIds();
+        var targetUserIds = GetConnectedUserIds();
         if (targetUserIds.Count == 0)
         {
-            SetCommandStatus("Ready check unavailable: no connected hosts or party leads.");
+            SetCommandStatus("Ready check unavailable: no connected live room users.");
             return;
         }
 
@@ -300,10 +300,10 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     public void SendCountdown(int seconds)
     {
-        var targetUserIds = GetHostAndPartyLeadUserIds();
+        var targetUserIds = GetConnectedUserIds();
         if (targetUserIds.Count == 0)
         {
-            SetCommandStatus("Countdown unavailable: no connected hosts or party leads.");
+            SetCommandStatus("Countdown unavailable: no connected live room users.");
             return;
         }
 
@@ -365,10 +365,10 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     private void StartReadyCheckConfirmation()
     {
-        var targetUserIds = GetHostAndPartyLeadUserIds();
+        var targetUserIds = GetConnectedUserIds();
         if (targetUserIds.Count == 0)
         {
-            SetCommandStatus("Ready check unavailable: no connected hosts or party leads.");
+            SetCommandStatus("Ready check unavailable: no connected live room users.");
             return;
         }
 
@@ -1079,11 +1079,13 @@ public sealed class RealtimeRunRoomClient : IDisposable
         return targetUserIds;
     }
 
-    private IReadOnlyList<long> GetHostAndPartyLeadUserIds()
+    private IReadOnlyList<long> GetConnectedUserIds()
     {
         lock (stateLock)
         {
-            var userIds = GetHostAndPartyLeadUserIdStringsNoLock()
+            var userIds = members.Values
+                .Select(member => member.UserId)
+                .Where(userId => !string.IsNullOrWhiteSpace(userId))
                 .Select(userId => long.TryParse(userId, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
                     ? parsed
                     : (long?)null)
@@ -1100,15 +1102,6 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
             return userIds.OrderBy(userId => userId).ToList();
         }
-    }
-
-    private HashSet<string> GetHostAndPartyLeadUserIdStringsNoLock()
-    {
-        return members.Values
-            .Where(member => member.IsHost || member.IsPartyLead)
-            .Select(member => member.UserId)
-            .Where(userId => !string.IsNullOrWhiteSpace(userId))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 
     private static bool IsReadyCheckConfirmedStatus(string status)
