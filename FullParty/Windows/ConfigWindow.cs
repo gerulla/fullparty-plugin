@@ -59,7 +59,6 @@ public class ConfigWindow : Window, IDisposable
         var auth = plugin.AuthService;
         var environment = plugin.Environment;
         ImGui.Text("Auth Debug");
-        ImGui.TextWrapped($".env: {(environment.FileExists ? environment.FilePath : "not found")}");
         ImGui.Text($"Debug: {environment.Debug}");
         ImGui.Text($"State: {auth.State}");
         ImGui.TextWrapped($"Base URL: {auth.BaseUrl}");

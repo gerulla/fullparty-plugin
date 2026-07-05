@@ -49,6 +49,13 @@ internal sealed record RunCheckInSummary(
     int CheckedInCount,
     int MissingCount);
 
+internal sealed record ComputedPartySnapshots(
+    IReadOnlyDictionary<string, FullPartyPartySnapshot> ByParty,
+    IReadOnlyList<FullPartyPartySnapshot> Snapshots,
+    GamePresenceList OccultPresence,
+    int OccultPartyCount,
+    bool InOccult);
+
 internal sealed record ValidationSlotResult(
     FullPartyRosterCharacter? Character,
     FullPartyRosterSlot? RosterSlot,
@@ -79,6 +86,9 @@ public sealed class RunWindow : Window, IDisposable
     private string? detailError;
     private string? checkInStatusMessage;
     private RunRosterViewMode rosterViewMode = RunRosterViewMode.Roster;
+    private Vector2 rosterCompanionSize = new(RosterCompanionDefaultWidth, RosterCompanionDefaultHeight);
+    private bool hasRosterCompanionSize;
+    private bool applyRosterCompanionSizeNextDraw = true;
 
     public FullPartyRun Run { get; }
 
@@ -206,15 +216,27 @@ public sealed class RunWindow : Window, IDisposable
                     ImGuiWindowFlags.NoSavedSettings;
 
         ImGui.SetNextWindowPos(companionPosition, ImGuiCond.Always);
-        ImGui.SetNextWindowSize(
-            new Vector2(RosterCompanionDefaultWidth, RosterCompanionDefaultHeight),
-            ImGuiCond.FirstUseEver);
+        if (applyRosterCompanionSizeNextDraw)
+        {
+            ImGui.SetNextWindowSize(rosterCompanionSize, ImGuiCond.Always);
+        }
+        else if (!hasRosterCompanionSize)
+        {
+            ImGui.SetNextWindowSize(
+                new Vector2(RosterCompanionDefaultWidth, RosterCompanionDefaultHeight),
+                ImGuiCond.FirstUseEver);
+        }
+
         ImGui.SetNextWindowSizeConstraints(
             new Vector2(RosterCompanionMinWidth, RosterCompanionMinHeight),
             new Vector2(float.MaxValue, float.MaxValue));
 
         if (ImGui.Begin($"{GetRosterViewTitle(rosterViewMode)}##fullparty_roster_companion_{Run.Id}", flags))
+        {
+            RememberRosterCompanionSize(ImGui.GetWindowSize());
+            applyRosterCompanionSizeNextDraw = false;
             DrawRosterCompanionContent(isLoading);
+        }
 
         ImGui.End();
     }
@@ -351,10 +373,22 @@ public sealed class RunWindow : Window, IDisposable
             ImGui.BeginDisabled();
 
         if (ImGui.Button(label))
+        {
             rosterViewMode = mode;
+            if (mode != RunRosterViewMode.None)
+                applyRosterCompanionSizeNextDraw = true;
+        }
 
         if (selected)
             ImGui.EndDisabled();
+    }
+
+    private void RememberRosterCompanionSize(Vector2 size)
+    {
+        rosterCompanionSize = new Vector2(
+            MathF.Max(RosterCompanionMinWidth, size.X),
+            MathF.Max(RosterCompanionMinHeight, size.Y));
+        hasRosterCompanionSize = true;
     }
 
     private static void DrawSectionSeparator()
@@ -464,7 +498,7 @@ public sealed class RunWindow : Window, IDisposable
             return;
         }
 
-        var snapshots = liveRoom.PartySnapshots;
+        var computedSnapshots = BuildComputedPartySnapshots(runDetail, parties, true);
         var flags = ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame;
         if (!ImGui.BeginTable("##fullparty_party_view", parties.Count, flags))
             return;
@@ -485,7 +519,7 @@ public sealed class RunWindow : Window, IDisposable
                     continue;
 
                 var slot = parties[column][row];
-                var snapshot = snapshots.FirstOrDefault(item => item.PartyKey.Equals(slot.GroupKey, StringComparison.OrdinalIgnoreCase));
+                computedSnapshots.ByParty.TryGetValue(slot.GroupKey, out var snapshot);
                 var expectedPosition = slot.PositionInGroup ?? row + 1;
                 var member = snapshot?.Members.FirstOrDefault(item => item.Position == expectedPosition);
                 DrawPartySnapshotSlot(runDetail, slot, member);
@@ -494,14 +528,24 @@ public sealed class RunWindow : Window, IDisposable
 
         ImGui.EndTable();
 
-        if (snapshots.Count == 0)
+        if (computedSnapshots.Snapshots.Count == 0)
         {
             ImGui.Spacing();
             ImGui.Separator();
             ImGui.Spacing();
-            ImGui.TextDisabled(liveRoom.State == RealtimeRunRoomState.Connected
-                ? "Waiting for party snapshots from connected party leads."
-                : "Connect to the live room to sync party snapshots.");
+            if (computedSnapshots.InOccult)
+            {
+                ImGui.TextDisabled(liveRoom.State == RealtimeRunRoomState.Connected
+                    ? "Waiting for party lead snapshots to identify live parties."
+                    : "Connect to the live room to sync live parties.");
+                ImGui.TextDisabled(plugin.AdventurerList.StatusMessage);
+            }
+            else
+            {
+                ImGui.TextDisabled(Plugin.PartyList.IsAlliance
+                    ? "Waiting for alliance party data."
+                    : "Waiting for party data.");
+            }
         }
     }
 
@@ -514,29 +558,9 @@ public sealed class RunWindow : Window, IDisposable
             return;
         }
 
-        var inOccult = OccultCrescentTerritory.IsCurrent();
-        if (inOccult && !plugin.AdventurerList.HasRequestedRefresh)
-            plugin.AdventurerList.RequestRefresh();
-
-        var occultPresence = inOccult
-            ? plugin.AdventurerList.GetPresence(runDetail)
-            : GamePresenceList.Empty;
-        var snapshots = inOccult
-            ? liveRoom.PartySnapshots
-            : RunValidationSources.BuildLocalPartySnapshots(runDetail, parties);
-        var occultPartyAssignments = inOccult
-            ? BuildOccultPartyAssignments(runDetail, snapshots, occultPresence)
-            : new Dictionary<string, OccultPartyAssignment>(StringComparer.OrdinalIgnoreCase);
-
-        var snapshotsByParty = inOccult
-            ? occultPartyAssignments.ToDictionary(pair => pair.Key, pair => pair.Value.Snapshot, StringComparer.OrdinalIgnoreCase)
-            : snapshots.ToDictionary(snapshot => snapshot.PartyKey, StringComparer.OrdinalIgnoreCase);
-        var validationSnapshots = snapshotsByParty.Values
-            .GroupBy(snapshot => $"{snapshot.SenderUserId}:{snapshot.PartyKey}:{snapshot.Sequence}", StringComparer.OrdinalIgnoreCase)
-            .Select(group => group.First())
-            .ToList();
-        var observedById = BuildObservedByCharacterId(validationSnapshots);
-        var observedByName = BuildObservedByName(runDetail, validationSnapshots);
+        var computedSnapshots = BuildComputedPartySnapshots(runDetail, parties, true);
+        var observedById = BuildObservedByCharacterId(computedSnapshots.Snapshots);
+        var observedByName = BuildObservedByName(runDetail, computedSnapshots.Snapshots);
         var flags = ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame;
         if (!ImGui.BeginTable("##fullparty_validate_view", parties.Count, flags))
             return;
@@ -557,16 +581,16 @@ public sealed class RunWindow : Window, IDisposable
                     continue;
 
                 var slot = parties[column][row];
-                snapshotsByParty.TryGetValue(slot.GroupKey, out var snapshot);
+                computedSnapshots.ByParty.TryGetValue(slot.GroupKey, out var snapshot);
                 var actualMember = FindExpectedMemberInParty(runDetail, slot, snapshot);
                 var expectedObserved = FindObservedForSlot(slot, observedById, observedByName);
-                DrawValidationRosterSlot(runDetail, slot, actualMember, expectedObserved, occultPresence, inOccult, snapshot != null);
+                DrawValidationRosterSlot(runDetail, slot, actualMember, expectedObserved, computedSnapshots.OccultPresence, computedSnapshots.InOccult, snapshot != null);
             }
         }
 
         ImGui.EndTable();
 
-        DrawValidationStatusText(inOccult, validationSnapshots.Count, occultPresence.Count, occultPartyAssignments.Count);
+        DrawValidationStatusText(computedSnapshots.InOccult, computedSnapshots.Snapshots.Count, computedSnapshots.OccultPresence.Count, computedSnapshots.OccultPartyCount);
     }
 
     private void DrawValidationStatusText(bool inOccult, int snapshotCount, int occultPresenceCount, int occultPartyCount)
@@ -1408,6 +1432,50 @@ public sealed class RunWindow : Window, IDisposable
             ?.CharacterClassRole;
     }
 
+    private ComputedPartySnapshots BuildComputedPartySnapshots(
+        FullPartyRunDetail runDetail,
+        IReadOnlyList<IReadOnlyList<FullPartyRosterSlot>> parties,
+        bool requestOccultRefresh)
+    {
+        var inOccult = OccultCrescentTerritory.IsCurrent();
+        if (inOccult && requestOccultRefresh && !plugin.AdventurerList.HasRequestedRefresh)
+            plugin.AdventurerList.RequestRefresh();
+
+        var occultPresence = inOccult
+            ? plugin.AdventurerList.GetPresence(runDetail)
+            : GamePresenceList.Empty;
+        var sourceSnapshots = inOccult
+            ? BuildOccultSourceSnapshots(runDetail)
+            : RunValidationSources.BuildLocalPartySnapshots(runDetail, parties);
+        var occultPartyAssignments = inOccult
+            ? BuildOccultPartyAssignments(runDetail, sourceSnapshots, occultPresence)
+            : new Dictionary<string, OccultPartyAssignment>(StringComparer.OrdinalIgnoreCase);
+        var snapshotsByParty = inOccult
+            ? occultPartyAssignments.ToDictionary(pair => pair.Key, pair => pair.Value.Snapshot, StringComparer.OrdinalIgnoreCase)
+            : sourceSnapshots.ToDictionary(snapshot => snapshot.PartyKey, StringComparer.OrdinalIgnoreCase);
+        var computedSnapshots = snapshotsByParty.Values
+            .GroupBy(snapshot => $"{snapshot.SenderUserId}:{snapshot.PartyKey}:{snapshot.Sequence}", StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.First())
+            .ToList();
+
+        return new ComputedPartySnapshots(
+            snapshotsByParty,
+            computedSnapshots,
+            occultPresence,
+            occultPartyAssignments.Count,
+            inOccult);
+    }
+
+    private IReadOnlyList<FullPartyPartySnapshot> BuildOccultSourceSnapshots(FullPartyRunDetail runDetail)
+    {
+        var snapshots = liveRoom.PartySnapshots.ToList();
+        var currentPartySnapshot = RunValidationSources.BuildCurrentPartySnapshot(runDetail);
+        if (currentPartySnapshot != null)
+            snapshots.Add(currentPartySnapshot);
+
+        return snapshots;
+    }
+
     private static IReadOnlyDictionary<string, OccultPartyAssignment> BuildOccultPartyAssignments(
         FullPartyRunDetail runDetail,
         IReadOnlyList<FullPartyPartySnapshot> snapshots,
@@ -1416,6 +1484,7 @@ public sealed class RunWindow : Window, IDisposable
         var assignments = new Dictionary<string, OccultPartyAssignment>(StringComparer.OrdinalIgnoreCase);
         foreach (var snapshot in snapshots)
         {
+            var isLocalSnapshot = snapshot.SenderUserId == 0;
             var leadSlots = new List<FullPartyRosterSlot>();
             foreach (var member in snapshot.Members)
             {
@@ -1423,7 +1492,7 @@ public sealed class RunWindow : Window, IDisposable
                 if (slot?.AssignedCharacter == null || !IsValidationPartyLead(slot))
                     continue;
 
-                if (!presence.TryFind(slot.AssignedCharacter, out _))
+                if (!isLocalSnapshot && !presence.TryFind(slot.AssignedCharacter, out _))
                     continue;
 
                 leadSlots.Add(slot);

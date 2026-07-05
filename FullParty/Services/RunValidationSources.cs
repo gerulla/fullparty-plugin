@@ -48,6 +48,8 @@ internal sealed class GamePresenceList
 
 internal static class RunValidationSources
 {
+    private const string CurrentPartySnapshotKey = "current-party";
+
     public static GamePresenceList BuildLocalPartyPresence(FullPartyRunDetail runDetail)
     {
         var members = new Dictionary<string, GamePresenceMember>(StringComparer.OrdinalIgnoreCase);
@@ -76,6 +78,49 @@ internal static class RunValidationSources
         }
 
         return new GamePresenceList([.. members.Values]);
+    }
+
+    public static FullPartyPartySnapshot? BuildCurrentPartySnapshot(FullPartyRunDetail runDetail)
+    {
+        var rosterByName = BuildRosterByName(runDetail);
+        var members = new List<FullPartyPartySnapshotMember>();
+        var position = 1;
+
+        try
+        {
+            foreach (var member in Plugin.PartyList)
+            {
+                if (members.Count >= 8)
+                    break;
+
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(GetName(member)))
+                        continue;
+
+                    members.Add(MapPartyMember(member, position, runDetail, rosterByName));
+                    position++;
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.Debug("Could not read a party member for the local FullParty party snapshot: {Message}", ex.Message);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Debug("Could not enumerate the party list for the local FullParty party snapshot: {Message}", ex.Message);
+        }
+
+        return members.Count == 0
+            ? null
+            : new FullPartyPartySnapshot(
+                runDetail.Id,
+                0,
+                CurrentPartySnapshotKey,
+                0,
+                DateTimeOffset.UtcNow,
+                members);
     }
 
     public static IReadOnlyList<FullPartyPartySnapshot> BuildLocalPartySnapshots(

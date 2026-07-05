@@ -69,6 +69,7 @@ public class MainWindow : Window, IDisposable
     private void DrawAuthenticationState()
     {
         var auth = plugin.AuthService;
+        auth.RestoreSavedSession();
 
         if (auth.State == AuthState.Authenticated)
         {

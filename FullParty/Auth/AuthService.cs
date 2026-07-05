@@ -153,7 +153,20 @@ public sealed class AuthService : IDisposable
                 return;
 
             if (string.IsNullOrWhiteSpace(configuration.ProtectedRefreshToken))
+            {
+                if (State == AuthState.Authenticated && DateTimeOffset.UtcNow >= accessTokenExpiresAt - AccessTokenRefreshMargin)
+                {
+                    accessToken = null;
+                    accessTokenExpiresAt = default;
+                    PendingUser = null;
+                    User = null;
+                    ClearDeviceCodeState();
+                    ErrorMessage = null;
+                    State = AuthState.SignedOut;
+                }
+
                 return;
+            }
 
             authCancellation?.Cancel();
             authCancellation?.Dispose();
