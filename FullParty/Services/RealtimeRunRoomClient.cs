@@ -41,6 +41,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private readonly object stateLock = new();
     private readonly Dictionary<string, FullPartyLiveMember> members = new(StringComparer.Ordinal);
     private readonly Dictionary<string, FullPartyPartySnapshot> partySnapshots = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<long, string> syncedPartyKeyByUserId = new();
     private readonly HashSet<string> handledCommandIds = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentQueue<PendingCommandExecution> pendingCommandExecutions = new();
     private readonly SemaphoreSlim socketSendLock = new(1, 1);
@@ -152,11 +153,24 @@ public sealed class RealtimeRunRoomClient : IDisposable
             }
 
             if (latestCommand.StatusByUserId.TryGetValue(member.UserId, out var status))
-                return FormatCommandStatus(status);
+                return FormatCommandStatus(latestCommand.CommandName, status);
 
             return latestCommand.TargetUserIds.Contains(member.UserId)
                 ? "Waiting"
                 : "Not targeted";
+        }
+    }
+
+    public string GetSyncedPartyLabel(FullPartyLiveMember member)
+    {
+        if (!long.TryParse(member.UserId, NumberStyles.Integer, CultureInfo.InvariantCulture, out var userId))
+            return "-";
+
+        lock (stateLock)
+        {
+            return syncedPartyKeyByUserId.TryGetValue(userId, out var partyKey)
+                ? FormatPartyKey(partyKey)
+                : "-";
         }
     }
 
@@ -189,6 +203,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
         lock (stateLock)
         {
             partySnapshots.Clear();
+            syncedPartyKeyByUserId.Clear();
             if (!string.IsNullOrWhiteSpace(statusMessage))
                 PartySnapshotStatusMessage = statusMessage;
         }
@@ -205,6 +220,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             cancellation?.Dispose();
             cancellation = new CancellationTokenSource();
             members.Clear();
+            syncedPartyKeyByUserId.Clear();
             handledCommandIds.Clear();
             latestCommand = null;
             latestCommandUpdatedAt = DateTimeOffset.MinValue;
@@ -232,6 +248,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             cancellation = null;
             webSocket = null;
             members.Clear();
+            syncedPartyKeyByUserId.Clear();
             handledCommandIds.Clear();
             latestCommand = null;
             latestCommandUpdatedAt = DateTimeOffset.MinValue;
@@ -256,22 +273,29 @@ public sealed class RealtimeRunRoomClient : IDisposable
         Disconnect();
     }
 
-    public void SendReadyCheckAlliance()
+    public void SendReadyCheckLeads()
     {
         StartReadyCheckConfirmation();
     }
 
-    private void SendReadyCheckAllianceCommand()
+    public void SendReadyCheckParty()
     {
+        var targetUserIds = GetHostAndPartyLeadUserIds();
+        if (targetUserIds.Count == 0)
+        {
+            SetCommandStatus("Ready check unavailable: no connected hosts or party leads.");
+            return;
+        }
+
         StartCommandIssue(
             "ready_check",
-            "all_assigned",
-            null,
+            "users",
+            targetUserIds,
             new Dictionary<string, object?>
             {
                 ["message"] = "Ready check started",
             },
-            "Ready check alliance");
+            "Ready check party");
     }
 
     public void SendCountdown(int seconds)
@@ -299,7 +323,6 @@ public sealed class RealtimeRunRoomClient : IDisposable
     {
         string? commandId = null;
         string? ackStatus = null;
-        var shouldStartReadyCheck = false;
 
         lock (stateLock)
         {
@@ -332,15 +355,12 @@ public sealed class RealtimeRunRoomClient : IDisposable
             else
             {
                 SetCommandStatusNoLock(GetReadyCheckConfirmationStatusTextNoLock(readyCheckConfirmation));
-                shouldStartReadyCheck = TryMarkReadyCheckConfirmationCompleteNoLock(readyCheckConfirmation);
+                MarkReadyCheckConfirmationCompleteIfReadyNoLock(readyCheckConfirmation);
             }
         }
 
         if (!string.IsNullOrWhiteSpace(commandId) && !string.IsNullOrWhiteSpace(ackStatus))
             QueueAck(commandId, ackStatus);
-
-        if (shouldStartReadyCheck)
-            SendReadyCheckAllianceCommand();
     }
 
     private void StartReadyCheckConfirmation()
@@ -749,7 +769,6 @@ public sealed class RealtimeRunRoomClient : IDisposable
         if (ack == null)
             return;
 
-        var shouldStartReadyCheck = false;
         lock (stateLock)
         {
             if (latestCommand == null || !latestCommand.CommandId.Equals(ack.CommandId, StringComparison.OrdinalIgnoreCase))
@@ -776,13 +795,10 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 else
                 {
                     SetCommandStatusNoLock(GetReadyCheckConfirmationStatusTextNoLock(readyCheckConfirmation));
-                    shouldStartReadyCheck = TryMarkReadyCheckConfirmationCompleteNoLock(readyCheckConfirmation);
+                    MarkReadyCheckConfirmationCompleteIfReadyNoLock(readyCheckConfirmation);
                 }
             }
         }
-
-        if (shouldStartReadyCheck)
-            SendReadyCheckAllianceCommand();
     }
 
     private void HandleReadyCheckStatus(JsonElement root)
@@ -831,6 +847,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             }
 
             partySnapshots[snapshot.PartyKey] = snapshot;
+            RememberSyncedPartyNoLock(snapshot);
             PartySnapshotStatusMessage = $"Party sync: {partySnapshots.Count} parties";
         }
     }
@@ -926,6 +943,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
         lock (stateLock)
         {
             partySnapshots[snapshot.PartyKey] = snapshot;
+            RememberSyncedPartyNoLock(snapshot);
         }
 
         partySnapshotTask = Task.Run(() => SendPartySnapshotAsync(snapshot, token), token);
@@ -1119,23 +1137,22 @@ public sealed class RealtimeRunRoomClient : IDisposable
         return $"Ready check confirmation: {readyCount}/{session.TargetUserIds.Count} raid leads ready.";
     }
 
-    private bool TryMarkReadyCheckConfirmationCompleteNoLock(ReadyCheckConfirmationSession session)
+    private void MarkReadyCheckConfirmationCompleteIfReadyNoLock(ReadyCheckConfirmationSession session)
     {
-        if (!session.IsInitiator || session.ActualCommandSent)
-            return false;
+        if (session.ActualCommandSent)
+            return;
 
         if (session.TargetUserIds.Count == 0 ||
             session.TargetUserIds.Any(userId =>
                 !session.StatusByUserId.TryGetValue(userId, out var status) || !IsReadyCheckConfirmedStatus(status)))
         {
-            return false;
+            return;
         }
 
         session.ActualCommandSent = true;
         readyCheckConfirmationPrompt = null;
         readyCheckConfirmation = null;
-        SetCommandStatusNoLock("All connected raid leads confirmed. Starting ready check...");
-        return true;
+        SetCommandStatusNoLock("All connected raid leads confirmed. Use ReadyCheck Party to start party ready checks.");
     }
 
     private void UpdateCurrentUserCommandStatus(string commandId, string status)
@@ -1963,6 +1980,21 @@ public sealed class RealtimeRunRoomClient : IDisposable
         };
     }
 
+    private static string FormatCommandStatus(string command, string status)
+    {
+        if (command.Equals("ready_check_confirm", StringComparison.OrdinalIgnoreCase))
+        {
+            return status switch
+            {
+                "executed" => "Ready",
+                "failed" => "Not Ready",
+                _ => FormatCommandStatus(status),
+            };
+        }
+
+        return FormatCommandStatus(status);
+    }
+
     private static string FormatCommandStatus(string status)
     {
         return status switch
@@ -1970,7 +2002,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             "received" => "Received",
             "confirming" => "Confirming",
             "ready" => "Ready",
-            "not_ready" => "Not ready",
+            "not_ready" => "Not Ready",
             "waiting" => "Waiting",
             "executed" => "Executed",
             "failed" => "Failed",
@@ -2014,10 +2046,12 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     private void RemoveMember(string userId)
     {
-        var shouldStartReadyCheck = false;
         lock (stateLock)
         {
             members.Remove(userId);
+            if (long.TryParse(userId, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedUserId))
+                syncedPartyKeyByUserId.Remove(parsedUserId);
+
             if (readyCheckConfirmation != null && readyCheckConfirmation.TargetUserIds.Remove(userId))
             {
                 readyCheckConfirmation.StatusByUserId.Remove(userId);
@@ -2029,12 +2063,9 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 }
 
                 SetCommandStatusNoLock(GetReadyCheckConfirmationStatusTextNoLock(readyCheckConfirmation));
-                shouldStartReadyCheck = TryMarkReadyCheckConfirmationCompleteNoLock(readyCheckConfirmation);
+                MarkReadyCheckConfirmationCompleteIfReadyNoLock(readyCheckConfirmation);
             }
         }
-
-        if (shouldStartReadyCheck)
-            SendReadyCheckAllianceCommand();
     }
 
     private FullPartyLiveMember? GetCurrentMemberNoLock()
@@ -2133,6 +2164,32 @@ public sealed class RealtimeRunRoomClient : IDisposable
         {
             PartySnapshotStatusMessage = statusMessage;
         }
+    }
+
+    private void RememberSyncedPartyNoLock(FullPartyPartySnapshot snapshot)
+    {
+        if (snapshot.SenderUserId > 0 && !string.IsNullOrWhiteSpace(snapshot.PartyKey))
+            syncedPartyKeyByUserId[snapshot.SenderUserId] = snapshot.PartyKey;
+    }
+
+    private static string FormatPartyKey(string partyKey)
+    {
+        if (string.IsNullOrWhiteSpace(partyKey))
+            return "-";
+
+        var normalized = partyKey.Trim().Replace('_', '-');
+        if (normalized.StartsWith("party-", StringComparison.OrdinalIgnoreCase))
+        {
+            var suffix = normalized["party-".Length..].Trim();
+            return string.IsNullOrWhiteSpace(suffix)
+                ? "Party"
+                : $"Party {suffix.ToUpperInvariant()}";
+        }
+
+        if (normalized.StartsWith("Party ", StringComparison.OrdinalIgnoreCase))
+            return normalized;
+
+        return normalized;
     }
 
     private static bool TryGetObject(JsonElement root, string propertyName, out JsonElement value)

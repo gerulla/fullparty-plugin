@@ -196,37 +196,47 @@ public sealed class RunWindow : Window, IDisposable
         if (!canSendLiveCommand)
             ImGui.BeginDisabled();
 
-        if (ImGui.Button(compactMode ? "Ready" : "Ready Check Alliance"))
-            liveRoom.SendReadyCheckAlliance();
+        var readyLeadsLabel = "1. Check Leads";
+        var readyPartyLabel = "2. Check Parties";
+        var countdownLabel = compactMode ? "Countdown" : "Start Countdown";
 
-        ImGui.SameLine();
+        if (ImGui.Button(readyLeadsLabel))
+            liveRoom.SendReadyCheckLeads();
 
-        if (ImGui.Button(compactMode ? "Countdown" : "Start Countdown"))
+        SameLineIfButtonFits(readyPartyLabel);
+
+        if (ImGui.Button(readyPartyLabel))
+            liveRoom.SendReadyCheckParty();
+
+        ImGui.Spacing();
+
+        if (ImGui.Button(countdownLabel))
             liveRoom.SendCountdown(20);
 
         if (!canSendLiveCommand)
             ImGui.EndDisabled();
 
-        if (!compactMode)
-            ImGui.SameLine();
-
         var isCheckingIn = checkInTask is { IsCompleted: false };
         var waitingForAdventurerList = OccultCrescentTerritory.IsCurrent() && plugin.AdventurerList.IsRefreshing;
         var canCheckIn = detail != null && !isCheckingIn && !waitingForAdventurerList;
-        if (!canCheckIn)
-            ImGui.BeginDisabled();
-
         var checkInLabel = isCheckingIn
             ? compactMode ? "Checking..." : "Checking In..."
             : compactMode ? "Check-In" : "Run Check-In";
+
+        SameLineIfButtonFits(checkInLabel);
+
+        if (!canCheckIn)
+            ImGui.BeginDisabled();
+
         if (ImGui.Button(checkInLabel))
             StartRunCheckIn();
 
         if (!canCheckIn)
             ImGui.EndDisabled();
 
-        ImGui.SameLine();
-        if (ImGui.Button(compactMode ? "Uncompact" : "Compact"))
+        var compactLabel = compactMode ? "Uncompact" : "Compact";
+        SameLineIfButtonFits(compactLabel);
+        if (ImGui.Button(compactLabel))
             SetCompactMode(!compactMode);
 
         DrawReadyCheckConfirmationInline();
@@ -236,6 +246,16 @@ public sealed class RunWindow : Window, IDisposable
             ImGui.Spacing();
             ImGui.TextWrapped(checkInStatusMessage);
         }
+    }
+
+    private static void SameLineIfButtonFits(string nextButtonLabel)
+    {
+        var style = ImGui.GetStyle();
+        var nextWidth = ImGui.CalcTextSize(nextButtonLabel).X + (style.FramePadding.X * 2f);
+        var nextRight = ImGui.GetItemRectMax().X + style.ItemSpacing.X + nextWidth;
+        var contentRight = ImGui.GetWindowPos().X + ImGui.GetWindowContentRegionMax().X;
+        if (nextRight <= contentRight)
+            ImGui.SameLine();
     }
 
     private void DrawReadyCheckConfirmationInline()
@@ -444,13 +464,12 @@ public sealed class RunWindow : Window, IDisposable
         }
 
         var flags = ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp;
-        var columnCount = compactMode ? 2 : 4;
+        var columnCount = compactMode ? 3 : 4;
         if (!ImGui.BeginTable($"##fullparty_live_room_members_{(compactMode ? "compact" : "full")}", columnCount, flags))
             return;
 
         ImGui.TableSetupColumn("Profile", ImGuiTableColumnFlags.WidthStretch, 1.4f);
-        if (!compactMode)
-            ImGui.TableSetupColumn("Account", ImGuiTableColumnFlags.WidthStretch, 1f);
+        ImGui.TableSetupColumn("Party", ImGuiTableColumnFlags.WidthStretch, compactMode ? 0.7f : 1f);
 
         ImGui.TableSetupColumn("Command", ImGuiTableColumnFlags.WidthStretch, 1.2f);
         if (!compactMode)
@@ -465,11 +484,8 @@ public sealed class RunWindow : Window, IDisposable
             ImGui.TableNextColumn();
             DrawLiveMemberCharacter(member, compactMode);
 
-            if (!compactMode)
-            {
-                ImGui.TableNextColumn();
-                ImGui.TextUnformatted(member.UserName);
-            }
+            ImGui.TableNextColumn();
+            ImGui.TextUnformatted(liveRoom.GetSyncedPartyLabel(member));
 
             ImGui.TableNextColumn();
             DrawLiveCommandStatus(member);
@@ -2085,10 +2101,10 @@ public sealed class RunWindow : Window, IDisposable
     {
         return status switch
         {
-            "Executed" => new Vector4(0.35f, 0.92f, 0.55f, 1f),
+            "Executed" or "Ready" => new Vector4(0.35f, 0.92f, 0.55f, 1f),
             "Received" => new Vector4(0.42f, 0.72f, 1f, 1f),
             "Waiting" => new Vector4(0.94f, 0.78f, 0.32f, 1f),
-            "Failed" or "Expired" => new Vector4(1f, 0.42f, 0.42f, 1f),
+            "Failed" or "Not Ready" or "Expired" => new Vector4(1f, 0.42f, 0.42f, 1f),
             "Disabled" => new Vector4(1f, 0.62f, 0.32f, 1f),
             "Received, not target" => new Vector4(0.62f, 0.72f, 0.92f, 1f),
             "Not targeted" or "-" => new Vector4(0.65f, 0.65f, 0.70f, 1f),
