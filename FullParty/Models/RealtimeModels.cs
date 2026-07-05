@@ -76,13 +76,20 @@ public sealed record FullPartyPartySnapshot(
     DateTimeOffset CapturedAt,
     IReadOnlyList<FullPartyPartySnapshotMember> Members);
 
+public sealed record FullPartyStatusDebug(
+    uint StatusId,
+    string StatusName);
+
 public sealed record FullPartyPartySnapshotMember(
     int Position,
     long? CharacterId,
     string? Name,
     string? World,
     string? ClassJob,
-    string? PhantomJob)
+    string? PhantomJob,
+    uint? PhantomJobStatusId = null,
+    string? PhantomJobStatusName = null,
+    IReadOnlyList<FullPartyStatusDebug>? StatusDebug = null)
 {
     public string DisplayName => string.IsNullOrWhiteSpace(Name) ? $"Slot {Position}" : Name;
 }

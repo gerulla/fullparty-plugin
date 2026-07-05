@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using FullParty.Models;
 using FullParty.Services;
 
 namespace FullParty.Windows;
@@ -19,7 +22,7 @@ public class ConfigWindow : Window, IDisposable
     {
         Flags = ImGuiWindowFlags.NoCollapse;
 
-        Size = new Vector2(520, 300);
+        Size = new Vector2(620, 520);
         SizeCondition = ImGuiCond.FirstUseEver;
 
         this.plugin = plugin;
@@ -137,6 +140,74 @@ public class ConfigWindow : Window, IDisposable
         {
             ImGui.TextWrapped(localCommandStatus);
         }
+
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+
+        DrawStatusDebug();
+    }
+
+    private static void DrawStatusDebug()
+    {
+        if (!ImGui.CollapsingHeader("Status Debug"))
+            return;
+
+        ImGui.TextDisabled("Active game statuses used for phantom job detection.");
+
+        DrawLocalStatusDebug();
+        DrawPartyStatusDebug();
+    }
+
+    private static void DrawLocalStatusDebug()
+    {
+        var localPlayer = Plugin.ObjectTable.LocalPlayer;
+        var label = localPlayer == null
+            ? "Local Player"
+            : $"{localPlayer.Name} @ {localPlayer.HomeWorld.Value.Name}";
+
+        DrawStatusList(label, PartySnapshotBuilder.GetStatusDebugList(localPlayer?.StatusList));
+    }
+
+    private static void DrawPartyStatusDebug()
+    {
+        try
+        {
+            foreach (var member in Plugin.PartyList)
+            {
+                var name = member.Name.ToString();
+                if (string.IsNullOrWhiteSpace(name))
+                    continue;
+
+                DrawStatusList(
+                    $"{name} @ {member.World.Value.Name}",
+                    PartySnapshotBuilder.GetStatusDebugList(member.Statuses));
+            }
+        }
+        catch (Exception ex)
+        {
+            ImGui.TextWrapped($"Could not read party status data: {ex.Message}");
+        }
+    }
+
+    private static void DrawStatusList(string label, IReadOnlyList<FullPartyStatusDebug> statuses)
+    {
+        if (!ImGui.TreeNode(label))
+            return;
+
+        if (statuses.Count == 0)
+        {
+            ImGui.TextDisabled("No active statuses.");
+            ImGui.TreePop();
+            return;
+        }
+
+        foreach (var status in statuses.OrderBy(status => status.StatusId))
+        {
+            ImGui.TextWrapped($"{status.StatusId} - {status.StatusName}");
+        }
+
+        ImGui.TreePop();
     }
 
     private void RunLocalCommandTest(string command, string label)

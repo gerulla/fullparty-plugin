@@ -1960,7 +1960,9 @@ public sealed class RealtimeRunRoomClient : IDisposable
             GetString(member, "n") ?? GetString(member, "name"),
             GetString(member, "w") ?? GetString(member, "world"),
             GetClassJob(member),
-            GetPhantomJob(member));
+            GetPhantomJob(member),
+            GetUInt(member, "sid") ?? GetUInt(member, "status_id") ?? GetUInt(member, "statusId") ?? GetUInt(member, "phantom_job_status_id") ?? GetUInt(member, "phantomJobStatusId"),
+            GetString(member, "sn") ?? GetString(member, "status_name") ?? GetString(member, "statusName") ?? GetString(member, "phantom_job_status_name") ?? GetString(member, "phantomJobStatusName"));
     }
 
     private static string? GetClassJob(JsonElement root)
@@ -2385,6 +2387,20 @@ public sealed class RealtimeRunRoomClient : IDisposable
             return number;
 
         if (value.ValueKind == JsonValueKind.String && long.TryParse(value.GetString(), out number))
+            return number;
+
+        return null;
+    }
+
+    private static uint? GetUInt(JsonElement root, string propertyName)
+    {
+        if (!TryGetProperty(root, propertyName, out var value))
+            return null;
+
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetUInt32(out var number))
+            return number;
+
+        if (value.ValueKind == JsonValueKind.String && uint.TryParse(value.GetString(), out number))
             return number;
 
         return null;

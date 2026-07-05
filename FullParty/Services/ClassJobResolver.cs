@@ -11,6 +11,11 @@ internal static class ClassJobResolver
     private static readonly object CacheLock = new();
     private static Dictionary<string, string>? aliasCache;
 
+    internal static void WarmUp()
+    {
+        _ = GetAliases();
+    }
+
     internal static string? GetCombatClassJobShorthand(uint rowId)
     {
         return rowId switch

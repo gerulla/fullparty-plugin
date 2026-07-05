@@ -55,6 +55,8 @@ public sealed class Plugin : IDalamudPlugin
         AdventurerList = new AdventurerListService();
         OccultCrescentRunMonitor = new OccultCrescentRunMonitor(this);
         VersionText = PluginInterface.Manifest.AssemblyVersion?.ToString() ?? "dev";
+        ClassJobResolver.WarmUp();
+        PhantomJobResolver.WarmUp();
 
         ConfigWindow = new ConfigWindow(this);
         MainWindow = new MainWindow(this);

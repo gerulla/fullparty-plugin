@@ -375,6 +375,8 @@ internal static class RunValidationSources
             ? matchedSlot
             : null;
         var characterId = rosterSlot?.AssignedCharacter?.Id;
+        var phantomJob = PartySnapshotBuilder.GetPhantomJobDetectionFromStatuses(member.Statuses, runDetail);
+        var statusDebug = PartySnapshotBuilder.GetStatusDebugList(member.Statuses);
 
         return new FullPartyPartySnapshotMember(
             position,
@@ -382,7 +384,10 @@ internal static class RunValidationSources
             characterId == null ? name : null,
             characterId == null ? world : null,
             PartySnapshotBuilder.GetCombatClassJobShorthand(member.ClassJob.RowId),
-            PartySnapshotBuilder.GetPhantomJobFromStatuses(member.Statuses, runDetail));
+            phantomJob?.SnapshotName,
+            phantomJob?.StatusId,
+            phantomJob?.StatusName,
+            statusDebug);
     }
 
     private static FullPartyPartySnapshotMember MapObservedMember(

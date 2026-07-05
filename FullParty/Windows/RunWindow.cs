@@ -74,6 +74,7 @@ internal sealed record ValidationSlotResult(
 public sealed class RunWindow : Window, IDisposable
 {
     private static readonly Dictionary<string, uint?> JobIconCache = new(StringComparer.OrdinalIgnoreCase);
+    private static IReadOnlyDictionary<string, string>? phantomJobIconFileCache;
     private const float RunWindowDefaultWidth = 420f;
     private const float RunWindowDefaultHeight = 560f;
     private const float RunWindowMinWidth = 420f;
@@ -741,7 +742,12 @@ public sealed class RunWindow : Window, IDisposable
             ImGui.TextDisabled(party[0].GroupLabel);
             ImGui.Indent(10f);
             foreach (var member in snapshot.Members.OrderBy(member => member.Position))
-                ImGui.TextDisabled(FormatDetectedPlayer(runDetail, member));
+            {
+                ImGui.PushStyleColor(ImGuiCol.Text, ImGui.GetStyle().Colors[(int)ImGuiCol.TextDisabled]);
+                ImGui.TextWrapped(FormatDetectedPlayer(runDetail, member));
+                ImGui.PopStyleColor();
+            }
+
             ImGui.Unindent(10f);
         }
 
@@ -835,7 +841,9 @@ public sealed class RunWindow : Window, IDisposable
         var iconRight = max.X - 7f;
         Vector2? phantomIconPosition = null;
         Vector2? classIconPosition = null;
-        if (!string.IsNullOrWhiteSpace(result.PhantomJob))
+        var hasPhantomIcon = !string.IsNullOrWhiteSpace(result.PhantomJob) ||
+                             (result.RosterSlot != null && HasPhantomJob(result.RosterSlot));
+        if (hasPhantomIcon)
         {
             iconRight -= 20f;
             phantomIconPosition = new Vector2(iconRight, min.Y + 7f);
@@ -863,11 +871,13 @@ public sealed class RunWindow : Window, IDisposable
             DrawIconFallback(drawList, classIconPosition.Value, result.RosterSlot?.CharacterClass, ImGui.GetColorU32(ImGuiCol.TextDisabled));
         }
 
-        if (phantomIconPosition != null &&
-            !DrawPhantomJobIconByName(drawList, runDetail, result.PhantomJob, phantomIconPosition.Value) &&
-            !string.IsNullOrWhiteSpace(result.PhantomJob))
+        if (phantomIconPosition != null && !DrawValidationPhantomJobIcon(drawList, runDetail, result, phantomIconPosition.Value))
         {
-            DrawIconFallback(drawList, phantomIconPosition.Value, GetPhantomJobDisplayName(runDetail, result.PhantomJob), ImGui.GetColorU32(ImGuiCol.TextDisabled));
+            DrawIconFallback(
+                drawList,
+                phantomIconPosition.Value,
+                GetPhantomJobDisplayName(runDetail, result.PhantomJob ?? result.RosterSlot?.PhantomJob),
+                ImGui.GetColorU32(ImGuiCol.TextDisabled));
         }
 
         if (hovered && result.Messages.Count > 0)
@@ -1469,6 +1479,9 @@ public sealed class RunWindow : Window, IDisposable
 
     private bool DrawPhantomJobIcon(ImDrawListPtr drawList, FullPartyRosterSlot slot, Vector2 position)
     {
+        if (DrawPhantomJobLocalIcon(drawList, slot.PhantomJob, position))
+            return true;
+
         var iconUrls = slot.PhantomJobIconUrls.Count > 0
             ? slot.PhantomJobIconUrls
             : string.IsNullOrWhiteSpace(slot.PhantomJobIconUrl)
@@ -1486,16 +1499,6 @@ public sealed class RunWindow : Window, IDisposable
                     drawList.AddImage(texture.Handle, position, position + new Vector2(20, 20));
                     return true;
                 }
-            }
-        }
-
-        if (slot.PhantomJobIconId is > 0)
-        {
-            var gameIcon = Plugin.TextureProvider.GetFromGameIcon(new GameIconLookup((uint)slot.PhantomJobIconId.Value)).GetWrapOrDefault();
-            if (gameIcon != null)
-            {
-                drawList.AddImage(gameIcon.Handle, position, position + new Vector2(20, 20));
-                return true;
             }
         }
 
@@ -1528,12 +1531,113 @@ public sealed class RunWindow : Window, IDisposable
 
     private bool DrawPhantomJobIconByName(ImDrawListPtr drawList, FullPartyRunDetail runDetail, string? phantomJob, Vector2 position)
     {
+        if (DrawPhantomJobLocalIcon(drawList, phantomJob, position))
+            return true;
+
         var normalized = NormalizePhantomJob(phantomJob);
         if (normalized == null)
             return false;
 
         var sourceSlot = runDetail.Slots.FirstOrDefault(slot => NormalizePhantomJob(slot.PhantomJob) == normalized && HasPhantomJob(slot));
         return sourceSlot != null && DrawPhantomJobIcon(drawList, sourceSlot, position);
+    }
+
+    private static bool DrawPhantomJobLocalIcon(ImDrawListPtr drawList, string? phantomJob, Vector2 position)
+    {
+        var path = GetPhantomJobIconFilePath(phantomJob);
+        if (string.IsNullOrWhiteSpace(path))
+            return false;
+
+        var texture = Plugin.TextureProvider.GetFromFile(path).GetWrapOrDefault();
+        if (texture == null)
+            return false;
+
+        drawList.AddImage(texture.Handle, position, position + new Vector2(20, 20));
+        return true;
+    }
+
+    private static string? GetPhantomJobIconFilePath(string? phantomJob)
+    {
+        var token = NormalizePhantomJob(phantomJob);
+        if (token == null)
+            return null;
+
+        var icons = GetPhantomJobIconFiles();
+        return icons.TryGetValue(token, out var path) ? path : null;
+    }
+
+    private static IReadOnlyDictionary<string, string> GetPhantomJobIconFiles()
+    {
+        if (phantomJobIconFileCache != null)
+            return phantomJobIconFileCache;
+
+        var icons = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var pluginDirectory = Plugin.PluginInterface.AssemblyLocation.Directory?.FullName ?? AppContext.BaseDirectory;
+        var iconDirectory = Path.Combine(pluginDirectory, "Data");
+        if (!Directory.Exists(iconDirectory))
+        {
+            phantomJobIconFileCache = icons;
+            return phantomJobIconFileCache;
+        }
+
+        foreach (var path in Directory.EnumerateFiles(iconDirectory, "*.png"))
+        {
+            var name = Path.GetFileNameWithoutExtension(path);
+            if (name.Equals("icon", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            AddPhantomJobIconAlias(icons, name, path);
+            AddPhantomJobIconAlias(icons, $"Phantom {name}", path);
+
+            if (name.Equals("Berzerker", StringComparison.OrdinalIgnoreCase))
+            {
+                AddPhantomJobIconAlias(icons, "Berserker", path);
+                AddPhantomJobIconAlias(icons, "Phantom Berserker", path);
+            }
+        }
+
+        phantomJobIconFileCache = icons;
+        return phantomJobIconFileCache;
+    }
+
+    private static void AddPhantomJobIconAlias(IDictionary<string, string> icons, string name, string path)
+    {
+        var token = NormalizePhantomJob(name);
+        if (token != null)
+            icons.TryAdd(token, path);
+    }
+
+    private bool DrawValidationPhantomJobIcon(
+        ImDrawListPtr drawList,
+        FullPartyRunDetail runDetail,
+        ValidationSlotResult result,
+        Vector2 position)
+    {
+        if (!string.IsNullOrWhiteSpace(result.PhantomJob) &&
+            DrawPhantomJobIconByName(drawList, runDetail, result.PhantomJob, position))
+        {
+            return true;
+        }
+
+        if (result.RosterSlot == null || !HasPhantomJob(result.RosterSlot))
+            return false;
+
+        if (!string.IsNullOrWhiteSpace(result.PhantomJob) &&
+            !PhantomJobsMatch(result.PhantomJob, result.RosterSlot.PhantomJob))
+        {
+            return false;
+        }
+
+        return DrawPhantomJobIcon(drawList, result.RosterSlot, position);
+    }
+
+    private static bool PhantomJobsMatch(string? left, string? right)
+    {
+        var normalizedLeft = NormalizePhantomJob(left);
+        var normalizedRight = NormalizePhantomJob(right);
+        return normalizedLeft != null &&
+               normalizedRight != null &&
+               normalizedLeft.Equals(normalizedRight, StringComparison.OrdinalIgnoreCase);
     }
 
     private static uint? GetJobIconId(string? classNameOrShorthand)
@@ -1617,7 +1721,8 @@ public sealed class RunWindow : Window, IDisposable
         if (string.IsNullOrWhiteSpace(phantomJob))
             return null;
 
-        var token = new string(phantomJob
+        var resolvedName = PhantomJobResolver.Normalize(phantomJob) ?? phantomJob;
+        var token = new string(resolvedName
             .Where(char.IsLetterOrDigit)
             .Select(char.ToUpperInvariant)
             .ToArray());
@@ -1934,8 +2039,7 @@ public sealed class RunWindow : Window, IDisposable
         return slot.PhantomJobId != null ||
                !string.IsNullOrWhiteSpace(slot.PhantomJob) ||
                !string.IsNullOrWhiteSpace(slot.PhantomJobIconUrl) ||
-               slot.PhantomJobIconUrls.Count > 0 ||
-               slot.PhantomJobIconId is > 0;
+               slot.PhantomJobIconUrls.Count > 0;
     }
 
     private static string GetLiveMemberRole(FullPartyLiveMember member)

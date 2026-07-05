@@ -22,7 +22,6 @@ internal static class PartySnapshotBuilder
     ];
 
     private static readonly Dictionary<(uint StatusId, ClientLanguage Language), string?> StatusNameCache = new();
-    private static readonly Dictionary<string, HashSet<string>> PhantomJobAliasCache = new(StringComparer.Ordinal);
 
     public static FullPartyPartySnapshot? TryBuild(
         int runId,
@@ -123,6 +122,8 @@ internal static class PartySnapshotBuilder
             ? matchedSlot
             : null;
         var characterId = rosterSlot?.AssignedCharacter?.Id;
+        var phantomJob = GetPhantomJob(member, runDetail);
+        var statusDebug = GetStatusDebugList(member.Statuses);
 
         return new FullPartyPartySnapshotMember(
             position,
@@ -130,7 +131,10 @@ internal static class PartySnapshotBuilder
             characterId == null ? name : null,
             characterId == null ? world : null,
             GetCombatClassJobShorthand(member.ClassJob.RowId),
-            GetPhantomJob(member, runDetail));
+            phantomJob?.SnapshotName,
+            phantomJob?.StatusId,
+            phantomJob?.StatusName,
+            statusDebug);
     }
 
     private static FullPartyPartySnapshotMember? TryMapLocalPlayerFallback(
@@ -201,6 +205,8 @@ internal static class PartySnapshotBuilder
         var localName = localPlayer?.Name.ToString();
         var localWorld = localPlayer?.HomeWorld.Value.Name.ToString();
         var characterId = character?.Id;
+        var phantomJob = GetPhantomJobDetectionFromStatuses(localPlayer?.StatusList, runDetail);
+        var statusDebug = GetStatusDebugList(localPlayer?.StatusList);
 
         return new FullPartyPartySnapshotMember(
             assignedSlot.PositionInGroup ?? 1,
@@ -208,7 +214,10 @@ internal static class PartySnapshotBuilder
             characterId == null ? FirstNonEmpty(localName, currentMember.CharacterName, character?.Name) : null,
             characterId == null ? FirstNonEmpty(localWorld, currentMember.World, character?.World) : null,
             GetCombatClassJobShorthand(localPlayer?.ClassJob.RowId ?? Plugin.PlayerState.ClassJob.RowId),
-            GetPhantomJobFromStatuses(localPlayer?.StatusList, runDetail));
+            phantomJob?.SnapshotName,
+            phantomJob?.StatusId,
+            phantomJob?.StatusName,
+            statusDebug);
     }
 
     internal static int? GetCombatClassJobId(uint rowId)
@@ -226,47 +235,46 @@ internal static class PartySnapshotBuilder
         return ClassJobResolver.GetCombatClassJobShorthand(rowId);
     }
 
-    private static string? GetPhantomJob(IPartyMember member, FullPartyRunDetail runDetail)
+    private static PhantomJobDetection? GetPhantomJob(IPartyMember member, FullPartyRunDetail runDetail)
     {
-        return GetPhantomJobFromStatuses(member.Statuses, runDetail);
+        return GetPhantomJobDetectionFromStatuses(member.Statuses, runDetail);
     }
 
     internal static string? GetPhantomJobFromStatuses(IEnumerable? statuses, FullPartyRunDetail runDetail)
     {
-        var expectedJobs = runDetail.Slots
-            .Where(slot => !string.IsNullOrWhiteSpace(slot.PhantomJob))
-            .GroupBy(slot => NormalizePhantomJobToken(slot.PhantomJob!), StringComparer.Ordinal)
-            .Select(group => CreateExpectedPhantomJob(group.Key, group.First().PhantomJob))
-            .Where(job => job != null)
-            .Select(job => job!)
-            .OrderByDescending(job => job.MaxAliasLength)
-            .ToList();
+        return GetPhantomJobDetectionFromStatuses(statuses, runDetail)?.SnapshotName;
+    }
 
-        if (expectedJobs.Count == 0)
-            return null;
+    internal static PhantomJobDetection? GetPhantomJobDetectionFromStatuses(IEnumerable? statuses, FullPartyRunDetail _)
+    {
+        var detection = PhantomJobResolver.DetectFromStatuses(statuses);
+        return detection == null
+            ? null
+            : new PhantomJobDetection(detection.SnapshotName, detection.StatusId, detection.StatusName);
+    }
 
+    internal sealed record PhantomJobDetection(string SnapshotName, uint StatusId, string StatusName);
+
+    internal static IReadOnlyList<FullPartyStatusDebug> GetStatusDebugList(IEnumerable? statuses)
+    {
         if (statuses == null)
-            return null;
+            return [];
 
+        var seen = new HashSet<uint>();
+        var debug = new List<FullPartyStatusDebug>();
         foreach (var statusObject in statuses)
         {
-            if (!TryGetStatusId(statusObject, out var statusId))
+            if (!TryGetStatusId(statusObject, out var statusId) || !seen.Add(statusId))
                 continue;
 
-            var statusTokens = GetStatusNames(statusId)
-                .Select(NormalizePhantomJobToken)
-                .Where(token => token.Length > 0)
-                .Distinct(StringComparer.Ordinal);
-
-            foreach (var statusToken in statusTokens)
-            {
-                var exactMatch = expectedJobs.FirstOrDefault(job => job.Aliases.Contains(statusToken));
-                if (exactMatch != null)
-                    return exactMatch.SnapshotName;
-            }
+            var names = GetStatusNames(statusId);
+            var statusName = names.Count == 0
+                ? "unknown Lumina status"
+                : string.Join(" / ", names);
+            debug.Add(new FullPartyStatusDebug(statusId, statusName));
         }
 
-        return null;
+        return debug;
     }
 
     internal static bool TryGetStatusId(object? statusObject, out uint statusId)
@@ -324,64 +332,6 @@ internal static class PartySnapshotBuilder
         }
 
         return statusId > 0;
-    }
-
-    private sealed record ExpectedPhantomJob(string SnapshotName, HashSet<string> Aliases)
-    {
-        public int MaxAliasLength => Aliases.Count == 0 ? 0 : Aliases.Max(alias => alias.Length);
-    }
-
-    private static ExpectedPhantomJob? CreateExpectedPhantomJob(string token, string? phantomJob)
-    {
-        if (token.Length == 0)
-            return null;
-
-        var snapshotName = GetSnapshotPhantomJobName(phantomJob);
-        return string.IsNullOrWhiteSpace(snapshotName)
-            ? null
-            : new ExpectedPhantomJob(snapshotName, GetPhantomJobAliases(token));
-    }
-
-    private static HashSet<string> GetPhantomJobAliases(string token)
-    {
-        if (PhantomJobAliasCache.TryGetValue(token, out var cached))
-            return cached;
-
-        var aliases = new HashSet<string>(StringComparer.Ordinal) { token };
-        try
-        {
-            foreach (var status in Plugin.DataManager.GetExcelSheet<LuminaStatus>(ClientLanguage.English))
-            {
-                var englishToken = NormalizePhantomJobToken(status.Name.ToString());
-                if (!englishToken.Equals(token, StringComparison.Ordinal))
-                    continue;
-
-                foreach (var statusName in GetStatusNames(status.RowId))
-                {
-                    var alias = NormalizePhantomJobToken(statusName);
-                    if (alias.Length > 0)
-                        aliases.Add(alias);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Plugin.Log.Debug(ex, "Could not build FullParty phantom job aliases for {Token}.", token);
-        }
-
-        PhantomJobAliasCache[token] = aliases;
-        return aliases;
-    }
-
-    private static string? GetSnapshotPhantomJobName(string? phantomJob)
-    {
-        if (string.IsNullOrWhiteSpace(phantomJob))
-            return null;
-
-        var trimmed = phantomJob.Trim();
-        return trimmed.StartsWith("Phantom ", StringComparison.OrdinalIgnoreCase)
-            ? trimmed
-            : $"Phantom {trimmed}";
     }
 
     internal static IReadOnlyList<string> GetStatusNames(uint statusId)
@@ -458,22 +408,6 @@ internal static class PartySnapshotBuilder
     private static string NormalizeKeyPart(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim().ToLowerInvariant();
-    }
-
-    private static string NormalizeToken(string value)
-    {
-        return new string(value.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
-    }
-
-    private static string NormalizePhantomJobToken(string value)
-    {
-        var token = NormalizeToken(value);
-        if (token.StartsWith("phantom", StringComparison.Ordinal))
-            token = token["phantom".Length..];
-        if (token.StartsWith("job", StringComparison.Ordinal))
-            token = token["job".Length..];
-
-        return token;
     }
 
     private static bool IsBenchSlot(FullPartyRosterSlot slot)
