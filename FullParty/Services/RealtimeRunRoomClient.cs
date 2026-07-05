@@ -38,10 +38,17 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private readonly Dictionary<string, FullPartyPartySnapshot> partySnapshots = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> handledCommandIds = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentQueue<PendingCommandExecution> pendingCommandExecutions = new();
+    private readonly SemaphoreSlim socketSendLock = new(1, 1);
     private LatestCommandTracker? latestCommand;
     private const int CommandExpirySeconds = 30;
+    private const string ReadyCheckStatusClientEventName = "client-xivplugin-ready-check-status";
+    private static readonly TimeSpan CommandStatusRetention = TimeSpan.FromMinutes(2);
+    private static readonly TimeSpan CommandExpiryClockSkewTolerance = TimeSpan.FromHours(2);
     private static readonly TimeSpan PartySnapshotInterval = TimeSpan.FromMilliseconds(2200);
     private static readonly TimeSpan ReadyCheckTrackingDuration = TimeSpan.FromSeconds(45);
+    private static readonly TimeSpan ReadyCheckStatusBroadcastInterval = TimeSpan.FromSeconds(1);
+    private DateTimeOffset latestCommandUpdatedAt = DateTimeOffset.MinValue;
+    private DateTimeOffset commandStatusUpdatedAt = DateTimeOffset.MinValue;
     private DateTimeOffset readyCheckTrackUntil = DateTimeOffset.MinValue;
     private ReadyCheckSummary? readyCheckSummary;
 
@@ -49,9 +56,13 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private Task? connectionTask;
     private Task? commandIssueTask;
     private Task? partySnapshotTask;
+    private Task? readyCheckStatusTask;
     private ClientWebSocket? webSocket;
     private FullPartyRunDetail? runDetail;
     private DateTimeOffset lastPartySnapshotAttemptAt = DateTimeOffset.MinValue;
+    private DateTimeOffset lastReadyCheckStatusBroadcastAt = DateTimeOffset.MinValue;
+    private string? lastReadyCheckStatusPayloadKey;
+    private bool readyCheckStatusBroadcastFailed;
     private int partySnapshotSequence;
 
     public RealtimeRunRoomClient(int runId, Plugin plugin)
@@ -114,11 +125,10 @@ public sealed class RealtimeRunRoomClient : IDisposable
             if (latestCommand == null)
                 return "-";
 
-            if (IsCurrentUser(member.UserId) &&
-                latestCommand.CommandName.Equals("ready_check", StringComparison.OrdinalIgnoreCase) &&
-                readyCheckSummary != null)
+            if (latestCommand.CommandName.Equals("ready_check", StringComparison.OrdinalIgnoreCase) &&
+                latestCommand.ReadyCheckStatusByUserId.TryGetValue(member.UserId, out var memberReadyCheckSummary))
             {
-                return readyCheckSummary.DisplayText;
+                return memberReadyCheckSummary.DisplayText;
             }
 
             if (latestCommand.StatusByUserId.TryGetValue(member.UserId, out var status))
@@ -161,8 +171,11 @@ public sealed class RealtimeRunRoomClient : IDisposable
             members.Clear();
             handledCommandIds.Clear();
             latestCommand = null;
+            latestCommandUpdatedAt = DateTimeOffset.MinValue;
             readyCheckSummary = null;
             readyCheckTrackUntil = DateTimeOffset.MinValue;
+            commandStatusUpdatedAt = DateTimeOffset.MinValue;
+            CommandStatusMessage = null;
             PartySnapshotStatusMessage = null;
             SetStateNoLock(RealtimeRunRoomState.Connecting, "Connecting to live room...");
             connectionTask = Task.Run(() => RunAsync(cancellation.Token));
@@ -183,9 +196,12 @@ public sealed class RealtimeRunRoomClient : IDisposable
             members.Clear();
             handledCommandIds.Clear();
             latestCommand = null;
+            latestCommandUpdatedAt = DateTimeOffset.MinValue;
             readyCheckSummary = null;
             readyCheckTrackUntil = DateTimeOffset.MinValue;
             ChannelName = null;
+            commandStatusUpdatedAt = DateTimeOffset.MinValue;
+            CommandStatusMessage = null;
             PartySnapshotStatusMessage = null;
             SetStateNoLock(RealtimeRunRoomState.Disconnected, "Disconnected");
         }
@@ -261,7 +277,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             if (!string.IsNullOrWhiteSpace(channelAuth.ChannelData))
                 subscriptionData["channel_data"] = channelAuth.ChannelData;
 
-            await SendEventAsync(socket, "pusher:subscribe", subscriptionData, cancellationToken);
+            await SendSocketEventAsync(socket, "pusher:subscribe", subscriptionData, null, cancellationToken);
 
             await ReceiveLoopAsync(socket, channelName, config, cancellationToken);
         }
@@ -330,7 +346,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
             if (envelope.Event.Equals("pusher:ping", StringComparison.OrdinalIgnoreCase))
             {
-                await SendEventAsync(socket, "pusher:pong", new { }, cancellationToken);
+                await SendSocketEventAsync(socket, "pusher:pong", new { }, null, cancellationToken);
                 continue;
             }
 
@@ -394,6 +410,13 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 if (data != null)
                     HandlePartySnapshot(data.RootElement);
             }
+
+            if (EventMatches(envelope.Event, ReadyCheckStatusClientEventName))
+            {
+                using var data = ParseDataDocument(envelope.Data);
+                if (data != null)
+                    HandleReadyCheckStatus(data.RootElement);
+            }
         }
     }
 
@@ -404,7 +427,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
         {
             if (State != RealtimeRunRoomState.Connected)
             {
-                CommandStatusMessage = "Connect to the live room first.";
+                SetCommandStatusNoLock("Connect to the live room first.");
                 return;
             }
 
@@ -413,12 +436,12 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
             if (cancellation == null)
             {
-                CommandStatusMessage = "Live room is not connected.";
+                SetCommandStatusNoLock("Live room is not connected.");
                 return;
             }
 
             token = cancellation.Token;
-            CommandStatusMessage = $"Sending {label}...";
+            SetCommandStatusNoLock($"Sending {label}...");
             var idempotencyKey = CreateIdempotencyKey(command);
             commandIssueTask = Task.Run(() => SendCommandAsync(command, targetType, payload, idempotencyKey, label, token), token);
         }
@@ -455,7 +478,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 return;
         }
 
-        if (command.ExpiresAt != null && DateTimeOffset.UtcNow > command.ExpiresAt.Value)
+        if (IsCommandExpired(command))
         {
             UpdateCurrentUserCommandStatus(command.Id, "expired");
             QueueAck(command.Id, "expired");
@@ -499,6 +522,34 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 return;
 
             latestCommand.StatusByUserId[ack.UserId] = ack.Status;
+            TouchCommandTrackerNoLock();
+        }
+    }
+
+    private void HandleReadyCheckStatus(JsonElement root)
+    {
+        var status = ParseReadyCheckStatus(root);
+        if (status == null || status.RunId != runId || string.IsNullOrWhiteSpace(status.UserId))
+            return;
+
+        lock (stateLock)
+        {
+            if (latestCommand == null ||
+                !latestCommand.CommandName.Equals("ready_check", StringComparison.OrdinalIgnoreCase) ||
+                !latestCommand.CommandId.Equals(status.CommandId, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            if (latestCommand.ReadyCheckStatusByUserId.TryGetValue(status.UserId, out var existing) &&
+                existing.UpdatedAt > status.Summary.UpdatedAt)
+            {
+                return;
+            }
+
+            latestCommand.ReadyCheckStatusByUserId[status.UserId] = status.Summary;
+            latestCommand.StatusByUserId.TryAdd(status.UserId, "executed");
+            TouchCommandTrackerNoLock();
         }
     }
 
@@ -550,6 +601,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
         UpdateReadyCheckTracking();
         PublishPartySnapshotIfReady();
+        ClearStaleCommandStatus();
     }
 
     private void PublishPartySnapshotIfReady()
@@ -687,6 +739,33 @@ public sealed class RealtimeRunRoomClient : IDisposable
         };
     }
 
+    private static bool IsCommandExpired(FullPartyRunCommand command)
+    {
+        if (command.ExpiresAt == null)
+            return false;
+
+        var now = GetServerTimeNow();
+        var toleratedExpiry = command.ExpiresAt.Value + CommandExpiryClockSkewTolerance;
+        var expired = now > toleratedExpiry;
+        if (expired)
+        {
+            Plugin.Log.Debug(
+                "FullParty live command {CommandId} expired. ServerNow={Now:o}, ExpiresAt={ExpiresAt:o}, Tolerance={Tolerance}.",
+                command.Id,
+                now,
+                command.ExpiresAt.Value,
+                CommandExpiryClockSkewTolerance);
+        }
+
+        return expired;
+    }
+
+    private static DateTimeOffset GetServerTimeNow()
+    {
+        var frameworkUtc = Plugin.Framework.LastUpdateUTC;
+        return frameworkUtc == default ? DateTimeOffset.UtcNow : frameworkUtc;
+    }
+
     private void TrackCommand(FullPartyRunCommand command)
     {
         lock (stateLock)
@@ -699,7 +778,9 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 command.Id,
                 command.Command,
                 targetUserIds,
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+                new Dictionary<string, ReadyCheckSummary>(StringComparer.OrdinalIgnoreCase));
+            TouchCommandTrackerNoLock();
         }
     }
 
@@ -732,6 +813,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 return;
 
             latestCommand.StatusByUserId[currentUserId] = status;
+            TouchCommandTrackerNoLock();
         }
     }
 
@@ -740,16 +822,21 @@ public sealed class RealtimeRunRoomClient : IDisposable
         lock (stateLock)
         {
             readyCheckSummary = null;
-            readyCheckTrackUntil = DateTimeOffset.UtcNow + ReadyCheckTrackingDuration;
+            readyCheckTrackUntil = GetServerTimeNow() + ReadyCheckTrackingDuration;
+            lastReadyCheckStatusBroadcastAt = DateTimeOffset.MinValue;
+            lastReadyCheckStatusPayloadKey = null;
+            readyCheckStatusBroadcastFailed = false;
         }
     }
 
     private void UpdateReadyCheckTracking()
     {
         ReadyCheckSummary? summary;
+        string? commandId = null;
+        string? userId = null;
         lock (stateLock)
         {
-            if (DateTimeOffset.UtcNow > readyCheckTrackUntil)
+            if (GetServerTimeNow() > readyCheckTrackUntil)
                 return;
         }
 
@@ -768,14 +855,121 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
         lock (stateLock)
         {
-            if (DateTimeOffset.UtcNow > readyCheckTrackUntil)
+            if (GetServerTimeNow() > readyCheckTrackUntil)
                 return;
 
             readyCheckSummary = summary;
-            CommandStatusMessage = summary.DisplayText;
+            SetCommandStatusNoLock(summary.DisplayText);
+            userId = GetCurrentUserId();
+            if (!string.IsNullOrWhiteSpace(userId) &&
+                latestCommand != null &&
+                latestCommand.CommandName.Equals("ready_check", StringComparison.OrdinalIgnoreCase))
+            {
+                commandId = latestCommand.CommandId;
+                latestCommand.ReadyCheckStatusByUserId[userId] = summary;
+                latestCommand.StatusByUserId.TryAdd(userId, "executed");
+                TouchCommandTrackerNoLock();
+            }
+
             if (summary.IsComplete)
-                readyCheckTrackUntil = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(5);
+                readyCheckTrackUntil = GetServerTimeNow() + TimeSpan.FromSeconds(5);
         }
+
+        if (!string.IsNullOrWhiteSpace(commandId) && !string.IsNullOrWhiteSpace(userId))
+            PublishReadyCheckStatusIfReady(commandId, userId, summary);
+    }
+
+    private void PublishReadyCheckStatusIfReady(string commandId, string userId, ReadyCheckSummary summary)
+    {
+        var payloadKey = GetReadyCheckStatusPayloadKey(commandId, userId, summary);
+
+        lock (stateLock)
+        {
+            var now = GetServerTimeNow();
+            if (State != RealtimeRunRoomState.Connected ||
+                cancellation == null ||
+                webSocket == null ||
+                webSocket.State != WebSocketState.Open ||
+                string.IsNullOrWhiteSpace(ChannelName))
+            {
+                return;
+            }
+
+            if (readyCheckStatusTask is { IsCompleted: false })
+                return;
+
+            if (payloadKey.Equals(lastReadyCheckStatusPayloadKey, StringComparison.Ordinal) &&
+                now - lastReadyCheckStatusBroadcastAt < ReadyCheckStatusBroadcastInterval)
+            {
+                return;
+            }
+
+            lastReadyCheckStatusPayloadKey = payloadKey;
+            lastReadyCheckStatusBroadcastAt = now;
+            var socket = webSocket;
+            var channelName = ChannelName;
+            var token = cancellation.Token;
+            readyCheckStatusTask = Task.Run(
+                () => SendReadyCheckStatusAsync(socket, channelName, commandId, userId, summary, token),
+                token);
+        }
+    }
+
+    private async Task SendReadyCheckStatusAsync(
+        ClientWebSocket socket,
+        string channelName,
+        string commandId,
+        string userId,
+        ReadyCheckSummary summary,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await SendSocketEventAsync(
+                socket,
+                ReadyCheckStatusClientEventName,
+                new Dictionary<string, object?>
+                {
+                    ["rid"] = runId,
+                    ["cid"] = commandId,
+                    ["uid"] = userId,
+                    ["r"] = summary.Ready,
+                    ["nr"] = summary.NotReady,
+                    ["w"] = summary.Waiting,
+                    ["m"] = summary.Missing,
+                    ["u"] = summary.Unknown,
+                    ["t"] = summary.Total,
+                    ["ts"] = summary.UpdatedAt.ToUnixTimeSeconds(),
+                },
+                channelName,
+                cancellationToken);
+
+            readyCheckStatusBroadcastFailed = false;
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            if (!readyCheckStatusBroadcastFailed)
+                Plugin.Log.Debug(ex, "Could not broadcast FullParty ready-check status for run {RunId}.", runId);
+
+            readyCheckStatusBroadcastFailed = true;
+        }
+    }
+
+    private static string GetReadyCheckStatusPayloadKey(string commandId, string userId, ReadyCheckSummary summary)
+    {
+        return string.Join(
+            ':',
+            commandId,
+            userId,
+            summary.Ready.ToString(CultureInfo.InvariantCulture),
+            summary.NotReady.ToString(CultureInfo.InvariantCulture),
+            summary.Waiting.ToString(CultureInfo.InvariantCulture),
+            summary.Missing.ToString(CultureInfo.InvariantCulture),
+            summary.Unknown.ToString(CultureInfo.InvariantCulture),
+            summary.Total.ToString(CultureInfo.InvariantCulture));
     }
 
     private bool IsCurrentUser(string userId)
@@ -837,13 +1031,41 @@ public sealed class RealtimeRunRoomClient : IDisposable
                (scheme.Equals("ws", StringComparison.OrdinalIgnoreCase) && port == 80);
     }
 
-    private static async Task SendEventAsync(ClientWebSocket socket, string eventName, object data, CancellationToken cancellationToken)
+    private async Task SendSocketEventAsync(
+        ClientWebSocket socket,
+        string eventName,
+        object data,
+        string? channel,
+        CancellationToken cancellationToken)
     {
-        var payload = JsonSerializer.Serialize(new Dictionary<string, object?>
+        await socketSendLock.WaitAsync(cancellationToken);
+        try
+        {
+            await SendEventAsync(socket, eventName, data, channel, cancellationToken);
+        }
+        finally
+        {
+            socketSendLock.Release();
+        }
+    }
+
+    private static async Task SendEventAsync(
+        ClientWebSocket socket,
+        string eventName,
+        object data,
+        string? channel,
+        CancellationToken cancellationToken)
+    {
+        var envelope = new Dictionary<string, object?>
         {
             ["event"] = eventName,
             ["data"] = data,
-        }, JsonOptions);
+        };
+
+        if (!string.IsNullOrWhiteSpace(channel))
+            envelope["channel"] = channel;
+
+        var payload = JsonSerializer.Serialize(envelope, JsonOptions);
         var bytes = Encoding.UTF8.GetBytes(payload);
         await socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cancellationToken);
     }
@@ -1093,6 +1315,16 @@ public sealed class RealtimeRunRoomClient : IDisposable
         if (TryGetObject(ackRoot, "user", out var userObject) || TryGetObject(root, "user", out userObject))
             userId ??= GetString(userObject, "id") ?? GetString(userObject, "user_id");
 
+        if (TryGetObject(ackRoot, "acknowledged_by", out var acknowledgedByObject) ||
+            TryGetObject(ackRoot, "acknowledgedBy", out acknowledgedByObject) ||
+            TryGetObject(root, "acknowledged_by", out acknowledgedByObject) ||
+            TryGetObject(root, "acknowledgedBy", out acknowledgedByObject))
+        {
+            userId ??= GetString(acknowledgedByObject, "user_id") ??
+                       GetString(acknowledgedByObject, "userId") ??
+                       GetString(acknowledgedByObject, "id");
+        }
+
         if (TryGetObject(ackRoot, "member", out var memberObject) || TryGetObject(root, "member", out memberObject))
             userId ??= GetString(memberObject, "user_id") ?? GetString(memberObject, "id");
 
@@ -1134,6 +1366,44 @@ public sealed class RealtimeRunRoomClient : IDisposable
             members);
     }
 
+    private static FullPartyReadyCheckStatus? ParseReadyCheckStatus(JsonElement root)
+    {
+        if (TryGetObject(root, "data", out var data))
+            root = data;
+
+        var parsedRunId = GetInt(root, "rid") ?? GetInt(root, "run_id") ?? GetInt(root, "runId");
+        var commandId = GetString(root, "cid") ?? GetString(root, "command_id") ?? GetString(root, "commandId");
+        var userId = GetString(root, "uid") ??
+                     GetString(root, "user_id") ??
+                     GetString(root, "userId") ??
+                     GetString(root, "sender_user_id") ??
+                     GetString(root, "senderUserId");
+
+        if (parsedRunId == null || string.IsNullOrWhiteSpace(commandId) || string.IsNullOrWhiteSpace(userId))
+            return null;
+
+        var ready = GetInt(root, "r") ?? GetInt(root, "ready") ?? 0;
+        var notReady = GetInt(root, "nr") ?? GetInt(root, "not_ready") ?? GetInt(root, "notReady") ?? 0;
+        var waiting = GetInt(root, "w") ?? GetInt(root, "waiting") ?? 0;
+        var missing = GetInt(root, "m") ?? GetInt(root, "missing") ?? 0;
+        var unknown = GetInt(root, "u") ?? GetInt(root, "unknown") ?? 0;
+        var total = GetInt(root, "t") ?? GetInt(root, "total") ?? ready + notReady + waiting + missing + unknown;
+        var timestamp = GetLong(root, "ts") ?? GetLong(root, "timestamp");
+
+        return new FullPartyReadyCheckStatus(
+            parsedRunId.Value,
+            commandId,
+            userId,
+            new ReadyCheckSummary(
+                ready,
+                notReady,
+                waiting,
+                missing,
+                unknown,
+                total,
+                timestamp is > 0 ? DateTimeOffset.FromUnixTimeSeconds(timestamp.Value) : GetServerTimeNow()));
+    }
+
     private static FullPartyPartySnapshotMember? ParsePartySnapshotMember(JsonElement member)
     {
         var position = GetInt(member, "p") ?? GetInt(member, "position");
@@ -1166,9 +1436,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             if (uint.TryParse(text, out rowId))
                 return PartySnapshotBuilder.GetCombatClassJobShorthand(rowId);
 
-            return string.IsNullOrWhiteSpace(text)
-                ? null
-                : text.Trim().ToUpperInvariant();
+            return ClassJobResolver.Normalize(text);
         }
 
         return null;
@@ -1408,7 +1676,40 @@ public sealed class RealtimeRunRoomClient : IDisposable
     {
         lock (stateLock)
         {
-            CommandStatusMessage = statusMessage;
+            SetCommandStatusNoLock(statusMessage);
+        }
+    }
+
+    private void SetCommandStatusNoLock(string statusMessage)
+    {
+        CommandStatusMessage = statusMessage;
+        commandStatusUpdatedAt = GetServerTimeNow();
+    }
+
+    private void TouchCommandTrackerNoLock()
+    {
+        latestCommandUpdatedAt = GetServerTimeNow();
+    }
+
+    private void ClearStaleCommandStatus()
+    {
+        lock (stateLock)
+        {
+            var now = GetServerTimeNow();
+            if (latestCommand != null && now - latestCommandUpdatedAt >= CommandStatusRetention)
+            {
+                latestCommand = null;
+                latestCommandUpdatedAt = DateTimeOffset.MinValue;
+                readyCheckSummary = null;
+                readyCheckTrackUntil = DateTimeOffset.MinValue;
+            }
+
+            if (!string.IsNullOrWhiteSpace(CommandStatusMessage) &&
+                now - commandStatusUpdatedAt >= CommandStatusRetention)
+            {
+                CommandStatusMessage = null;
+                commandStatusUpdatedAt = DateTimeOffset.MinValue;
+            }
         }
     }
 
@@ -1547,9 +1848,16 @@ public sealed class RealtimeRunRoomClient : IDisposable
         string? UserId,
         string Status);
 
+    private sealed record FullPartyReadyCheckStatus(
+        int RunId,
+        string CommandId,
+        string UserId,
+        ReadyCheckSummary Summary);
+
     private sealed record LatestCommandTracker(
         string CommandId,
         string CommandName,
         HashSet<string> TargetUserIds,
-        Dictionary<string, string> StatusByUserId);
+        Dictionary<string, string> StatusByUserId,
+        Dictionary<string, ReadyCheckSummary> ReadyCheckStatusByUserId);
 }

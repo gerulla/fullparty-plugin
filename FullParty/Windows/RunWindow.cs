@@ -1306,49 +1306,7 @@ public sealed class RunWindow : Window, IDisposable
 
     private static string? NormalizeClassJob(string? classNameOrShorthand)
     {
-        if (string.IsNullOrWhiteSpace(classNameOrShorthand))
-            return null;
-
-        var token = new string(classNameOrShorthand
-            .Where(char.IsLetterOrDigit)
-            .Select(char.ToUpperInvariant)
-            .ToArray());
-
-        return token switch
-        {
-            "GLA" or "GLADIATOR" => "GLA",
-            "PGL" or "PUGILIST" => "PGL",
-            "MRD" or "MARAUDER" => "MRD",
-            "LNC" or "LANCER" => "LNC",
-            "ARC" or "ARCHER" => "ARC",
-            "CNJ" or "CONJURER" => "CNJ",
-            "THM" or "THAUMATURGE" => "THM",
-            "PLD" or "PALADIN" => "PLD",
-            "MNK" or "MONK" => "MNK",
-            "WAR" or "WARRIOR" => "WAR",
-            "DRG" or "DRAGOON" => "DRG",
-            "BRD" or "BARD" => "BRD",
-            "WHM" or "WHITEMAGE" => "WHM",
-            "BLM" or "BLACKMAGE" => "BLM",
-            "ACN" or "ARCANIST" => "ACN",
-            "SMN" or "SUMMONER" => "SMN",
-            "SCH" or "SCHOLAR" => "SCH",
-            "ROG" or "ROGUE" => "ROG",
-            "NIN" or "NINJA" => "NIN",
-            "MCH" or "MACHINIST" => "MCH",
-            "DRK" or "DARKKNIGHT" => "DRK",
-            "AST" or "ASTROLOGIAN" => "AST",
-            "SAM" or "SAMURAI" => "SAM",
-            "RDM" or "REDMAGE" => "RDM",
-            "BLU" or "BLUEMAGE" => "BLU",
-            "GNB" or "GUNBREAKER" => "GNB",
-            "DNC" or "DANCER" => "DNC",
-            "RPR" or "REAPER" => "RPR",
-            "SGE" or "SAGE" => "SGE",
-            "VPR" or "VIPER" => "VPR",
-            "PCT" or "PICTOMANCER" => "PCT",
-            _ => null,
-        };
+        return ClassJobResolver.Normalize(classNameOrShorthand);
     }
 
     private static uint? GetClassJobRowId(string classJob)

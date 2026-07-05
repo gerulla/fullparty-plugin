@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Dalamud.Game;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.ClientState.Statuses;
 using FullParty.Auth;
@@ -213,41 +214,7 @@ internal static class PartySnapshotBuilder
 
     internal static string? GetCombatClassJobShorthand(uint rowId)
     {
-        return rowId switch
-        {
-            1 => "GLA",
-            2 => "PGL",
-            3 => "MRD",
-            4 => "LNC",
-            5 => "ARC",
-            6 => "CNJ",
-            7 => "THM",
-            19 => "PLD",
-            20 => "MNK",
-            21 => "WAR",
-            22 => "DRG",
-            23 => "BRD",
-            24 => "WHM",
-            25 => "BLM",
-            26 => "ACN",
-            27 => "SMN",
-            28 => "SCH",
-            29 => "ROG",
-            30 => "NIN",
-            31 => "MCH",
-            32 => "DRK",
-            33 => "AST",
-            34 => "SAM",
-            35 => "RDM",
-            36 => "BLU",
-            37 => "GNB",
-            38 => "DNC",
-            39 => "RPR",
-            40 => "SGE",
-            41 => "VPR",
-            42 => "PCT",
-            _ => null,
-        };
+        return ClassJobResolver.GetCombatClassJobShorthand(rowId);
     }
 
     private static string? GetPhantomJob(IPartyMember member, FullPartyRunDetail runDetail)
@@ -262,6 +229,7 @@ internal static class PartySnapshotBuilder
             .GroupBy(slot => NormalizePhantomJobToken(slot.PhantomJob!), StringComparer.Ordinal)
             .Select(group => (Name: group.Key, SnapshotName: GetSnapshotPhantomJobName(group.First().PhantomJob)))
             .Where(job => job.Name.Length > 0 && !string.IsNullOrWhiteSpace(job.SnapshotName))
+            .OrderByDescending(job => job.Name.Length)
             .ToList();
 
         if (expectedJobs.Count == 0)
@@ -275,13 +243,18 @@ internal static class PartySnapshotBuilder
             if (statusObject is not IStatus status)
                 continue;
 
-            var statusName = NormalizeToken(GetStatusName((uint)status.StatusId) ?? string.Empty);
-            if (statusName.Length == 0)
+            var statusName = GetStatusName((uint)status.StatusId);
+            var statusJobToken = NormalizePhantomJobToken(statusName ?? string.Empty);
+            if (statusJobToken.Length == 0)
                 continue;
+
+            var exactMatch = expectedJobs.FirstOrDefault(job => statusJobToken.Equals(job.Name, StringComparison.Ordinal));
+            if (!string.IsNullOrWhiteSpace(exactMatch.SnapshotName))
+                return exactMatch.SnapshotName;
 
             foreach (var job in expectedJobs)
             {
-                if (statusName.Contains(job.Name, StringComparison.Ordinal))
+                if (statusJobToken.Contains(job.Name, StringComparison.Ordinal))
                     return job.SnapshotName;
             }
         }
@@ -308,7 +281,7 @@ internal static class PartySnapshotBuilder
         if (StatusNameCache.TryGetValue(statusId, out var cached))
             return cached;
 
-        foreach (var status in Plugin.DataManager.GetExcelSheet<LuminaStatus>())
+        foreach (var status in Plugin.DataManager.GetExcelSheet<LuminaStatus>(ClientLanguage.English))
         {
             if (status.RowId != statusId)
                 continue;
