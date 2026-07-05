@@ -22,7 +22,11 @@ public sealed class AuthService : IDisposable
     private readonly FullPartyEnvironment environment;
     private readonly HttpClient httpClient = new();
     private readonly object stateLock = new();
-    private readonly JsonSerializerOptions jsonOptions = new() { PropertyNameCaseInsensitive = true };
+    private readonly JsonSerializerOptions jsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    };
 
     private CancellationTokenSource? authCancellation;
     private Task? authTask;

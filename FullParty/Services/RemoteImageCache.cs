@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -84,6 +85,12 @@ public sealed class RemoteImageCache : IDisposable
             request.Headers.TryAddWithoutValidation("Accept", "image/png,image/webp,image/jpeg,image/*,*/*");
 
             using var response = await HttpClient.SendAsync(request, cancellationToken);
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                Plugin.Log.Debug("FullParty image was not found at {ImageUrl}", url);
+                return null;
+            }
+
             response.EnsureSuccessStatusCode();
 
             if (response.Content.Headers.ContentLength > MaxImageBytes)

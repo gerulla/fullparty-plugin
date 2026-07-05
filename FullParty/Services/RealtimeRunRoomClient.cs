@@ -38,8 +38,12 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private readonly Dictionary<string, FullPartyPartySnapshot> partySnapshots = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> handledCommandIds = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentQueue<PendingCommandExecution> pendingCommandExecutions = new();
+    private LatestCommandTracker? latestCommand;
     private const int CommandExpirySeconds = 30;
     private static readonly TimeSpan PartySnapshotInterval = TimeSpan.FromMilliseconds(2200);
+    private static readonly TimeSpan ReadyCheckTrackingDuration = TimeSpan.FromSeconds(45);
+    private DateTimeOffset readyCheckTrackUntil = DateTimeOffset.MinValue;
+    private ReadyCheckSummary? readyCheckSummary;
 
     private CancellationTokenSource? cancellation;
     private Task? connectionTask;
@@ -103,11 +107,44 @@ public sealed class RealtimeRunRoomClient : IDisposable
         }
     }
 
+    public string GetCommandStatus(FullPartyLiveMember member)
+    {
+        lock (stateLock)
+        {
+            if (latestCommand == null)
+                return "-";
+
+            if (IsCurrentUser(member.UserId) &&
+                latestCommand.CommandName.Equals("ready_check", StringComparison.OrdinalIgnoreCase) &&
+                readyCheckSummary != null)
+            {
+                return readyCheckSummary.DisplayText;
+            }
+
+            if (latestCommand.StatusByUserId.TryGetValue(member.UserId, out var status))
+                return FormatCommandStatus(status);
+
+            return latestCommand.TargetUserIds.Contains(member.UserId)
+                ? "Waiting"
+                : "Not targeted";
+        }
+    }
+
     public void SetRunDetail(FullPartyRunDetail detail)
     {
         lock (stateLock)
         {
             runDetail = detail;
+        }
+    }
+
+    public void ClearPartySnapshots(string? statusMessage = null)
+    {
+        lock (stateLock)
+        {
+            partySnapshots.Clear();
+            if (!string.IsNullOrWhiteSpace(statusMessage))
+                PartySnapshotStatusMessage = statusMessage;
         }
     }
 
@@ -123,6 +160,9 @@ public sealed class RealtimeRunRoomClient : IDisposable
             cancellation = new CancellationTokenSource();
             members.Clear();
             handledCommandIds.Clear();
+            latestCommand = null;
+            readyCheckSummary = null;
+            readyCheckTrackUntil = DateTimeOffset.MinValue;
             PartySnapshotStatusMessage = null;
             SetStateNoLock(RealtimeRunRoomState.Connecting, "Connecting to live room...");
             connectionTask = Task.Run(() => RunAsync(cancellation.Token));
@@ -142,6 +182,9 @@ public sealed class RealtimeRunRoomClient : IDisposable
             webSocket = null;
             members.Clear();
             handledCommandIds.Clear();
+            latestCommand = null;
+            readyCheckSummary = null;
+            readyCheckTrackUntil = DateTimeOffset.MinValue;
             ChannelName = null;
             PartySnapshotStatusMessage = null;
             SetStateNoLock(RealtimeRunRoomState.Disconnected, "Disconnected");
@@ -338,6 +381,13 @@ public sealed class RealtimeRunRoomClient : IDisposable
                     HandleRunCommand(data.RootElement);
             }
 
+            if (EventMatches(envelope.Event, config.CommandAcknowledgedEventName))
+            {
+                using var data = ParseDataDocument(envelope.Data);
+                if (data != null)
+                    HandleCommandAck(data.RootElement);
+            }
+
             if (EventMatches(envelope.Event, config.PartySnapshotEventName))
             {
                 using var data = ParseDataDocument(envelope.Data);
@@ -397,6 +447,8 @@ public sealed class RealtimeRunRoomClient : IDisposable
         if (command == null)
             return;
 
+        TrackCommand(command);
+
         lock (stateLock)
         {
             if (!handledCommandIds.Add(command.Id))
@@ -405,12 +457,14 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
         if (command.ExpiresAt != null && DateTimeOffset.UtcNow > command.ExpiresAt.Value)
         {
+            UpdateCurrentUserCommandStatus(command.Id, "expired");
             QueueAck(command.Id, "expired");
             return;
         }
 
         if (!IsTargeted(command))
         {
+            UpdateCurrentUserCommandStatus(command.Id, "ignored_not_targeted");
             QueueAck(command.Id, "ignored_not_targeted");
             return;
         }
@@ -418,17 +472,41 @@ public sealed class RealtimeRunRoomClient : IDisposable
         var localCommand = GetLocalCommand(command);
         if (localCommand == null)
         {
+            UpdateCurrentUserCommandStatus(command.Id, "failed");
             QueueAck(command.Id, "failed");
             SetCommandStatus($"Unsupported live command: {command.Command}");
             return;
         }
 
+        UpdateCurrentUserCommandStatus(command.Id, "received");
+        QueueAck(command.Id, "received");
         pendingCommandExecutions.Enqueue(new PendingCommandExecution(command.Id, command.Command, localCommand));
         SetCommandStatus($"Received {FormatCommandName(command.Command)}.");
     }
 
+    private void HandleCommandAck(JsonElement root)
+    {
+        var ack = ParseCommandAck(root);
+        if (ack == null)
+            return;
+
+        lock (stateLock)
+        {
+            if (latestCommand == null || !latestCommand.CommandId.Equals(ack.CommandId, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            if (string.IsNullOrWhiteSpace(ack.UserId))
+                return;
+
+            latestCommand.StatusByUserId[ack.UserId] = ack.Status;
+        }
+    }
+
     private void HandlePartySnapshot(JsonElement root)
     {
+        if (!OccultCrescentTerritory.IsCurrent())
+            return;
+
         var snapshot = ParsePartySnapshot(root);
         if (snapshot == null || snapshot.RunId != runId || string.IsNullOrWhiteSpace(snapshot.PartyKey))
             return;
@@ -454,17 +532,23 @@ public sealed class RealtimeRunRoomClient : IDisposable
             try
             {
                 GameCommandExecutor.Execute(pending.LocalCommand);
+                if (pending.CommandName.Equals("ready_check", StringComparison.OrdinalIgnoreCase))
+                    StartReadyCheckTracking();
+
+                UpdateCurrentUserCommandStatus(pending.CommandId, "executed");
                 QueueAck(pending.CommandId, "executed");
                 SetCommandStatus($"Executed {FormatCommandName(pending.CommandName)}.");
             }
             catch (Exception ex)
             {
                 Plugin.Log.Warning(ex, "Could not execute FullParty live command {Command} for run {RunId}.", pending.CommandName, runId);
+                UpdateCurrentUserCommandStatus(pending.CommandId, "failed");
                 QueueAck(pending.CommandId, "failed");
                 SetCommandStatus($"Failed to execute {FormatCommandName(pending.CommandName)}.");
             }
         }
 
+        UpdateReadyCheckTracking();
         PublishPartySnapshotIfReady();
     }
 
@@ -473,6 +557,12 @@ public sealed class RealtimeRunRoomClient : IDisposable
         FullPartyRunDetail? currentRunDetail;
         FullPartyLiveMember? currentMember;
         CancellationToken token;
+
+        if (!OccultCrescentTerritory.IsCurrent())
+        {
+            SetPartySnapshotStatus("Party sync waits for Occult Crescent.");
+            return;
+        }
 
         lock (stateLock)
         {
@@ -577,19 +667,125 @@ public sealed class RealtimeRunRoomClient : IDisposable
             members.TryGetValue(currentUserId, out currentMember);
         }
 
+        return IsMemberTargeted(command, currentUserId, currentMember);
+    }
+
+    private static bool IsMemberTargeted(FullPartyRunCommand command, string userId, FullPartyLiveMember? member)
+    {
         if (command.ResolvedUserIds.Count > 0)
-            return command.ResolvedUserIds.Contains(currentUserId, StringComparer.OrdinalIgnoreCase);
+            return command.ResolvedUserIds.Contains(userId, StringComparer.OrdinalIgnoreCase);
 
         if (command.ResolvedSlotIds.Count > 0)
-            return currentMember?.SlotIds.Any(command.ResolvedSlotIds.Contains) == true;
+            return member?.SlotIds.Any(command.ResolvedSlotIds.Contains) == true;
 
         return command.TargetType switch
         {
-            "party_leads" => currentMember?.IsPartyLead == true,
-            "hosts" => currentMember?.IsHost == true,
-            "all_assigned" => currentMember?.SlotIds.Count > 0,
+            "party_leads" => member?.IsPartyLead == true,
+            "hosts" => member?.IsHost == true,
+            "all_assigned" => member?.SlotIds.Count > 0,
             _ => false,
         };
+    }
+
+    private void TrackCommand(FullPartyRunCommand command)
+    {
+        lock (stateLock)
+        {
+            if (latestCommand != null && latestCommand.CommandId.Equals(command.Id, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            var targetUserIds = BuildTargetUserIdsNoLock(command);
+            latestCommand = new LatestCommandTracker(
+                command.Id,
+                command.Command,
+                targetUserIds,
+                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
+        }
+    }
+
+    private HashSet<string> BuildTargetUserIdsNoLock(FullPartyRunCommand command)
+    {
+        if (command.ResolvedUserIds.Count > 0)
+            return command.ResolvedUserIds
+                .Where(userId => !string.IsNullOrWhiteSpace(userId))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var targetUserIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var member in members.Values)
+        {
+            if (IsMemberTargeted(command, member.UserId, member))
+                targetUserIds.Add(member.UserId);
+        }
+
+        return targetUserIds;
+    }
+
+    private void UpdateCurrentUserCommandStatus(string commandId, string status)
+    {
+        var currentUserId = GetCurrentUserId();
+        if (string.IsNullOrWhiteSpace(currentUserId))
+            return;
+
+        lock (stateLock)
+        {
+            if (latestCommand == null || !latestCommand.CommandId.Equals(commandId, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            latestCommand.StatusByUserId[currentUserId] = status;
+        }
+    }
+
+    private void StartReadyCheckTracking()
+    {
+        lock (stateLock)
+        {
+            readyCheckSummary = null;
+            readyCheckTrackUntil = DateTimeOffset.UtcNow + ReadyCheckTrackingDuration;
+        }
+    }
+
+    private void UpdateReadyCheckTracking()
+    {
+        ReadyCheckSummary? summary;
+        lock (stateLock)
+        {
+            if (DateTimeOffset.UtcNow > readyCheckTrackUntil)
+                return;
+        }
+
+        try
+        {
+            summary = ReadyCheckStatusReader.Read();
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Debug(ex, "Could not read the current ready-check status.");
+            return;
+        }
+
+        if (summary == null)
+            return;
+
+        lock (stateLock)
+        {
+            if (DateTimeOffset.UtcNow > readyCheckTrackUntil)
+                return;
+
+            readyCheckSummary = summary;
+            CommandStatusMessage = summary.DisplayText;
+            if (summary.IsComplete)
+                readyCheckTrackUntil = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(5);
+        }
+    }
+
+    private bool IsCurrentUser(string userId)
+    {
+        return userId.Equals(GetCurrentUserId(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private string? GetCurrentUserId()
+    {
+        return plugin.AuthService.User?.Id.ToString(CultureInfo.InvariantCulture);
     }
 
     private static Uri BuildWebSocketUri(FullPartyRealtimeConfig config)
@@ -864,6 +1060,48 @@ public sealed class RealtimeRunRoomClient : IDisposable
             GetIntList(commandRoot, ["resolved_slot_ids", "slot_ids"]));
     }
 
+    private static FullPartyRunCommandAck? ParseCommandAck(JsonElement root)
+    {
+        if (TryGetObject(root, "data", out var data))
+            root = data;
+
+        var ackRoot = TryGetObject(root, "ack", out var ack)
+            ? ack
+            : TryGetObject(root, "acknowledgement", out var acknowledgement)
+                ? acknowledgement
+                : root;
+        var commandId = GetString(ackRoot, "command_id") ??
+                        GetString(ackRoot, "commandId") ??
+                        GetString(root, "command_id") ??
+                        GetString(root, "commandId");
+        var status = GetString(ackRoot, "status") ??
+                     GetString(ackRoot, "ack_status") ??
+                     GetString(ackRoot, "ackStatus") ??
+                     GetString(root, "status");
+        var userId = GetString(ackRoot, "user_id") ??
+                     GetString(ackRoot, "userId") ??
+                     GetString(ackRoot, "sender_user_id") ??
+                     GetString(ackRoot, "senderUserId") ??
+                     GetString(ackRoot, "acknowledged_by_user_id") ??
+                     GetString(ackRoot, "acknowledgedByUserId") ??
+                     GetString(root, "user_id") ??
+                     GetString(root, "userId");
+
+        if (TryGetObject(root, "command", out var commandObject))
+            commandId ??= GetString(commandObject, "id") ?? GetString(commandObject, "command_id");
+
+        if (TryGetObject(ackRoot, "user", out var userObject) || TryGetObject(root, "user", out userObject))
+            userId ??= GetString(userObject, "id") ?? GetString(userObject, "user_id");
+
+        if (TryGetObject(ackRoot, "member", out var memberObject) || TryGetObject(root, "member", out memberObject))
+            userId ??= GetString(memberObject, "user_id") ?? GetString(memberObject, "id");
+
+        if (string.IsNullOrWhiteSpace(commandId) || string.IsNullOrWhiteSpace(status))
+            return null;
+
+        return new FullPartyRunCommandAck(commandId, userId, status);
+    }
+
     private static FullPartyPartySnapshot? ParsePartySnapshot(JsonElement root)
     {
         if (TryGetObject(root, "data", out var data))
@@ -907,8 +1145,51 @@ public sealed class RealtimeRunRoomClient : IDisposable
             GetLong(member, "cid") ?? GetLong(member, "character_id") ?? GetLong(member, "characterId"),
             GetString(member, "n") ?? GetString(member, "name"),
             GetString(member, "w") ?? GetString(member, "world"),
-            GetInt(member, "cj") ?? GetInt(member, "class_job_id") ?? GetInt(member, "classJobId"),
-            GetInt(member, "pj") ?? GetInt(member, "phantom_job_id") ?? GetInt(member, "phantomJobId"));
+            GetClassJob(member),
+            GetPhantomJob(member));
+    }
+
+    private static string? GetClassJob(JsonElement root)
+    {
+        foreach (var propertyName in new[] { "cj", "class_job", "classJob", "class_job_shorthand", "classJobShorthand" })
+        {
+            if (!TryGetProperty(root, propertyName, out var value))
+                continue;
+
+            if (value.ValueKind == JsonValueKind.Number && value.TryGetUInt32(out var rowId))
+                return PartySnapshotBuilder.GetCombatClassJobShorthand(rowId);
+
+            if (value.ValueKind != JsonValueKind.String)
+                continue;
+
+            var text = value.GetString();
+            if (uint.TryParse(text, out rowId))
+                return PartySnapshotBuilder.GetCombatClassJobShorthand(rowId);
+
+            return string.IsNullOrWhiteSpace(text)
+                ? null
+                : text.Trim().ToUpperInvariant();
+        }
+
+        return null;
+    }
+
+    private static string? GetPhantomJob(JsonElement root)
+    {
+        foreach (var propertyName in new[] { "pj", "phantom_job", "phantomJob", "phantom_job_name", "phantomJobName" })
+        {
+            if (!TryGetProperty(root, propertyName, out var value))
+                continue;
+
+            return value.ValueKind switch
+            {
+                JsonValueKind.String => string.IsNullOrWhiteSpace(value.GetString()) ? null : value.GetString()!.Trim(),
+                JsonValueKind.Number => value.ToString(),
+                _ => null,
+            };
+        }
+
+        return null;
     }
 
     private static JsonElement NormalizeCommandRoot(JsonElement root)
@@ -1044,6 +1325,20 @@ public sealed class RealtimeRunRoomClient : IDisposable
             "ready_check" => "ready check",
             "countdown" => "countdown",
             _ => command,
+        };
+    }
+
+    private static string FormatCommandStatus(string status)
+    {
+        return status switch
+        {
+            "received" => "Received",
+            "executed" => "Executed",
+            "failed" => "Failed",
+            "expired" => "Expired",
+            "ignored_not_targeted" => "Received, not target",
+            "user_disabled_auto_execute" => "Disabled",
+            _ => status.Replace('_', ' '),
         };
     }
 
@@ -1246,4 +1541,15 @@ public sealed class RealtimeRunRoomClient : IDisposable
         string CommandId,
         string CommandName,
         string LocalCommand);
+
+    private sealed record FullPartyRunCommandAck(
+        string CommandId,
+        string? UserId,
+        string Status);
+
+    private sealed record LatestCommandTracker(
+        string CommandId,
+        string CommandName,
+        HashSet<string> TargetUserIds,
+        Dictionary<string, string> StatusByUserId);
 }

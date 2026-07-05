@@ -11,14 +11,14 @@ namespace FullParty.Services;
 internal sealed record GamePresenceMember(
     string Name,
     string? World,
-    int? ClassJobId,
-    int? PhantomJobId);
+    string? ClassJob,
+    string? PhantomJob);
 
 internal sealed record ObservedGameMember(
     string Name,
     string? World,
-    int? ClassJobId,
-    int? PhantomJobId);
+    string? ClassJob,
+    string? PhantomJob);
 
 internal sealed class GamePresenceList
 {
@@ -64,7 +64,7 @@ internal static class RunValidationSources
         var members = new Dictionary<string, GamePresenceMember>(StringComparer.OrdinalIgnoreCase);
         foreach (var bucket in BuildObservedPartyBuckets(GetActivePartyCount(runDetail)))
             foreach (var member in bucket.Members)
-                AddPresence(members, member.Name, member.World, member.ClassJobId, member.PhantomJobId);
+                AddPresence(members, member.Name, member.World, member.ClassJob, member.PhantomJob);
 
         return new GamePresenceList([.. members.Values]);
     }
@@ -196,7 +196,7 @@ internal static class RunValidationSources
                 .Select(member => new ObservedGameMember(
                     GetName(member),
                     GetWorld(member),
-                    PartySnapshotBuilder.GetCombatClassJobId(member.ClassJob.RowId),
+                    PartySnapshotBuilder.GetCombatClassJobShorthand(member.ClassJob.RowId),
                     null))
                 .ToList();
         }
@@ -245,7 +245,7 @@ internal static class RunValidationSources
                     members.Add(new ObservedGameMember(
                         name,
                         GetWorldName(member.HomeWorld),
-                        PartySnapshotBuilder.GetCombatClassJobId(member.ClassJobId),
+                        PartySnapshotBuilder.GetCombatClassJobShorthand(member.ClassJobId),
                         null));
                 }
 
@@ -282,7 +282,7 @@ internal static class RunValidationSources
                 members.Add(new ObservedGameMember(
                     GetName(member),
                     GetWorld(member),
-                    PartySnapshotBuilder.GetCombatClassJobId(member.ClassJob.RowId),
+                    PartySnapshotBuilder.GetCombatClassJobShorthand(member.ClassJob.RowId),
                     null));
             }
             catch (Exception ex)
@@ -381,8 +381,8 @@ internal static class RunValidationSources
             characterId,
             characterId == null ? name : null,
             characterId == null ? world : null,
-            PartySnapshotBuilder.GetCombatClassJobId(member.ClassJob.RowId),
-            PartySnapshotBuilder.GetPhantomJobIdFromStatuses(member.Statuses, runDetail));
+            PartySnapshotBuilder.GetCombatClassJobShorthand(member.ClassJob.RowId),
+            PartySnapshotBuilder.GetPhantomJobFromStatuses(member.Statuses, runDetail));
     }
 
     private static FullPartyPartySnapshotMember MapObservedMember(
@@ -400,21 +400,21 @@ internal static class RunValidationSources
             characterId,
             characterId == null ? member.Name : null,
             characterId == null ? member.World : null,
-            member.ClassJobId,
-            member.PhantomJobId);
+            member.ClassJob,
+            member.PhantomJob);
     }
 
     private static void AddPresence(
         IDictionary<string, GamePresenceMember> members,
         string? name,
         string? world,
-        int? classJobId,
-        int? phantomJobId)
+        string? classJob,
+        string? phantomJob)
     {
         if (string.IsNullOrWhiteSpace(name))
             return;
 
-        members[GetCharacterKey(name, world)] = new GamePresenceMember(name, world, classJobId, phantomJobId);
+        members[GetCharacterKey(name, world)] = new GamePresenceMember(name, world, classJob, phantomJob);
     }
 
     private static string GetName(IPartyMember member)

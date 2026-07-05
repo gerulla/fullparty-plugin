@@ -81,8 +81,8 @@ public sealed record FullPartyPartySnapshotMember(
     long? CharacterId,
     string? Name,
     string? World,
-    int? ClassJobId,
-    int? PhantomJobId)
+    string? ClassJob,
+    string? PhantomJob)
 {
     public string DisplayName => string.IsNullOrWhiteSpace(Name) ? $"Slot {Position}" : Name;
 }

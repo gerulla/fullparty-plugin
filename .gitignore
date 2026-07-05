@@ -1,4 +1,5 @@
 .vs/
+.tmp/
 obj/
 obj_verify/
 bin/

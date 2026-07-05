@@ -119,8 +119,8 @@ internal static class PartySnapshotBuilder
             characterId,
             characterId == null ? name : null,
             characterId == null ? world : null,
-            GetClassJobId(member),
-            GetPhantomJobId(member, runDetail));
+            GetCombatClassJobShorthand(member.ClassJob.RowId),
+            GetPhantomJob(member, runDetail));
     }
 
     private static FullPartyPartySnapshotMember? TryMapLocalPlayerFallback(
@@ -181,12 +181,6 @@ internal static class PartySnapshotBuilder
             GetCharacterKey(member.Name, member.World).Equals(characterKey, StringComparison.OrdinalIgnoreCase));
     }
 
-    private static int? GetClassJobId(IPartyMember member)
-    {
-        var rowId = member.ClassJob.RowId;
-        return GetCombatClassJobId(rowId);
-    }
-
     private static FullPartyPartySnapshotMember MapLocalPlayerFallback(
         FullPartyRosterSlot assignedSlot,
         FullPartyLiveMember currentMember,
@@ -203,8 +197,8 @@ internal static class PartySnapshotBuilder
             characterId,
             characterId == null ? FirstNonEmpty(localName, currentMember.CharacterName, character?.Name) : null,
             characterId == null ? FirstNonEmpty(localWorld, currentMember.World, character?.World) : null,
-            GetCombatClassJobId(localPlayer?.ClassJob.RowId ?? Plugin.PlayerState.ClassJob.RowId),
-            GetPhantomJobIdFromStatuses(localPlayer?.StatusList, runDetail));
+            GetCombatClassJobShorthand(localPlayer?.ClassJob.RowId ?? Plugin.PlayerState.ClassJob.RowId),
+            GetPhantomJobFromStatuses(localPlayer?.StatusList, runDetail));
     }
 
     internal static int? GetCombatClassJobId(uint rowId)
@@ -217,18 +211,57 @@ internal static class PartySnapshotBuilder
         return rowId is >= 1 and <= 7 or >= 19 and <= 42;
     }
 
-    private static int? GetPhantomJobId(IPartyMember member, FullPartyRunDetail runDetail)
+    internal static string? GetCombatClassJobShorthand(uint rowId)
     {
-        return GetPhantomJobIdFromStatuses(member.Statuses, runDetail);
+        return rowId switch
+        {
+            1 => "GLA",
+            2 => "PGL",
+            3 => "MRD",
+            4 => "LNC",
+            5 => "ARC",
+            6 => "CNJ",
+            7 => "THM",
+            19 => "PLD",
+            20 => "MNK",
+            21 => "WAR",
+            22 => "DRG",
+            23 => "BRD",
+            24 => "WHM",
+            25 => "BLM",
+            26 => "ACN",
+            27 => "SMN",
+            28 => "SCH",
+            29 => "ROG",
+            30 => "NIN",
+            31 => "MCH",
+            32 => "DRK",
+            33 => "AST",
+            34 => "SAM",
+            35 => "RDM",
+            36 => "BLU",
+            37 => "GNB",
+            38 => "DNC",
+            39 => "RPR",
+            40 => "SGE",
+            41 => "VPR",
+            42 => "PCT",
+            _ => null,
+        };
     }
 
-    internal static int? GetPhantomJobIdFromStatuses(IEnumerable? statuses, FullPartyRunDetail runDetail)
+    private static string? GetPhantomJob(IPartyMember member, FullPartyRunDetail runDetail)
+    {
+        return GetPhantomJobFromStatuses(member.Statuses, runDetail);
+    }
+
+    internal static string? GetPhantomJobFromStatuses(IEnumerable? statuses, FullPartyRunDetail runDetail)
     {
         var expectedJobs = runDetail.Slots
-            .Where(slot => slot.PhantomJobId != null && !string.IsNullOrWhiteSpace(slot.PhantomJob))
-            .GroupBy(slot => slot.PhantomJobId!.Value)
-            .Select(group => (Id: group.Key, Name: NormalizeToken(group.First().PhantomJob!)))
-            .Where(job => job.Name.Length > 0)
+            .Where(slot => !string.IsNullOrWhiteSpace(slot.PhantomJob))
+            .GroupBy(slot => NormalizePhantomJobToken(slot.PhantomJob!), StringComparer.Ordinal)
+            .Select(group => (Name: group.Key, SnapshotName: GetSnapshotPhantomJobName(group.First().PhantomJob)))
+            .Where(job => job.Name.Length > 0 && !string.IsNullOrWhiteSpace(job.SnapshotName))
             .ToList();
 
         if (expectedJobs.Count == 0)
@@ -249,11 +282,22 @@ internal static class PartySnapshotBuilder
             foreach (var job in expectedJobs)
             {
                 if (statusName.Contains(job.Name, StringComparison.Ordinal))
-                    return job.Id;
+                    return job.SnapshotName;
             }
         }
 
         return null;
+    }
+
+    private static string? GetSnapshotPhantomJobName(string? phantomJob)
+    {
+        if (string.IsNullOrWhiteSpace(phantomJob))
+            return null;
+
+        var trimmed = phantomJob.Trim();
+        return trimmed.StartsWith("Phantom ", StringComparison.OrdinalIgnoreCase)
+            ? trimmed
+            : $"Phantom {trimmed}";
     }
 
     private static string? GetStatusName(uint statusId)
@@ -313,6 +357,14 @@ internal static class PartySnapshotBuilder
     private static string NormalizeToken(string value)
     {
         return new string(value.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
+    }
+
+    private static string NormalizePhantomJobToken(string value)
+    {
+        var token = NormalizeToken(value);
+        return token.StartsWith("phantom", StringComparison.Ordinal)
+            ? token["phantom".Length..]
+            : token;
     }
 
     private static bool IsBenchSlot(FullPartyRosterSlot slot)

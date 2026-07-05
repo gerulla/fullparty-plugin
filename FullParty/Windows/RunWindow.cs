@@ -10,7 +10,6 @@ using Dalamud.Interface.Textures;
 using Dalamud.Interface.Windowing;
 using FullParty.Models;
 using FullParty.Services;
-using Lumina.Excel.Sheets;
 
 namespace FullParty.Windows;
 
@@ -60,8 +59,8 @@ internal sealed record ValidationSlotResult(
     FullPartyRosterCharacter? Character,
     FullPartyRosterSlot? RosterSlot,
     string DisplayName,
-    int? ClassJobId,
-    int? PhantomJobId,
+    string? ClassJob,
+    string? PhantomJob,
     ValidationState State,
     IReadOnlyList<string> Messages);
 
@@ -89,6 +88,7 @@ public sealed class RunWindow : Window, IDisposable
     private Vector2 rosterCompanionSize = new(RosterCompanionDefaultWidth, RosterCompanionDefaultHeight);
     private bool hasRosterCompanionSize;
     private bool applyRosterCompanionSizeNextDraw = true;
+    private bool? lastOccultState;
 
     public FullPartyRun Run { get; }
 
@@ -307,7 +307,7 @@ public sealed class RunWindow : Window, IDisposable
 
         ImGui.TableSetupColumn("Character", ImGuiTableColumnFlags.WidthStretch, 1.4f);
         ImGui.TableSetupColumn("User", ImGuiTableColumnFlags.WidthStretch, 1f);
-        ImGui.TableSetupColumn("Slots", ImGuiTableColumnFlags.WidthStretch, 1.2f);
+        ImGui.TableSetupColumn("Command", ImGuiTableColumnFlags.WidthStretch, 1.2f);
         ImGui.TableSetupColumn("Role", ImGuiTableColumnFlags.WidthFixed, 96f);
         ImGui.TableHeadersRow();
 
@@ -322,8 +322,8 @@ public sealed class RunWindow : Window, IDisposable
             ImGui.TextUnformatted(member.UserName);
 
             ImGui.TableNextColumn();
-            var slots = member.SlotLabels.Count == 0 ? "-" : string.Join(", ", member.SlotLabels);
-            ImGui.TextWrapped(slots);
+            var commandStatus = liveRoom.GetCommandStatus(member);
+            ImGui.TextColored(GetLiveCommandStatusColor(commandStatus), commandStatus);
 
             ImGui.TableNextColumn();
             ImGui.TextUnformatted(GetLiveMemberRole(member));
@@ -668,14 +668,14 @@ public sealed class RunWindow : Window, IDisposable
         var iconRight = max.X - 7f;
         Vector2? phantomIconPosition = null;
         Vector2? classIconPosition = null;
-        if (result.PhantomJobId != null)
+        if (!string.IsNullOrWhiteSpace(result.PhantomJob))
         {
             iconRight -= 20f;
             phantomIconPosition = new Vector2(iconRight, min.Y + 7f);
             iconRight -= 4f;
         }
 
-        if (result.ClassJobId != null ||
+        if (!string.IsNullOrWhiteSpace(result.ClassJob) ||
             (!useOccultPresence && !string.IsNullOrWhiteSpace(result.RosterSlot?.CharacterClass)))
         {
             iconRight -= 20f;
@@ -690,17 +690,17 @@ public sealed class RunWindow : Window, IDisposable
         drawList.AddText(cursor + new Vector2(0, 3f), ImGui.GetColorU32(ImGuiCol.Text), TrimToWidth(result.DisplayName, nameWidth));
 
         if (classIconPosition != null &&
-            !DrawJobIconById(drawList, result.ClassJobId, classIconPosition.Value) &&
+            !DrawJobIcon(drawList, result.ClassJob, classIconPosition.Value) &&
             !DrawJobIcon(drawList, result.RosterSlot?.CharacterClass, classIconPosition.Value))
         {
             DrawIconFallback(drawList, classIconPosition.Value, result.RosterSlot?.CharacterClass, ImGui.GetColorU32(ImGuiCol.TextDisabled));
         }
 
         if (phantomIconPosition != null &&
-            !DrawPhantomJobIconById(drawList, runDetail, result.PhantomJobId, phantomIconPosition.Value) &&
-            result.PhantomJobId != null)
+            !DrawPhantomJobIconByName(drawList, runDetail, result.PhantomJob, phantomIconPosition.Value) &&
+            !string.IsNullOrWhiteSpace(result.PhantomJob))
         {
-            DrawIconFallback(drawList, phantomIconPosition.Value, GetPhantomJobDisplayName(runDetail, result.PhantomJobId.Value), ImGui.GetColorU32(ImGuiCol.TextDisabled));
+            DrawIconFallback(drawList, phantomIconPosition.Value, GetPhantomJobDisplayName(runDetail, result.PhantomJob), ImGui.GetColorU32(ImGuiCol.TextDisabled));
         }
 
         if (hovered && result.Messages.Count > 0)
@@ -733,6 +733,19 @@ public sealed class RunWindow : Window, IDisposable
         var expectedPresence = expectedCharacter != null && useOccultPresence && occultPresence.TryFind(expectedCharacter, out var presence)
             ? presence
             : null;
+
+        if (useOccultPresence && expectedCharacter != null && expectedPresence == null)
+        {
+            return new ValidationSlotResult(
+                expectedCharacter,
+                plannedSlot,
+                expectedCharacter.Name,
+                null,
+                null,
+                ValidationState.Error,
+                ["Missing from Adventurer List."]);
+        }
+
         if (actualMember == null)
         {
             if (expectedCharacter == null)
@@ -740,26 +753,14 @@ public sealed class RunWindow : Window, IDisposable
 
             if (useOccultPresence)
             {
-                if (expectedPresence == null)
-                {
-                    return new ValidationSlotResult(
-                        expectedCharacter,
-                        plannedSlot,
-                        expectedCharacter.Name,
-                        null,
-                        null,
-                        ValidationState.Error,
-                        ["Missing from Adventurer List."]);
-                }
-
                 var occultMessages = new List<string>();
                 var occultState = ValidationState.Warning;
-                int? occultClassJobId = null;
-                int? occultPhantomJobId = null;
+                string? occultClassJob = null;
+                string? occultPhantomJob = null;
                 if (expectedObserved != null)
                 {
-                    occultClassJobId = GetCombatClassJobId(expectedObserved.Member.ClassJobId);
-                    occultPhantomJobId = expectedObserved.Member.PhantomJobId;
+                    occultClassJob = NormalizeClassJob(expectedObserved.Member.ClassJob);
+                    occultPhantomJob = expectedObserved.Member.PhantomJob;
                     if (expectedObserved.Snapshot.PartyKey.Equals(plannedSlot.GroupKey, StringComparison.OrdinalIgnoreCase))
                     {
                         occultState = ValidationState.Ok;
@@ -769,7 +770,7 @@ public sealed class RunWindow : Window, IDisposable
                         occultMessages.Add($"Wrong party: currently in {FormatObservedLocation(runDetail, expectedObserved, true)}.");
                     }
 
-                    AddClassValidationMessage(plannedSlot, occultClassJobId, occultMessages);
+                    AddClassValidationMessage(plannedSlot, occultClassJob, occultMessages);
                     AddPhantomJobValidationMessage(runDetail, plannedSlot, expectedObserved.Member, occultMessages);
                 }
                 else
@@ -783,33 +784,33 @@ public sealed class RunWindow : Window, IDisposable
                     expectedCharacter,
                     plannedSlot,
                     expectedCharacter.Name,
-                    occultClassJobId,
-                    occultPhantomJobId,
+                    occultClassJob,
+                    occultPhantomJob,
                     occultMessages.Count == 0 ? occultState : ValidationState.Warning,
                     occultMessages);
             }
 
             var missingMessages = new List<string>();
             var state = ValidationState.Error;
-            int? classJobId = null;
-            int? phantomJobId = plannedSlot.PhantomJobId;
+            string? classJob = null;
+            string? phantomJob = plannedSlot.PhantomJob;
             if (expectedObserved != null)
             {
                 state = ValidationState.Warning;
                 missingMessages.Add(useOccultPresence
                     ? $"Wrong place: currently in {FormatObservedLocation(runDetail, expectedObserved, false)}."
                     : $"Wrong party: currently in {FormatObservedLocation(runDetail, expectedObserved, true)}.");
-                classJobId = GetCombatClassJobId(expectedObserved.Member.ClassJobId);
-                phantomJobId = expectedObserved.Member.PhantomJobId ?? plannedSlot.PhantomJobId;
+                classJob = NormalizeClassJob(expectedObserved.Member.ClassJob);
+                phantomJob = expectedObserved.Member.PhantomJob ?? plannedSlot.PhantomJob;
             }
             else if (expectedPresence != null)
             {
                 state = ValidationState.Warning;
-                classJobId = GetCombatClassJobId(expectedPresence.ClassJobId);
-                phantomJobId = expectedPresence.PhantomJobId ?? plannedSlot.PhantomJobId;
+                classJob = NormalizeClassJob(expectedPresence.ClassJob);
+                phantomJob = expectedPresence.PhantomJob ?? plannedSlot.PhantomJob;
                 missingMessages.Add("Present in Adventurer List; party position has not been synced yet.");
-                AddClassValidationMessage(plannedSlot, classJobId, missingMessages);
-                AddPresencePhantomJobValidationMessage(runDetail, plannedSlot, expectedPresence.PhantomJobId, missingMessages);
+                AddClassValidationMessage(plannedSlot, classJob, missingMessages);
+                AddPresencePhantomJobValidationMessage(runDetail, plannedSlot, expectedPresence.PhantomJob, missingMessages);
             }
             else
             {
@@ -822,8 +823,8 @@ public sealed class RunWindow : Window, IDisposable
                 expectedCharacter,
                 plannedSlot,
                 expectedCharacter.Name,
-                classJobId,
-                phantomJobId,
+                classJob,
+                phantomJob,
                 state,
                 missingMessages);
         }
@@ -831,7 +832,7 @@ public sealed class RunWindow : Window, IDisposable
         var actualRosterSlot = ResolveRosterSlot(runDetail, actualMember);
         var actualCharacter = actualRosterSlot?.AssignedCharacter;
         var actualDisplayName = actualCharacter?.Name ?? actualMember.DisplayName;
-        var actualClassJobId = GetCombatClassJobId(actualMember.ClassJobId);
+        var actualClassJob = NormalizeClassJob(actualMember.ClassJob);
         var messages = new List<string>();
 
         if (expectedCharacter == null)
@@ -841,8 +842,8 @@ public sealed class RunWindow : Window, IDisposable
                 actualCharacter,
                 actualRosterSlot,
                 actualDisplayName,
-                actualClassJobId,
-                actualMember.PhantomJobId,
+                actualClassJob,
+                actualMember.PhantomJob,
                 ValidationState.Warning,
                 messages);
         }
@@ -871,23 +872,23 @@ public sealed class RunWindow : Window, IDisposable
                 actualCharacter,
                 actualRosterSlot,
                 actualDisplayName,
-                actualClassJobId,
-                actualMember.PhantomJobId,
+                actualClassJob,
+                actualMember.PhantomJob,
                 ValidationState.Warning,
                 messages);
         }
 
         if (useOccultPresence)
         {
-            AddClassValidationMessage(plannedSlot, actualClassJobId, messages);
+            AddClassValidationMessage(plannedSlot, actualClassJob, messages);
             AddPhantomJobValidationMessage(runDetail, plannedSlot, actualMember, messages);
 
             return new ValidationSlotResult(
                 actualCharacter ?? expectedCharacter,
                 plannedSlot,
                 expectedCharacter.Name,
-                actualClassJobId,
-                actualMember.PhantomJobId,
+                actualClassJob,
+                actualMember.PhantomJob,
                 messages.Count == 0 ? ValidationState.Ok : ValidationState.Warning,
                 messages);
         }
@@ -896,8 +897,8 @@ public sealed class RunWindow : Window, IDisposable
             actualCharacter ?? expectedCharacter,
             plannedSlot,
             expectedCharacter.Name,
-            actualClassJobId,
-            actualMember.PhantomJobId ?? plannedSlot.PhantomJobId,
+            actualClassJob,
+            actualMember.PhantomJob ?? plannedSlot.PhantomJob,
             messages.Count == 0 ? ValidationState.Ok : ValidationState.Warning,
             messages);
     }
@@ -924,25 +925,26 @@ public sealed class RunWindow : Window, IDisposable
 
     private static void AddClassValidationMessage(
         FullPartyRosterSlot plannedSlot,
-        int? actualClassJobId,
+        string? actualClassJob,
         ICollection<string> messages)
     {
-        var expectedClassJobId = GetExpectedClassJobId(plannedSlot);
-        var expectedLabel = plannedSlot.CharacterClass ?? (expectedClassJobId == null ? null : $"job {expectedClassJobId.Value}");
-        if (expectedClassJobId == null)
+        var expectedClassJob = GetExpectedClassJob(plannedSlot);
+        var expectedLabel = plannedSlot.CharacterClass ?? expectedClassJob;
+        if (expectedClassJob == null)
             return;
 
-        if (actualClassJobId == null)
+        actualClassJob = NormalizeClassJob(actualClassJob);
+        if (actualClassJob == null)
         {
             messages.Add($"Class unknown; expected {expectedLabel}.");
             return;
         }
 
-        if (actualClassJobId != expectedClassJobId)
+        if (!actualClassJob.Equals(expectedClassJob, StringComparison.OrdinalIgnoreCase))
         {
             messages.Add(
                 $"Wrong class: expected {expectedLabel}, " +
-                $"found {GetClassJobDisplayName(actualClassJobId.Value)}.");
+                $"found {actualClassJob}.");
         }
     }
 
@@ -952,43 +954,30 @@ public sealed class RunWindow : Window, IDisposable
         FullPartyPartySnapshotMember actualMember,
         ICollection<string> messages)
     {
-        if (plannedSlot.PhantomJobId == null)
-            return;
-
-        if (actualMember.PhantomJobId == null)
-        {
-            messages.Add($"Phantom job unknown; expected {plannedSlot.PhantomJob ?? $"phantom job {plannedSlot.PhantomJobId.Value}"}.");
-            return;
-        }
-
-        if (actualMember.PhantomJobId != plannedSlot.PhantomJobId)
-        {
-            messages.Add(
-                $"Wrong phantom job: expected {plannedSlot.PhantomJob ?? $"phantom job {plannedSlot.PhantomJobId.Value}"}, " +
-                $"found {GetPhantomJobDisplayName(runDetail, actualMember.PhantomJobId.Value)}.");
-        }
+        AddPresencePhantomJobValidationMessage(runDetail, plannedSlot, actualMember.PhantomJob, messages);
     }
 
     private static void AddPresencePhantomJobValidationMessage(
         FullPartyRunDetail runDetail,
         FullPartyRosterSlot plannedSlot,
-        int? actualPhantomJobId,
+        string? actualPhantomJob,
         ICollection<string> messages)
     {
-        if (plannedSlot.PhantomJobId == null)
+        var expectedPhantomJob = NormalizePhantomJob(plannedSlot.PhantomJob);
+        if (expectedPhantomJob == null)
             return;
 
-        if (actualPhantomJobId == null)
+        if (NormalizePhantomJob(actualPhantomJob) is not { } normalizedActual)
         {
-            messages.Add($"Phantom job unknown; expected {plannedSlot.PhantomJob ?? $"phantom job {plannedSlot.PhantomJobId.Value}"}.");
+            messages.Add($"Phantom job unknown; expected {GetPhantomJobDisplayName(runDetail, plannedSlot.PhantomJob)}.");
             return;
         }
 
-        if (actualPhantomJobId != plannedSlot.PhantomJobId)
+        if (!normalizedActual.Equals(expectedPhantomJob, StringComparison.OrdinalIgnoreCase))
         {
             messages.Add(
-                $"Wrong phantom job: expected {plannedSlot.PhantomJob ?? $"phantom job {plannedSlot.PhantomJobId.Value}"}, " +
-                $"found {GetPhantomJobDisplayName(runDetail, actualPhantomJobId.Value)}.");
+                $"Wrong phantom job: expected {GetPhantomJobDisplayName(runDetail, plannedSlot.PhantomJob)}, " +
+                $"found {GetPhantomJobDisplayName(runDetail, actualPhantomJob)}.");
         }
     }
 
@@ -1030,8 +1019,8 @@ public sealed class RunWindow : Window, IDisposable
         var max = ImGui.GetItemRectMax();
         var hovered = ImGui.IsItemHovered();
         var drawList = ImGui.GetWindowDrawList();
-        var classJobId = GetCombatClassJobId(member.ClassJobId);
-        var role = GetRoleForClassJobId(runDetail, classJobId) ?? resolvedSlot?.CharacterClassRole;
+        var classJob = NormalizeClassJob(member.ClassJob);
+        var role = GetRoleForClassJob(runDetail, classJob) ?? resolvedSlot?.CharacterClassRole;
         drawList.AddRectFilled(min, max, ImGui.ColorConvertFloat4ToU32(GetFilledSlotBackground(role, hovered && canOpenApplication)), 3f);
         drawList.AddRect(min, max, ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, hovered ? 0.18f : 0.08f)), 3f);
 
@@ -1050,14 +1039,14 @@ public sealed class RunWindow : Window, IDisposable
         var iconRight = max.X - 7f;
         Vector2? phantomIconPosition = null;
         Vector2? classIconPosition = null;
-        if (member.PhantomJobId != null)
+        if (!string.IsNullOrWhiteSpace(member.PhantomJob))
         {
             iconRight -= 20f;
             phantomIconPosition = new Vector2(iconRight, min.Y + 7f);
             iconRight -= 4f;
         }
 
-        if (classJobId != null)
+        if (!string.IsNullOrWhiteSpace(classJob))
         {
             iconRight -= 20f;
             classIconPosition = new Vector2(iconRight, min.Y + 7f);
@@ -1073,10 +1062,10 @@ public sealed class RunWindow : Window, IDisposable
         drawList.AddText(cursor + new Vector2(0, 3f), textColor, TrimToWidth(displayName, nameWidth));
 
         if (classIconPosition != null)
-            DrawJobIconById(drawList, classJobId, classIconPosition.Value);
+            DrawJobIcon(drawList, classJob, classIconPosition.Value);
 
         if (phantomIconPosition != null)
-            DrawPhantomJobIconById(drawList, runDetail, member.PhantomJobId, phantomIconPosition.Value);
+            DrawPhantomJobIconByName(drawList, runDetail, member.PhantomJob, phantomIconPosition.Value);
     }
 
     private void DrawRosterSlot(FullPartyRosterSlot slot, bool canModerate)
@@ -1285,100 +1274,147 @@ public sealed class RunWindow : Window, IDisposable
         return true;
     }
 
-    private static bool DrawJobIconById(ImDrawListPtr drawList, int? classJobId, Vector2 position)
+    private bool DrawPhantomJobIconByName(ImDrawListPtr drawList, FullPartyRunDetail runDetail, string? phantomJob, Vector2 position)
     {
-        classJobId = GetCombatClassJobId(classJobId);
-        if (classJobId is not > 0)
+        var normalized = NormalizePhantomJob(phantomJob);
+        if (normalized == null)
             return false;
 
-        var texture = Plugin.TextureProvider.GetFromGameIcon(new GameIconLookup(62100u + (uint)classJobId.Value)).GetWrapOrDefault();
-        if (texture == null)
-            return false;
-
-        drawList.AddImage(texture.Handle, position, position + new Vector2(20, 20));
-        return true;
-    }
-
-    private bool DrawPhantomJobIconById(ImDrawListPtr drawList, FullPartyRunDetail runDetail, int? phantomJobId, Vector2 position)
-    {
-        if (phantomJobId == null)
-            return false;
-
-        var sourceSlot = runDetail.Slots.FirstOrDefault(slot => slot.PhantomJobId == phantomJobId && HasPhantomJob(slot));
+        var sourceSlot = runDetail.Slots.FirstOrDefault(slot => NormalizePhantomJob(slot.PhantomJob) == normalized && HasPhantomJob(slot));
         return sourceSlot != null && DrawPhantomJobIcon(drawList, sourceSlot, position);
     }
 
     private static uint? GetJobIconId(string? classNameOrShorthand)
     {
+        var classJob = NormalizeClassJob(classNameOrShorthand);
+        if (classJob == null)
+            return null;
+
+        if (JobIconCache.TryGetValue(classJob, out var cached))
+            return cached;
+
+        var rowId = GetClassJobRowId(classJob);
+        uint? iconId = rowId == null ? null : 62100u + rowId.Value;
+        JobIconCache[classJob] = iconId;
+        return iconId;
+    }
+
+    private static string? GetExpectedClassJob(FullPartyRosterSlot slot)
+    {
+        return NormalizeClassJob(slot.CharacterClass);
+    }
+
+    private static string? NormalizeClassJob(string? classNameOrShorthand)
+    {
         if (string.IsNullOrWhiteSpace(classNameOrShorthand))
             return null;
 
-        if (JobIconCache.TryGetValue(classNameOrShorthand, out var cached))
-            return cached;
+        var token = new string(classNameOrShorthand
+            .Where(char.IsLetterOrDigit)
+            .Select(char.ToUpperInvariant)
+            .ToArray());
 
-        foreach (var job in Plugin.DataManager.GetExcelSheet<ClassJob>())
+        return token switch
         {
-            if (job.Abbreviation.ToString().Equals(classNameOrShorthand, StringComparison.OrdinalIgnoreCase) ||
-                job.Name.ToString().Equals(classNameOrShorthand, StringComparison.OrdinalIgnoreCase))
-            {
-                var iconId = 62100u + job.RowId;
-                JobIconCache[classNameOrShorthand] = iconId;
-                return iconId;
-            }
-        }
-
-        JobIconCache[classNameOrShorthand] = null;
-        return null;
+            "GLA" or "GLADIATOR" => "GLA",
+            "PGL" or "PUGILIST" => "PGL",
+            "MRD" or "MARAUDER" => "MRD",
+            "LNC" or "LANCER" => "LNC",
+            "ARC" or "ARCHER" => "ARC",
+            "CNJ" or "CONJURER" => "CNJ",
+            "THM" or "THAUMATURGE" => "THM",
+            "PLD" or "PALADIN" => "PLD",
+            "MNK" or "MONK" => "MNK",
+            "WAR" or "WARRIOR" => "WAR",
+            "DRG" or "DRAGOON" => "DRG",
+            "BRD" or "BARD" => "BRD",
+            "WHM" or "WHITEMAGE" => "WHM",
+            "BLM" or "BLACKMAGE" => "BLM",
+            "ACN" or "ARCANIST" => "ACN",
+            "SMN" or "SUMMONER" => "SMN",
+            "SCH" or "SCHOLAR" => "SCH",
+            "ROG" or "ROGUE" => "ROG",
+            "NIN" or "NINJA" => "NIN",
+            "MCH" or "MACHINIST" => "MCH",
+            "DRK" or "DARKKNIGHT" => "DRK",
+            "AST" or "ASTROLOGIAN" => "AST",
+            "SAM" or "SAMURAI" => "SAM",
+            "RDM" or "REDMAGE" => "RDM",
+            "BLU" or "BLUEMAGE" => "BLU",
+            "GNB" or "GUNBREAKER" => "GNB",
+            "DNC" or "DANCER" => "DNC",
+            "RPR" or "REAPER" => "RPR",
+            "SGE" or "SAGE" => "SGE",
+            "VPR" or "VIPER" => "VPR",
+            "PCT" or "PICTOMANCER" => "PCT",
+            _ => null,
+        };
     }
 
-    private static string GetClassJobDisplayName(int classJobId)
+    private static uint? GetClassJobRowId(string classJob)
     {
-        if (GetCombatClassJobId(classJobId) == null)
+        return classJob switch
+        {
+            "GLA" => 1,
+            "PGL" => 2,
+            "MRD" => 3,
+            "LNC" => 4,
+            "ARC" => 5,
+            "CNJ" => 6,
+            "THM" => 7,
+            "PLD" => 19,
+            "MNK" => 20,
+            "WAR" => 21,
+            "DRG" => 22,
+            "BRD" => 23,
+            "WHM" => 24,
+            "BLM" => 25,
+            "ACN" => 26,
+            "SMN" => 27,
+            "SCH" => 28,
+            "ROG" => 29,
+            "NIN" => 30,
+            "MCH" => 31,
+            "DRK" => 32,
+            "AST" => 33,
+            "SAM" => 34,
+            "RDM" => 35,
+            "BLU" => 36,
+            "GNB" => 37,
+            "DNC" => 38,
+            "RPR" => 39,
+            "SGE" => 40,
+            "VPR" => 41,
+            "PCT" => 42,
+            _ => null,
+        };
+    }
+
+    private static string GetPhantomJobDisplayName(FullPartyRunDetail runDetail, string? phantomJob)
+    {
+        var normalized = NormalizePhantomJob(phantomJob);
+        if (normalized == null)
             return "unknown";
 
-        foreach (var job in Plugin.DataManager.GetExcelSheet<ClassJob>())
-        {
-            if (job.RowId == classJobId)
-                return string.IsNullOrWhiteSpace(job.Abbreviation.ToString())
-                    ? job.Name.ToString()
-                    : job.Abbreviation.ToString();
-        }
-
-        return $"job {classJobId}";
-    }
-
-    private static int? GetExpectedClassJobId(FullPartyRosterSlot slot)
-    {
-        if (!string.IsNullOrWhiteSpace(slot.CharacterClass))
-            return GetClassJobIdByName(slot.CharacterClass);
-
-        return GetCombatClassJobId(slot.CharacterClassId);
-    }
-
-    private static int? GetClassJobIdByName(string classNameOrShorthand)
-    {
-        foreach (var job in Plugin.DataManager.GetExcelSheet<ClassJob>())
-        {
-            if (job.Abbreviation.ToString().Equals(classNameOrShorthand, StringComparison.OrdinalIgnoreCase) ||
-                job.Name.ToString().Equals(classNameOrShorthand, StringComparison.OrdinalIgnoreCase))
-            {
-                return GetCombatClassJobId((int)job.RowId);
-            }
-        }
-
-        return null;
-    }
-
-    private static int? GetCombatClassJobId(int? classJobId)
-    {
-        return classJobId is >= 1 and <= 7 or >= 19 and <= 42 ? classJobId : null;
-    }
-
-    private static string GetPhantomJobDisplayName(FullPartyRunDetail runDetail, int phantomJobId)
-    {
-        return runDetail.Slots.FirstOrDefault(slot => slot.PhantomJobId == phantomJobId && !string.IsNullOrWhiteSpace(slot.PhantomJob))
+        return runDetail.Slots.FirstOrDefault(slot => NormalizePhantomJob(slot.PhantomJob) == normalized && !string.IsNullOrWhiteSpace(slot.PhantomJob))
                    ?.PhantomJob ??
-               $"phantom job {phantomJobId}";
+               phantomJob ??
+               "unknown";
+    }
+
+    private static string? NormalizePhantomJob(string? phantomJob)
+    {
+        if (string.IsNullOrWhiteSpace(phantomJob))
+            return null;
+
+        var token = new string(phantomJob
+            .Where(char.IsLetterOrDigit)
+            .Select(char.ToUpperInvariant)
+            .ToArray());
+
+        return token.StartsWith("PHANTOM", StringComparison.Ordinal)
+            ? token["PHANTOM".Length..]
+            : token;
     }
 
     private static IReadOnlyList<IReadOnlyList<FullPartyRosterSlot>> GetRosterParties(FullPartyRunDetail runDetail)
@@ -1422,13 +1458,14 @@ public sealed class RunWindow : Window, IDisposable
         return ResolveRosterSlot(runDetail, member)?.AssignedCharacter;
     }
 
-    private static string? GetRoleForClassJobId(FullPartyRunDetail runDetail, int? classJobId)
+    private static string? GetRoleForClassJob(FullPartyRunDetail runDetail, string? classJob)
     {
-        if (classJobId == null)
+        classJob = NormalizeClassJob(classJob);
+        if (classJob == null)
             return null;
 
         return runDetail.Slots
-            .FirstOrDefault(slot => slot.CharacterClassId == classJobId && !string.IsNullOrWhiteSpace(slot.CharacterClassRole))
+            .FirstOrDefault(slot => NormalizeClassJob(slot.CharacterClass) == classJob && !string.IsNullOrWhiteSpace(slot.CharacterClassRole))
             ?.CharacterClassRole;
     }
 
@@ -1438,6 +1475,7 @@ public sealed class RunWindow : Window, IDisposable
         bool requestOccultRefresh)
     {
         var inOccult = OccultCrescentTerritory.IsCurrent();
+        ObserveOccultState(inOccult);
         if (inOccult && requestOccultRefresh && !plugin.AdventurerList.HasRequestedRefresh)
             plugin.AdventurerList.RequestRefresh();
 
@@ -1464,6 +1502,19 @@ public sealed class RunWindow : Window, IDisposable
             occultPresence,
             occultPartyAssignments.Count,
             inOccult);
+    }
+
+    private void ObserveOccultState(bool inOccult)
+    {
+        if (lastOccultState == inOccult)
+            return;
+
+        if (inOccult)
+        {
+            liveRoom.ClearPartySnapshots("Entered Occult Crescent; discarded pre-Occult party sync.");
+        }
+
+        lastOccultState = inOccult;
     }
 
     private IReadOnlyList<FullPartyPartySnapshot> BuildOccultSourceSnapshots(FullPartyRunDetail runDetail)
@@ -1686,6 +1737,21 @@ public sealed class RunWindow : Window, IDisposable
             return "Party lead";
 
         return "Connected";
+    }
+
+    private static Vector4 GetLiveCommandStatusColor(string status)
+    {
+        return status switch
+        {
+            "Executed" => new Vector4(0.35f, 0.92f, 0.55f, 1f),
+            "Received" => new Vector4(0.42f, 0.72f, 1f, 1f),
+            "Waiting" => new Vector4(0.94f, 0.78f, 0.32f, 1f),
+            "Failed" or "Expired" => new Vector4(1f, 0.42f, 0.42f, 1f),
+            "Disabled" => new Vector4(1f, 0.62f, 0.32f, 1f),
+            "Received, not target" => new Vector4(0.62f, 0.72f, 0.92f, 1f),
+            "Not targeted" or "-" => new Vector4(0.65f, 0.65f, 0.70f, 1f),
+            _ => new Vector4(0.80f, 0.80f, 0.86f, 1f),
+        };
     }
 
     private static Vector4 GetFilledSlotBackground(string? role, bool hovered)

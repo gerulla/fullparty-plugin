@@ -150,7 +150,7 @@ internal sealed unsafe class AdventurerListService : IDisposable
             result[key] = new GamePresenceMember(
                 name,
                 world,
-                PartySnapshotBuilder.GetCombatClassJobId(characterData.Job),
+                PartySnapshotBuilder.GetCombatClassJobShorthand(characterData.Job),
                 null);
         }
 
