@@ -2,11 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.ClientState.Party;
+using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using FullParty.Models;
+using Lumina.Excel.Sheets;
 
 namespace FullParty.Services;
 
 internal sealed record GamePresenceMember(
+    string Name,
+    string? World,
+    int? ClassJobId,
+    int? PhantomJobId);
+
+internal sealed record ObservedGameMember(
     string Name,
     string? World,
     int? ClassJobId,
@@ -56,19 +64,7 @@ internal static class RunValidationSources
         var members = new Dictionary<string, GamePresenceMember>(StringComparer.OrdinalIgnoreCase);
         foreach (var bucket in BuildObservedPartyBuckets(GetActivePartyCount(runDetail)))
             foreach (var member in bucket.Members)
-                try
-                {
-                    AddPresence(
-                        members,
-                        GetName(member),
-                        GetWorld(member),
-                        PartySnapshotBuilder.GetCombatClassJobId(member.ClassJob.RowId),
-                        PartySnapshotBuilder.GetPhantomJobIdFromStatuses(member.Statuses, runDetail));
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.Debug("Could not read a party member for FullParty validation presence: {Message}", ex.Message);
-                }
+                AddPresence(members, member.Name, member.World, member.ClassJobId, member.PhantomJobId);
 
         return new GamePresenceList([.. members.Values]);
     }
@@ -133,7 +129,7 @@ internal static class RunValidationSources
             {
                 var partyKey = party[0].GroupKey;
                 var members = observedByRosterParty[partyKey].Members
-                    .Select((member, index) => MapPartyMember(member, index + 1, runDetail, rosterByName))
+                    .Select((member, index) => MapObservedMember(member, index + 1, rosterByName))
                     .ToList();
 
                 return new FullPartyPartySnapshot(
@@ -167,6 +163,10 @@ internal static class RunValidationSources
 
     private static IReadOnlyList<ObservedPartyBucket> BuildObservedPartyBuckets(int rosterPartyCount)
     {
+        var crossRealmBuckets = ReadCrossRealmPartyBuckets(rosterPartyCount);
+        if (crossRealmBuckets.Count > 0)
+            return crossRealmBuckets;
+
         var buckets = new List<ObservedPartyBucket>();
         var localMembers = ReadLocalPartyMembers();
         if (localMembers.Count > 0)
@@ -186,13 +186,18 @@ internal static class RunValidationSources
         return buckets;
     }
 
-    private static IReadOnlyList<IPartyMember> ReadLocalPartyMembers()
+    private static IReadOnlyList<ObservedGameMember> ReadLocalPartyMembers()
     {
         try
         {
             return Plugin.PartyList
                 .Where(member => !string.IsNullOrWhiteSpace(GetName(member)))
                 .Take(MaxPartyMembers)
+                .Select(member => new ObservedGameMember(
+                    GetName(member),
+                    GetWorld(member),
+                    PartySnapshotBuilder.GetCombatClassJobId(member.ClassJob.RowId),
+                    null))
                 .ToList();
         }
         catch (Exception ex)
@@ -202,9 +207,64 @@ internal static class RunValidationSources
         }
     }
 
-    private static IReadOnlyList<IPartyMember> ReadAlliancePartyMembers(int partyIndex)
+    private static unsafe IReadOnlyList<ObservedPartyBucket> ReadCrossRealmPartyBuckets(int rosterPartyCount)
     {
-        var members = new List<IPartyMember>();
+        try
+        {
+            var infoModule = InfoModule.Instance();
+            if (infoModule == null)
+                return [];
+
+            var proxy = infoModule->GetInfoProxyById(InfoProxyId.CrossRealmParty);
+            if (proxy == null)
+                return [];
+
+            var crossRealm = (InfoProxyCrossRealm*)proxy;
+            if (!crossRealm->IsInCrossRealmParty && crossRealm->GroupCount == 0)
+                return [];
+
+            var buckets = new List<ObservedPartyBucket>();
+            var groups = crossRealm->CrossRealmGroups;
+            var groupLimit = Math.Min(
+                groups.Length,
+                Math.Max(Math.Max(rosterPartyCount, crossRealm->GroupCount), 1));
+
+            for (var groupIndex = 0; groupIndex < groupLimit; groupIndex++)
+            {
+                var group = groups[groupIndex];
+                var memberLimit = Math.Min((int)group.GroupMemberCount, MaxPartyMembers);
+                var members = new List<ObservedGameMember>();
+
+                for (var memberIndex = 0; memberIndex < memberLimit; memberIndex++)
+                {
+                    var member = group.GroupMembers[memberIndex];
+                    var name = member.NameString;
+                    if (string.IsNullOrWhiteSpace(name))
+                        continue;
+
+                    members.Add(new ObservedGameMember(
+                        name,
+                        GetWorldName(member.HomeWorld),
+                        PartySnapshotBuilder.GetCombatClassJobId(member.ClassJobId),
+                        null));
+                }
+
+                if (members.Count > 0)
+                    buckets.Add(new ObservedPartyBucket(groupIndex, members));
+            }
+
+            return buckets;
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Debug("Could not read cross-realm party data for FullParty validation: {Message}", ex.Message);
+            return [];
+        }
+    }
+
+    private static IReadOnlyList<ObservedGameMember> ReadAlliancePartyMembers(int partyIndex)
+    {
+        var members = new List<ObservedGameMember>();
         var startIndex = partyIndex * MaxPartyMembers;
 
         for (var slotIndex = 0; slotIndex < MaxPartyMembers; slotIndex++)
@@ -219,7 +279,11 @@ internal static class RunValidationSources
                 if (member == null || string.IsNullOrWhiteSpace(GetName(member)))
                     continue;
 
-                members.Add(member);
+                members.Add(new ObservedGameMember(
+                    GetName(member),
+                    GetWorld(member),
+                    PartySnapshotBuilder.GetCombatClassJobId(member.ClassJob.RowId),
+                    null));
             }
             catch (Exception ex)
             {
@@ -285,9 +349,9 @@ internal static class RunValidationSources
     private static bool ContainsCharacter(ObservedPartyBucket bucket, FullPartyRosterCharacter character)
     {
         return bucket.Members.Any(member =>
-            GetCharacterKey(GetName(member), GetWorld(member))
+            GetCharacterKey(member.Name, member.World)
                 .Equals(GetCharacterKey(character.Name, character.World), StringComparison.OrdinalIgnoreCase) ||
-            NormalizeKeyPart(GetName(member)).Equals(NormalizeKeyPart(character.Name), StringComparison.OrdinalIgnoreCase));
+            NormalizeKeyPart(member.Name).Equals(NormalizeKeyPart(character.Name), StringComparison.OrdinalIgnoreCase));
     }
 
     private static int GetActivePartyCount(FullPartyRunDetail runDetail)
@@ -321,6 +385,25 @@ internal static class RunValidationSources
             PartySnapshotBuilder.GetPhantomJobIdFromStatuses(member.Statuses, runDetail));
     }
 
+    private static FullPartyPartySnapshotMember MapObservedMember(
+        ObservedGameMember member,
+        int position,
+        IReadOnlyDictionary<string, FullPartyRosterSlot> rosterByName)
+    {
+        var rosterSlot = rosterByName.TryGetValue(GetCharacterKey(member.Name, member.World), out var matchedSlot)
+            ? matchedSlot
+            : null;
+        var characterId = rosterSlot?.AssignedCharacter?.Id;
+
+        return new FullPartyPartySnapshotMember(
+            position,
+            characterId,
+            characterId == null ? member.Name : null,
+            characterId == null ? member.World : null,
+            member.ClassJobId,
+            member.PhantomJobId);
+    }
+
     private static void AddPresence(
         IDictionary<string, GamePresenceMember> members,
         string? name,
@@ -344,11 +427,21 @@ internal static class RunValidationSources
         return member.World.Value.Name.ToString();
     }
 
+    private static string? GetWorldName(short worldId)
+    {
+        if (worldId <= 0)
+            return null;
+
+        return Plugin.DataManager.GetExcelSheet<World>().TryGetRow((uint)worldId, out var world)
+            ? world.Name.ToString()
+            : null;
+    }
+
     private static bool IsBenchSlot(FullPartyRosterSlot slot)
     {
         return slot.GroupKey.Contains("bench", StringComparison.OrdinalIgnoreCase) ||
                slot.GroupLabel.Contains("bench", StringComparison.OrdinalIgnoreCase);
     }
 
-    private sealed record ObservedPartyBucket(int Index, IReadOnlyList<IPartyMember> Members);
+    private sealed record ObservedPartyBucket(int Index, IReadOnlyList<ObservedGameMember> Members);
 }

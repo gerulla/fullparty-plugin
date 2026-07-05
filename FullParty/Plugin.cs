@@ -24,6 +24,7 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IPartyList PartyList { get; private set; } = null!;
     [PluginService] internal static IObjectTable ObjectTable { get; private set; } = null!;
     [PluginService] internal static IFramework Framework { get; private set; } = null!;
+    [PluginService] internal static IChatGui ChatGui { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
 
     private const string CommandName = "/fullparty";
@@ -63,7 +64,7 @@ public sealed class Plugin : IDalamudPlugin
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Open FullParty. Use /fullparty debug for settings and auth debug info."
+            HelpMessage = "Open FullParty. Use /fullparty debug for settings and auth debug info, or /fullparty players to dump party/alliance data."
         });
 
         // Tell the UI system that we want our windows to be drawn through the window system
@@ -117,6 +118,12 @@ public sealed class Plugin : IDalamudPlugin
         if (args.Trim().Equals("debug", StringComparison.OrdinalIgnoreCase))
         {
             ToggleConfigUi();
+            return;
+        }
+
+        if (args.Trim().Equals("players", StringComparison.OrdinalIgnoreCase))
+        {
+            PartyListDebugDumper.Dump();
             return;
         }
 
