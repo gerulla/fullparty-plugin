@@ -60,6 +60,7 @@ public sealed record FullPartyRosterSlot(
     string? AssignmentSource,
     string? AttendanceStatus,
     FullPartyRosterCharacter? AssignedCharacter,
+    int? CharacterClassId,
     string? CharacterClass,
     string? CharacterClassRole,
     int? PhantomJobId,

@@ -21,6 +21,8 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IClientState ClientState { get; private set; } = null!;
     [PluginService] internal static IPlayerState PlayerState { get; private set; } = null!;
     [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
+    [PluginService] internal static IPartyList PartyList { get; private set; } = null!;
+    [PluginService] internal static IObjectTable ObjectTable { get; private set; } = null!;
     [PluginService] internal static IFramework Framework { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
 
@@ -31,6 +33,7 @@ public sealed class Plugin : IDalamudPlugin
     public AuthService AuthService { get; init; }
     public FullPartyApiClient ApiClient { get; init; }
     public RemoteImageCache ImageCache { get; init; }
+    internal AdventurerListService AdventurerList { get; init; }
     public OccultCrescentRunMonitor OccultCrescentRunMonitor { get; init; }
     public string VersionText { get; init; }
 
@@ -48,6 +51,7 @@ public sealed class Plugin : IDalamudPlugin
         AuthService.RestoreSavedSession();
         ApiClient = new FullPartyApiClient(AuthService);
         ImageCache = new RemoteImageCache(AuthService);
+        AdventurerList = new AdventurerListService();
         OccultCrescentRunMonitor = new OccultCrescentRunMonitor(this);
         VersionText = PluginInterface.Manifest.AssemblyVersion?.ToString() ?? "dev";
 
@@ -102,6 +106,7 @@ public sealed class Plugin : IDalamudPlugin
         }
 
         ImageCache.Dispose();
+        AdventurerList.Dispose();
         AuthService.Dispose();
 
         CommandManager.RemoveHandler(CommandName);

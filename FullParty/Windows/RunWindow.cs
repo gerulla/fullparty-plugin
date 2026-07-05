@@ -14,16 +14,71 @@ using Lumina.Excel.Sheets;
 
 namespace FullParty.Windows;
 
+internal enum RunRosterViewMode
+{
+    None,
+    Roster,
+    Party,
+    Validate,
+}
+
+internal enum ValidationState
+{
+    Neutral,
+    Ok,
+    Warning,
+    Error,
+}
+
+internal sealed record ObservedSnapshotMember(
+    FullPartyPartySnapshot Snapshot,
+    FullPartyPartySnapshotMember Member);
+
+internal sealed record OccultPartyAssignment(
+    FullPartyPartySnapshot Snapshot,
+    string GroupLabel,
+    int PartyLeadCount);
+
+internal sealed record RunCheckInSelection(
+    IReadOnlyList<int> SlotIds,
+    IReadOnlyList<long> CharacterIds,
+    int PresentCount,
+    int MissingCount);
+
+internal sealed record RunCheckInSummary(
+    int CheckedInCount,
+    int MissingCount);
+
+internal sealed record ValidationSlotResult(
+    FullPartyRosterCharacter? Character,
+    FullPartyRosterSlot? RosterSlot,
+    string DisplayName,
+    int? ClassJobId,
+    int? PhantomJobId,
+    ValidationState State,
+    IReadOnlyList<string> Messages);
+
 public sealed class RunWindow : Window, IDisposable
 {
     private static readonly Dictionary<string, uint?> JobIconCache = new(StringComparer.OrdinalIgnoreCase);
+    private const float RunWindowDefaultWidth = 420f;
+    private const float RunWindowDefaultHeight = 560f;
+    private const float RosterCompanionDefaultWidth = 980f;
+    private const float RosterCompanionDefaultHeight = 560f;
+    private const float RosterCompanionMinWidth = 620f;
+    private const float RosterCompanionMinHeight = 320f;
+    private const float PartyLeadCrownWidth = 16f;
+    private const float RosterCompanionGap = 8f;
 
     private readonly Plugin plugin;
     private readonly CancellationTokenSource cancellation = new();
     private readonly RealtimeRunRoomClient liveRoom;
     private Task<FullPartyRunDetail?>? detailTask;
+    private Task<RunCheckInSummary>? checkInTask;
     private FullPartyRunDetail? detail;
     private string? detailError;
+    private string? checkInStatusMessage;
+    private RunRosterViewMode rosterViewMode = RunRosterViewMode.Roster;
 
     public FullPartyRun Run { get; }
 
@@ -35,9 +90,11 @@ public sealed class RunWindow : Window, IDisposable
         liveRoom = new RealtimeRunRoomClient(run.Id, plugin);
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(720, 420),
+            MinimumSize = new Vector2(420, 360),
             MaximumSize = new Vector2(float.MaxValue, float.MaxValue),
         };
+        Size = new Vector2(RunWindowDefaultWidth, RunWindowDefaultHeight);
+        SizeCondition = ImGuiCond.FirstUseEver;
         IsOpen = true;
     }
 
@@ -51,51 +108,23 @@ public sealed class RunWindow : Window, IDisposable
     public override void Draw()
     {
         EnsureDetailLoaded();
+        ObserveCheckInTask();
 
+        var runWindowPosition = ImGui.GetWindowPos();
+        var runWindowSize = ImGui.GetWindowSize();
         var isLoading = detailTask is { IsCompleted: false };
-        DrawToolbar(isLoading, detail?.CanModerate == true);
-
-        ImGui.Spacing();
+        DrawPartyActionsSection(detail?.CanModerate == true);
+        DrawSectionSeparator();
+        DrawRosterControls(isLoading);
+        DrawSectionSeparator();
         DrawLiveRoom();
-        ImGui.Spacing();
-
-        if (isLoading)
-        {
-            ImGui.TextDisabled("Loading roster...");
-            return;
-        }
-
-        if (!string.IsNullOrWhiteSpace(detailError))
-        {
-            ImGui.TextWrapped(detailError);
-            return;
-        }
-
-        if (detail == null)
-        {
-            ImGui.TextDisabled("No roster loaded.");
-            return;
-        }
-
-        ImGui.Text("Roster");
-        ImGui.Spacing();
-        DrawRosterTable(detail);
+        DrawRosterCompanion(runWindowPosition, runWindowSize, isLoading);
     }
 
-    private void DrawToolbar(bool isLoading, bool canModerate)
+    private void DrawPartyActionsSection(bool canModerate)
     {
-        if (isLoading)
-        {
-            ImGui.BeginDisabled();
-            ImGui.Button("Refresh run");
-            ImGui.EndDisabled();
-        }
-        else if (ImGui.Button("Refresh run"))
-        {
-            RefreshRun();
-        }
-
-        ImGui.SameLine();
+        ImGui.Text("Party Actions");
+        ImGui.Spacing();
 
         var canSendLiveCommand = canModerate && liveRoom.State == RealtimeRunRoomState.Connected && !liveRoom.IsIssuingCommand;
         if (!canSendLiveCommand)
@@ -109,16 +138,92 @@ public sealed class RunWindow : Window, IDisposable
         if (ImGui.Button("Start Countdown"))
             liveRoom.SendCountdown(20);
 
-        ImGui.SameLine();
-
-        ImGui.Button("Run Check-In");
-
         if (!canSendLiveCommand)
             ImGui.EndDisabled();
+
+        ImGui.SameLine();
+
+        var isCheckingIn = checkInTask is { IsCompleted: false };
+        var waitingForAdventurerList = OccultCrescentTerritory.IsCurrent() && plugin.AdventurerList.IsRefreshing;
+        var canCheckIn = detail != null && !isCheckingIn && !waitingForAdventurerList;
+        if (!canCheckIn)
+            ImGui.BeginDisabled();
+
+        if (ImGui.Button(isCheckingIn ? "Checking In..." : "Run Check-In"))
+            StartRunCheckIn();
+
+        if (!canCheckIn)
+            ImGui.EndDisabled();
+
+        if (!string.IsNullOrWhiteSpace(checkInStatusMessage))
+        {
+            ImGui.Spacing();
+            ImGui.TextWrapped(checkInStatusMessage);
+        }
+    }
+
+    private void DrawRosterControls(bool isLoading)
+    {
+        ImGui.Text("Roster");
+        ImGui.Spacing();
+
+        if (isLoading)
+            ImGui.BeginDisabled();
+
+        if (ImGui.Button("Refresh Data"))
+            RefreshRosterData();
+
+        if (isLoading)
+            ImGui.EndDisabled();
+
+        ImGui.Spacing();
+        DrawRosterModeButton("Show Roster", RunRosterViewMode.Roster);
+        ImGui.SameLine();
+        DrawRosterModeButton("Show Party View", RunRosterViewMode.Party);
+        ImGui.Spacing();
+        DrawRosterModeButton("Show Validation View", RunRosterViewMode.Validate);
+        ImGui.SameLine();
+        DrawRosterModeButton("Show None", RunRosterViewMode.None);
+
+        if (isLoading)
+            ImGui.TextDisabled("Loading roster...");
+        else if (!string.IsNullOrWhiteSpace(detailError))
+            ImGui.TextWrapped(detailError);
+        else if (detail == null)
+            ImGui.TextDisabled("No roster loaded.");
+    }
+
+    private void DrawRosterCompanion(Vector2 runWindowPosition, Vector2 runWindowSize, bool isLoading)
+    {
+        if (rosterViewMode == RunRosterViewMode.None)
+            return;
+
+        var companionPosition = new Vector2(
+            runWindowPosition.X + runWindowSize.X + RosterCompanionGap,
+            runWindowPosition.Y);
+        var flags = ImGuiWindowFlags.NoCollapse |
+                    ImGuiWindowFlags.NoMove |
+                    ImGuiWindowFlags.NoSavedSettings;
+
+        ImGui.SetNextWindowPos(companionPosition, ImGuiCond.Always);
+        ImGui.SetNextWindowSize(
+            new Vector2(RosterCompanionDefaultWidth, RosterCompanionDefaultHeight),
+            ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowSizeConstraints(
+            new Vector2(RosterCompanionMinWidth, RosterCompanionMinHeight),
+            new Vector2(float.MaxValue, float.MaxValue));
+
+        if (ImGui.Begin($"{GetRosterViewTitle(rosterViewMode)}##fullparty_roster_companion_{Run.Id}", flags))
+            DrawRosterCompanionContent(isLoading);
+
+        ImGui.End();
     }
 
     private void DrawLiveRoom()
     {
+        ImGui.Text("Live Room");
+        ImGui.Spacing();
+
         var isBusy = liveRoom.IsBusy;
         if (liveRoom.IsActive)
         {
@@ -137,7 +242,6 @@ public sealed class RunWindow : Window, IDisposable
                 ImGui.EndDisabled();
         }
 
-        ImGui.SameLine();
         var statusColor = liveRoom.State switch
         {
             RealtimeRunRoomState.Connected => new Vector4(0.35f, 0.92f, 0.55f, 1f),
@@ -146,12 +250,17 @@ public sealed class RunWindow : Window, IDisposable
             _ => new Vector4(0.90f, 0.82f, 0.50f, 1f),
         };
 
+        ImGui.SameLine();
         ImGui.TextColored(statusColor, liveRoom.StatusMessage);
 
         if (!string.IsNullOrWhiteSpace(liveRoom.CommandStatusMessage))
         {
-            ImGui.SameLine();
             ImGui.TextDisabled(liveRoom.CommandStatusMessage);
+        }
+
+        if (!string.IsNullOrWhiteSpace(liveRoom.PartySnapshotStatusMessage))
+        {
+            ImGui.TextDisabled(liveRoom.PartySnapshotStatusMessage);
         }
 
         var members = liveRoom.Members;
@@ -159,7 +268,8 @@ public sealed class RunWindow : Window, IDisposable
             return;
 
         ImGui.Spacing();
-        ImGui.Text("Live Room");
+        ImGui.Separator();
+        ImGui.Spacing();
 
         if (members.Count == 0)
         {
@@ -200,25 +310,74 @@ public sealed class RunWindow : Window, IDisposable
         ImGui.EndTable();
     }
 
+    private void DrawRosterCompanionContent(bool isLoading)
+    {
+        if (isLoading)
+        {
+            ImGui.TextDisabled("Loading roster...");
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(detailError))
+        {
+            ImGui.TextWrapped(detailError);
+            return;
+        }
+
+        if (detail == null)
+        {
+            ImGui.TextDisabled("No roster loaded.");
+            return;
+        }
+
+        switch (rosterViewMode)
+        {
+            case RunRosterViewMode.Party:
+                DrawPartyView(detail);
+                break;
+            case RunRosterViewMode.Validate:
+                DrawValidationView(detail);
+                break;
+            default:
+                DrawRosterTable(detail);
+                break;
+        }
+    }
+
+    private void DrawRosterModeButton(string label, RunRosterViewMode mode)
+    {
+        var selected = rosterViewMode == mode;
+        if (selected)
+            ImGui.BeginDisabled();
+
+        if (ImGui.Button(label))
+            rosterViewMode = mode;
+
+        if (selected)
+            ImGui.EndDisabled();
+    }
+
+    private static void DrawSectionSeparator()
+    {
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+    }
+
+    private static string GetRosterViewTitle(RunRosterViewMode mode)
+    {
+        return mode switch
+        {
+            RunRosterViewMode.Party => "Party View",
+            RunRosterViewMode.Validate => "Validation View",
+            _ => "Roster",
+        };
+    }
+
     private void DrawRosterTable(FullPartyRunDetail runDetail)
     {
-        var parties = runDetail.Slots
-            .Where(slot => !IsBenchSlot(slot))
-            .GroupBy(slot => slot.GroupKey)
-            .OrderBy(group => group.Min(slot => slot.SortOrder ?? int.MaxValue))
-            .ThenBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
-            .Select(group => group
-                .OrderBy(slot => slot.PositionInGroup ?? int.MaxValue)
-                .ThenBy(slot => slot.SortOrder ?? int.MaxValue)
-                .ThenBy(slot => slot.SlotKey, StringComparer.OrdinalIgnoreCase)
-                .ToList())
-            .ToList();
-        var benchSlots = runDetail.Slots
-            .Where(IsBenchSlot)
-            .OrderBy(slot => slot.PositionInGroup ?? int.MaxValue)
-            .ThenBy(slot => slot.SortOrder ?? int.MaxValue)
-            .ThenBy(slot => slot.SlotKey, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        var parties = GetRosterParties(runDetail);
+        var benchSlots = GetBenchSlots(runDetail);
 
         if (parties.Count == 0 && benchSlots.Count == 0)
         {
@@ -296,6 +455,606 @@ public sealed class RunWindow : Window, IDisposable
         ImGui.EndTable();
     }
 
+    private void DrawPartyView(FullPartyRunDetail runDetail)
+    {
+        var parties = GetRosterParties(runDetail);
+        if (parties.Count == 0)
+        {
+            ImGui.TextDisabled("No party slots.");
+            return;
+        }
+
+        var snapshots = liveRoom.PartySnapshots;
+        var flags = ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame;
+        if (!ImGui.BeginTable("##fullparty_party_view", parties.Count, flags))
+            return;
+
+        foreach (var party in parties)
+            ImGui.TableSetupColumn(party[0].GroupLabel);
+
+        ImGui.TableHeadersRow();
+
+        var maxRows = parties.Max(party => party.Count);
+        for (var row = 0; row < maxRows; row++)
+        {
+            ImGui.TableNextRow();
+            for (var column = 0; column < parties.Count; column++)
+            {
+                ImGui.TableNextColumn();
+                if (row >= parties[column].Count)
+                    continue;
+
+                var slot = parties[column][row];
+                var snapshot = snapshots.FirstOrDefault(item => item.PartyKey.Equals(slot.GroupKey, StringComparison.OrdinalIgnoreCase));
+                var expectedPosition = slot.PositionInGroup ?? row + 1;
+                var member = snapshot?.Members.FirstOrDefault(item => item.Position == expectedPosition);
+                DrawPartySnapshotSlot(runDetail, slot, member);
+            }
+        }
+
+        ImGui.EndTable();
+
+        if (snapshots.Count == 0)
+        {
+            ImGui.Spacing();
+            ImGui.Separator();
+            ImGui.Spacing();
+            ImGui.TextDisabled(liveRoom.State == RealtimeRunRoomState.Connected
+                ? "Waiting for party snapshots from connected party leads."
+                : "Connect to the live room to sync party snapshots.");
+        }
+    }
+
+    private void DrawValidationView(FullPartyRunDetail runDetail)
+    {
+        var parties = GetRosterParties(runDetail);
+        if (parties.Count == 0)
+        {
+            ImGui.TextDisabled("No party slots.");
+            return;
+        }
+
+        var inOccult = OccultCrescentTerritory.IsCurrent();
+        if (inOccult && !plugin.AdventurerList.HasRequestedRefresh)
+            plugin.AdventurerList.RequestRefresh();
+
+        var occultPresence = inOccult
+            ? plugin.AdventurerList.GetPresence(runDetail)
+            : GamePresenceList.Empty;
+        var snapshots = inOccult
+            ? liveRoom.PartySnapshots
+            : RunValidationSources.BuildLocalPartySnapshots(runDetail, parties);
+        var occultPartyAssignments = inOccult
+            ? BuildOccultPartyAssignments(runDetail, snapshots, occultPresence)
+            : new Dictionary<string, OccultPartyAssignment>(StringComparer.OrdinalIgnoreCase);
+
+        var snapshotsByParty = inOccult
+            ? occultPartyAssignments.ToDictionary(pair => pair.Key, pair => pair.Value.Snapshot, StringComparer.OrdinalIgnoreCase)
+            : snapshots.ToDictionary(snapshot => snapshot.PartyKey, StringComparer.OrdinalIgnoreCase);
+        var validationSnapshots = snapshotsByParty.Values
+            .GroupBy(snapshot => $"{snapshot.SenderUserId}:{snapshot.PartyKey}:{snapshot.Sequence}", StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.First())
+            .ToList();
+        var observedById = BuildObservedByCharacterId(validationSnapshots);
+        var observedByName = BuildObservedByName(runDetail, validationSnapshots);
+        var flags = ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame;
+        if (!ImGui.BeginTable("##fullparty_validate_view", parties.Count, flags))
+            return;
+
+        foreach (var party in parties)
+            ImGui.TableSetupColumn(party[0].GroupLabel);
+
+        ImGui.TableHeadersRow();
+
+        var maxRows = parties.Max(party => party.Count);
+        for (var row = 0; row < maxRows; row++)
+        {
+            ImGui.TableNextRow();
+            for (var column = 0; column < parties.Count; column++)
+            {
+                ImGui.TableNextColumn();
+                if (row >= parties[column].Count)
+                    continue;
+
+                var slot = parties[column][row];
+                snapshotsByParty.TryGetValue(slot.GroupKey, out var snapshot);
+                var actualMember = FindExpectedMemberInParty(runDetail, slot, snapshot);
+                var expectedObserved = FindObservedForSlot(slot, observedById, observedByName);
+                DrawValidationRosterSlot(runDetail, slot, actualMember, expectedObserved, occultPresence, inOccult, snapshot != null);
+            }
+        }
+
+        ImGui.EndTable();
+
+        DrawValidationStatusText(inOccult, validationSnapshots.Count, occultPresence.Count, occultPartyAssignments.Count);
+    }
+
+    private void DrawValidationStatusText(bool inOccult, int snapshotCount, int occultPresenceCount, int occultPartyCount)
+    {
+        if (!inOccult && snapshotCount > 0)
+            return;
+
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+
+        if (inOccult)
+        {
+            if (plugin.AdventurerList.IsRefreshing)
+                ImGui.BeginDisabled();
+
+            if (ImGui.Button("Refresh Adventurer List"))
+                plugin.AdventurerList.RequestRefresh();
+
+            if (plugin.AdventurerList.IsRefreshing)
+                ImGui.EndDisabled();
+
+            ImGui.Spacing();
+            ImGui.TextDisabled(plugin.AdventurerList.StatusMessage);
+            ImGui.TextDisabled(occultPresenceCount == 0
+                ? "Validate: Occult mode, waiting for Adventurer List data."
+                : $"Validate: Occult mode, {occultPresenceCount} Adventurer List players known, {occultPartyCount} parties identified by party leads.");
+            return;
+        }
+
+        ImGui.TextDisabled(Plugin.PartyList.IsAlliance
+            ? "Validate: no alliance members detected yet."
+            : "Validate: no party members detected yet.");
+    }
+
+    private void DrawValidationRosterSlot(
+        FullPartyRunDetail runDetail,
+        FullPartyRosterSlot plannedSlot,
+        FullPartyPartySnapshotMember? actualMember,
+        ObservedSnapshotMember? expectedObserved,
+        GamePresenceList occultPresence,
+        bool useOccultPresence,
+        bool expectedPartySynced)
+    {
+        var result = BuildValidationSlotResult(runDetail, plannedSlot, actualMember, expectedObserved, occultPresence, useOccultPresence, expectedPartySynced);
+        if (result == null)
+        {
+            DrawEmptyRosterSlot(plannedSlot);
+            return;
+        }
+
+        var canOpenApplication = runDetail.CanModerate && result.RosterSlot?.ApplicationId != null;
+        if (ImGui.InvisibleButton($"##validate_slot_{plannedSlot.Id}", new Vector2(-1f, 34f)) && canOpenApplication)
+            plugin.OpenApplicationWindow(Run, result.RosterSlot!);
+
+        var min = ImGui.GetItemRectMin();
+        var max = ImGui.GetItemRectMax();
+        var hovered = ImGui.IsItemHovered();
+        var drawList = ImGui.GetWindowDrawList();
+        drawList.AddRectFilled(min, max, ImGui.ColorConvertFloat4ToU32(GetValidationSlotBackground(result.State, hovered)), 3f);
+        drawList.AddRect(min, max, ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, hovered ? 0.22f : 0.10f)), 3f);
+
+        var cursor = min + new Vector2(5f, 5f);
+        if (result.Character != null)
+        {
+            DrawCharacterIcon(drawList, result.Character, cursor);
+        }
+        else
+        {
+            drawList.AddRectFilled(cursor, cursor + new Vector2(24, 24), ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, 0.10f)), 3f);
+        }
+
+        cursor.X += 29f;
+
+        var iconRight = max.X - 7f;
+        Vector2? phantomIconPosition = null;
+        Vector2? classIconPosition = null;
+        if (result.PhantomJobId != null)
+        {
+            iconRight -= 20f;
+            phantomIconPosition = new Vector2(iconRight, min.Y + 7f);
+            iconRight -= 4f;
+        }
+
+        if (result.ClassJobId != null ||
+            (!useOccultPresence && !string.IsNullOrWhiteSpace(result.RosterSlot?.CharacterClass)))
+        {
+            iconRight -= 20f;
+            classIconPosition = new Vector2(iconRight, min.Y + 7f);
+            iconRight -= 4f;
+        }
+
+        if (result.RosterSlot != null && IsValidationPartyLead(result.RosterSlot))
+            DrawPartyLeadCrown(drawList, ref cursor);
+
+        var nameWidth = Math.Max(24f, iconRight - cursor.X);
+        drawList.AddText(cursor + new Vector2(0, 3f), ImGui.GetColorU32(ImGuiCol.Text), TrimToWidth(result.DisplayName, nameWidth));
+
+        if (classIconPosition != null &&
+            !DrawJobIconById(drawList, result.ClassJobId, classIconPosition.Value) &&
+            !DrawJobIcon(drawList, result.RosterSlot?.CharacterClass, classIconPosition.Value))
+        {
+            DrawIconFallback(drawList, classIconPosition.Value, result.RosterSlot?.CharacterClass, ImGui.GetColorU32(ImGuiCol.TextDisabled));
+        }
+
+        if (phantomIconPosition != null &&
+            !DrawPhantomJobIconById(drawList, runDetail, result.PhantomJobId, phantomIconPosition.Value) &&
+            result.PhantomJobId != null)
+        {
+            DrawIconFallback(drawList, phantomIconPosition.Value, GetPhantomJobDisplayName(runDetail, result.PhantomJobId.Value), ImGui.GetColorU32(ImGuiCol.TextDisabled));
+        }
+
+        if (hovered && result.Messages.Count > 0)
+        {
+            const float TooltipWidth = 320f;
+            ImGui.SetNextWindowSizeConstraints(
+                new Vector2(TooltipWidth, 0f),
+                new Vector2(TooltipWidth, float.MaxValue));
+            ImGui.BeginTooltip();
+            ImGui.PushTextWrapPos(ImGui.GetCursorPosX() + TooltipWidth);
+            ImGui.TextUnformatted(plannedSlot.SlotLabel);
+            ImGui.Separator();
+            foreach (var message in result.Messages)
+                ImGui.TextUnformatted(message);
+            ImGui.PopTextWrapPos();
+            ImGui.EndTooltip();
+        }
+    }
+
+    private static ValidationSlotResult? BuildValidationSlotResult(
+        FullPartyRunDetail runDetail,
+        FullPartyRosterSlot plannedSlot,
+        FullPartyPartySnapshotMember? actualMember,
+        ObservedSnapshotMember? expectedObserved,
+        GamePresenceList occultPresence,
+        bool useOccultPresence,
+        bool expectedPartySynced)
+    {
+        var expectedCharacter = plannedSlot.AssignedCharacter;
+        var expectedPresence = expectedCharacter != null && useOccultPresence && occultPresence.TryFind(expectedCharacter, out var presence)
+            ? presence
+            : null;
+        if (actualMember == null)
+        {
+            if (expectedCharacter == null)
+                return null;
+
+            if (useOccultPresence)
+            {
+                if (expectedPresence == null)
+                {
+                    return new ValidationSlotResult(
+                        expectedCharacter,
+                        plannedSlot,
+                        expectedCharacter.Name,
+                        null,
+                        null,
+                        ValidationState.Error,
+                        ["Missing from Adventurer List."]);
+                }
+
+                var occultMessages = new List<string>();
+                var occultState = ValidationState.Warning;
+                int? occultClassJobId = null;
+                int? occultPhantomJobId = null;
+                if (expectedObserved != null)
+                {
+                    occultClassJobId = GetCombatClassJobId(expectedObserved.Member.ClassJobId);
+                    occultPhantomJobId = expectedObserved.Member.PhantomJobId;
+                    if (expectedObserved.Snapshot.PartyKey.Equals(plannedSlot.GroupKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        occultState = ValidationState.Ok;
+                    }
+                    else
+                    {
+                        occultMessages.Add($"Wrong party: currently in {FormatObservedLocation(runDetail, expectedObserved, true)}.");
+                    }
+
+                    AddClassValidationMessage(plannedSlot, occultClassJobId, occultMessages);
+                    AddPhantomJobValidationMessage(runDetail, plannedSlot, expectedObserved.Member, occultMessages);
+                }
+                else
+                {
+                    occultMessages.Add(expectedPartySynced
+                        ? $"Present in Adventurer List, but not in the synced {plannedSlot.GroupLabel} party."
+                        : $"Present in Adventurer List; waiting for a party lead snapshot for {plannedSlot.GroupLabel}.");
+                }
+
+                return new ValidationSlotResult(
+                    expectedCharacter,
+                    plannedSlot,
+                    expectedCharacter.Name,
+                    occultClassJobId,
+                    occultPhantomJobId,
+                    occultMessages.Count == 0 ? occultState : ValidationState.Warning,
+                    occultMessages);
+            }
+
+            var missingMessages = new List<string>();
+            var state = ValidationState.Error;
+            int? classJobId = null;
+            int? phantomJobId = plannedSlot.PhantomJobId;
+            if (expectedObserved != null)
+            {
+                state = ValidationState.Warning;
+                missingMessages.Add(useOccultPresence
+                    ? $"Wrong place: currently in {FormatObservedLocation(runDetail, expectedObserved, false)}."
+                    : $"Wrong party: currently in {FormatObservedLocation(runDetail, expectedObserved, true)}.");
+                classJobId = GetCombatClassJobId(expectedObserved.Member.ClassJobId);
+                phantomJobId = expectedObserved.Member.PhantomJobId ?? plannedSlot.PhantomJobId;
+            }
+            else if (expectedPresence != null)
+            {
+                state = ValidationState.Warning;
+                classJobId = GetCombatClassJobId(expectedPresence.ClassJobId);
+                phantomJobId = expectedPresence.PhantomJobId ?? plannedSlot.PhantomJobId;
+                missingMessages.Add("Present in Adventurer List; party position has not been synced yet.");
+                AddClassValidationMessage(plannedSlot, classJobId, missingMessages);
+                AddPresencePhantomJobValidationMessage(runDetail, plannedSlot, expectedPresence.PhantomJobId, missingMessages);
+            }
+            else
+            {
+                missingMessages.Add(useOccultPresence
+                    ? "Missing from Adventurer List."
+                    : "Missing from alliance/party list.");
+            }
+
+            return new ValidationSlotResult(
+                expectedCharacter,
+                plannedSlot,
+                expectedCharacter.Name,
+                classJobId,
+                phantomJobId,
+                state,
+                missingMessages);
+        }
+
+        var actualRosterSlot = ResolveRosterSlot(runDetail, actualMember);
+        var actualCharacter = actualRosterSlot?.AssignedCharacter;
+        var actualDisplayName = actualCharacter?.Name ?? actualMember.DisplayName;
+        var actualClassJobId = GetCombatClassJobId(actualMember.ClassJobId);
+        var messages = new List<string>();
+
+        if (expectedCharacter == null)
+        {
+            messages.Add("Unexpected player in an empty roster slot.");
+            return new ValidationSlotResult(
+                actualCharacter,
+                actualRosterSlot,
+                actualDisplayName,
+                actualClassJobId,
+                actualMember.PhantomJobId,
+                ValidationState.Warning,
+                messages);
+        }
+
+        if (!IsExpectedCharacter(plannedSlot, actualMember, actualRosterSlot))
+        {
+            messages.Add($"Expected {expectedCharacter.Name}; found {actualDisplayName}.");
+            if (expectedObserved != null)
+            {
+                messages.Add(useOccultPresence
+                    ? $"Expected player is currently in {FormatObservedLocation(runDetail, expectedObserved, false)}."
+                    : $"Expected player is currently in {FormatObservedLocation(runDetail, expectedObserved, true)}.");
+            }
+            else if (expectedPresence != null)
+            {
+                messages.Add("Expected player is present in Adventurer List, but not in this slot.");
+            }
+            else
+            {
+                messages.Add(useOccultPresence
+                    ? "Expected player is missing from Adventurer List."
+                    : "Expected player is missing from alliance/party list.");
+            }
+
+            return new ValidationSlotResult(
+                actualCharacter,
+                actualRosterSlot,
+                actualDisplayName,
+                actualClassJobId,
+                actualMember.PhantomJobId,
+                ValidationState.Warning,
+                messages);
+        }
+
+        if (useOccultPresence)
+        {
+            AddClassValidationMessage(plannedSlot, actualClassJobId, messages);
+            AddPhantomJobValidationMessage(runDetail, plannedSlot, actualMember, messages);
+
+            return new ValidationSlotResult(
+                actualCharacter ?? expectedCharacter,
+                plannedSlot,
+                expectedCharacter.Name,
+                actualClassJobId,
+                actualMember.PhantomJobId,
+                messages.Count == 0 ? ValidationState.Ok : ValidationState.Warning,
+                messages);
+        }
+
+        return new ValidationSlotResult(
+            actualCharacter ?? expectedCharacter,
+            plannedSlot,
+            expectedCharacter.Name,
+            actualClassJobId,
+            actualMember.PhantomJobId ?? plannedSlot.PhantomJobId,
+            messages.Count == 0 ? ValidationState.Ok : ValidationState.Warning,
+            messages);
+    }
+
+    private static bool IsExpectedCharacter(
+        FullPartyRosterSlot plannedSlot,
+        FullPartyPartySnapshotMember actualMember,
+        FullPartyRosterSlot? actualRosterSlot)
+    {
+        var expectedCharacter = plannedSlot.AssignedCharacter;
+        if (expectedCharacter == null)
+            return false;
+
+        if (actualMember.CharacterId != null)
+            return actualMember.CharacterId.Value == expectedCharacter.Id;
+
+        if (actualRosterSlot?.AssignedCharacter?.Id == expectedCharacter.Id)
+            return true;
+
+        var actualKey = GetCharacterKey(actualMember.Name, actualMember.World);
+        return !actualKey.Equals("@", StringComparison.Ordinal) &&
+               actualKey.Equals(GetCharacterKey(expectedCharacter.Name, expectedCharacter.World), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void AddClassValidationMessage(
+        FullPartyRosterSlot plannedSlot,
+        int? actualClassJobId,
+        ICollection<string> messages)
+    {
+        var expectedClassJobId = GetExpectedClassJobId(plannedSlot);
+        var expectedLabel = plannedSlot.CharacterClass ?? (expectedClassJobId == null ? null : $"job {expectedClassJobId.Value}");
+        if (expectedClassJobId == null)
+            return;
+
+        if (actualClassJobId == null)
+        {
+            messages.Add($"Class unknown; expected {expectedLabel}.");
+            return;
+        }
+
+        if (actualClassJobId != expectedClassJobId)
+        {
+            messages.Add(
+                $"Wrong class: expected {expectedLabel}, " +
+                $"found {GetClassJobDisplayName(actualClassJobId.Value)}.");
+        }
+    }
+
+    private static void AddPhantomJobValidationMessage(
+        FullPartyRunDetail runDetail,
+        FullPartyRosterSlot plannedSlot,
+        FullPartyPartySnapshotMember actualMember,
+        ICollection<string> messages)
+    {
+        if (plannedSlot.PhantomJobId == null)
+            return;
+
+        if (actualMember.PhantomJobId == null)
+        {
+            messages.Add($"Phantom job unknown; expected {plannedSlot.PhantomJob ?? $"phantom job {plannedSlot.PhantomJobId.Value}"}.");
+            return;
+        }
+
+        if (actualMember.PhantomJobId != plannedSlot.PhantomJobId)
+        {
+            messages.Add(
+                $"Wrong phantom job: expected {plannedSlot.PhantomJob ?? $"phantom job {plannedSlot.PhantomJobId.Value}"}, " +
+                $"found {GetPhantomJobDisplayName(runDetail, actualMember.PhantomJobId.Value)}.");
+        }
+    }
+
+    private static void AddPresencePhantomJobValidationMessage(
+        FullPartyRunDetail runDetail,
+        FullPartyRosterSlot plannedSlot,
+        int? actualPhantomJobId,
+        ICollection<string> messages)
+    {
+        if (plannedSlot.PhantomJobId == null)
+            return;
+
+        if (actualPhantomJobId == null)
+        {
+            messages.Add($"Phantom job unknown; expected {plannedSlot.PhantomJob ?? $"phantom job {plannedSlot.PhantomJobId.Value}"}.");
+            return;
+        }
+
+        if (actualPhantomJobId != plannedSlot.PhantomJobId)
+        {
+            messages.Add(
+                $"Wrong phantom job: expected {plannedSlot.PhantomJob ?? $"phantom job {plannedSlot.PhantomJobId.Value}"}, " +
+                $"found {GetPhantomJobDisplayName(runDetail, actualPhantomJobId.Value)}.");
+        }
+    }
+
+    private static string FormatObservedLocation(FullPartyRunDetail runDetail, ObservedSnapshotMember observed, bool partyOnly)
+    {
+        var groupLabel = runDetail.Slots.FirstOrDefault(slot =>
+            slot.GroupKey.Equals(observed.Snapshot.PartyKey, StringComparison.OrdinalIgnoreCase))?.GroupLabel;
+
+        if (partyOnly)
+            return string.IsNullOrWhiteSpace(groupLabel) ? observed.Snapshot.PartyKey : groupLabel;
+
+        var matchingSlot = runDetail.Slots.FirstOrDefault(slot =>
+            slot.GroupKey.Equals(observed.Snapshot.PartyKey, StringComparison.OrdinalIgnoreCase) &&
+            slot.PositionInGroup == observed.Member.Position);
+
+        if (matchingSlot != null)
+            return matchingSlot.SlotLabel;
+
+        return string.IsNullOrWhiteSpace(groupLabel)
+            ? $"{observed.Snapshot.PartyKey} {observed.Member.Position}"
+            : $"{groupLabel} {observed.Member.Position}";
+    }
+
+    private void DrawPartySnapshotSlot(FullPartyRunDetail runDetail, FullPartyRosterSlot plannedSlot, FullPartyPartySnapshotMember? member)
+    {
+        if (member == null)
+        {
+            DrawEmptyRosterSlot(plannedSlot);
+            return;
+        }
+
+        var resolvedSlot = ResolveRosterSlot(runDetail, member);
+        var character = ResolveCharacter(runDetail, member);
+        var canOpenApplication = runDetail.CanModerate && resolvedSlot?.ApplicationId != null;
+        if (ImGui.InvisibleButton($"##party_snapshot_{plannedSlot.Id}_{member.Position}", new Vector2(-1f, 34f)) && canOpenApplication)
+            plugin.OpenApplicationWindow(Run, resolvedSlot!);
+
+        var min = ImGui.GetItemRectMin();
+        var max = ImGui.GetItemRectMax();
+        var hovered = ImGui.IsItemHovered();
+        var drawList = ImGui.GetWindowDrawList();
+        var classJobId = GetCombatClassJobId(member.ClassJobId);
+        var role = GetRoleForClassJobId(runDetail, classJobId) ?? resolvedSlot?.CharacterClassRole;
+        drawList.AddRectFilled(min, max, ImGui.ColorConvertFloat4ToU32(GetFilledSlotBackground(role, hovered && canOpenApplication)), 3f);
+        drawList.AddRect(min, max, ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, hovered ? 0.18f : 0.08f)), 3f);
+
+        var cursor = min + new Vector2(5f, 5f);
+        if (character != null)
+        {
+            DrawCharacterIcon(drawList, character, cursor);
+        }
+        else
+        {
+            drawList.AddRectFilled(cursor, cursor + new Vector2(24, 24), ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, 0.10f)), 3f);
+        }
+
+        cursor.X += 29f;
+
+        var iconRight = max.X - 7f;
+        Vector2? phantomIconPosition = null;
+        Vector2? classIconPosition = null;
+        if (member.PhantomJobId != null)
+        {
+            iconRight -= 20f;
+            phantomIconPosition = new Vector2(iconRight, min.Y + 7f);
+            iconRight -= 4f;
+        }
+
+        if (classJobId != null)
+        {
+            iconRight -= 20f;
+            classIconPosition = new Vector2(iconRight, min.Y + 7f);
+            iconRight -= 4f;
+        }
+
+        var textColor = ImGui.GetColorU32(ImGuiCol.Text);
+        var displayName = character?.Name ?? member.DisplayName;
+        if (resolvedSlot != null && IsValidationPartyLead(resolvedSlot))
+            DrawPartyLeadCrown(drawList, ref cursor);
+
+        var nameWidth = Math.Max(24f, iconRight - cursor.X);
+        drawList.AddText(cursor + new Vector2(0, 3f), textColor, TrimToWidth(displayName, nameWidth));
+
+        if (classIconPosition != null)
+            DrawJobIconById(drawList, classJobId, classIconPosition.Value);
+
+        if (phantomIconPosition != null)
+            DrawPhantomJobIconById(drawList, runDetail, member.PhantomJobId, phantomIconPosition.Value);
+    }
+
     private void DrawRosterSlot(FullPartyRosterSlot slot, bool canModerate)
     {
         var character = slot.AssignedCharacter;
@@ -344,6 +1103,9 @@ public sealed class RunWindow : Window, IDisposable
 
         DrawCharacterIcon(drawList, character, cursor);
         cursor.X += 29f;
+
+        if (IsValidationPartyLead(slot))
+            DrawPartyLeadCrown(drawList, ref cursor);
 
         var nameWidth = Math.Max(24f, iconRight - cursor.X);
         drawList.AddText(cursor + new Vector2(0, 3f), textColor, TrimToWidth(character.Name, nameWidth));
@@ -404,6 +1166,29 @@ public sealed class RunWindow : Window, IDisposable
         if (!string.IsNullOrWhiteSpace(member.Location))
             ImGui.TextDisabled(member.Location);
         ImGui.EndGroup();
+    }
+
+    private static void DrawPartyLeadCrown(ImDrawListPtr drawList, ref Vector2 cursor)
+    {
+        var position = cursor + new Vector2(0f, 7f);
+        var gold = ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 0.78f, 0.22f, 0.98f));
+        var darkGold = ImGui.ColorConvertFloat4ToU32(new Vector4(0.44f, 0.29f, 0.05f, 0.95f));
+        var shadow = ImGui.ColorConvertFloat4ToU32(new Vector4(0f, 0f, 0f, 0.42f));
+        var x = position.X;
+        var y = position.Y;
+
+        drawList.AddTriangleFilled(new Vector2(x + 1f, y + 8f), new Vector2(x + 3f, y + 1f), new Vector2(x + 6f, y + 8f), shadow);
+        drawList.AddTriangleFilled(new Vector2(x + 5f, y + 8f), new Vector2(x + 8f, y), new Vector2(x + 11f, y + 8f), shadow);
+        drawList.AddTriangleFilled(new Vector2(x + 10f, y + 8f), new Vector2(x + 13f, y + 1f), new Vector2(x + 15f, y + 8f), shadow);
+        drawList.AddRectFilled(new Vector2(x + 1f, y + 8f), new Vector2(x + 15f, y + 12f), shadow, 1.5f);
+
+        drawList.AddTriangleFilled(new Vector2(x, y + 8f), new Vector2(x + 2.5f, y + 1f), new Vector2(x + 5.5f, y + 8f), gold);
+        drawList.AddTriangleFilled(new Vector2(x + 4.5f, y + 8f), new Vector2(x + 7.5f, y), new Vector2(x + 10.5f, y + 8f), gold);
+        drawList.AddTriangleFilled(new Vector2(x + 9.5f, y + 8f), new Vector2(x + 12.5f, y + 1f), new Vector2(x + 15f, y + 8f), gold);
+        drawList.AddRectFilled(new Vector2(x, y + 8f), new Vector2(x + 15f, y + 12f), gold, 1.5f);
+        drawList.AddLine(new Vector2(x + 1.5f, y + 10.5f), new Vector2(x + 13.5f, y + 10.5f), darkGold, 1f);
+
+        cursor.X += PartyLeadCrownWidth;
     }
 
     private static void DrawEmptyRosterSlot(FullPartyRosterSlot slot)
@@ -476,6 +1261,29 @@ public sealed class RunWindow : Window, IDisposable
         return true;
     }
 
+    private static bool DrawJobIconById(ImDrawListPtr drawList, int? classJobId, Vector2 position)
+    {
+        classJobId = GetCombatClassJobId(classJobId);
+        if (classJobId is not > 0)
+            return false;
+
+        var texture = Plugin.TextureProvider.GetFromGameIcon(new GameIconLookup(62100u + (uint)classJobId.Value)).GetWrapOrDefault();
+        if (texture == null)
+            return false;
+
+        drawList.AddImage(texture.Handle, position, position + new Vector2(20, 20));
+        return true;
+    }
+
+    private bool DrawPhantomJobIconById(ImDrawListPtr drawList, FullPartyRunDetail runDetail, int? phantomJobId, Vector2 position)
+    {
+        if (phantomJobId == null)
+            return false;
+
+        var sourceSlot = runDetail.Slots.FirstOrDefault(slot => slot.PhantomJobId == phantomJobId && HasPhantomJob(slot));
+        return sourceSlot != null && DrawPhantomJobIcon(drawList, sourceSlot, position);
+    }
+
     private static uint? GetJobIconId(string? classNameOrShorthand)
     {
         if (string.IsNullOrWhiteSpace(classNameOrShorthand))
@@ -499,10 +1307,296 @@ public sealed class RunWindow : Window, IDisposable
         return null;
     }
 
+    private static string GetClassJobDisplayName(int classJobId)
+    {
+        if (GetCombatClassJobId(classJobId) == null)
+            return "unknown";
+
+        foreach (var job in Plugin.DataManager.GetExcelSheet<ClassJob>())
+        {
+            if (job.RowId == classJobId)
+                return string.IsNullOrWhiteSpace(job.Abbreviation.ToString())
+                    ? job.Name.ToString()
+                    : job.Abbreviation.ToString();
+        }
+
+        return $"job {classJobId}";
+    }
+
+    private static int? GetExpectedClassJobId(FullPartyRosterSlot slot)
+    {
+        if (!string.IsNullOrWhiteSpace(slot.CharacterClass))
+            return GetClassJobIdByName(slot.CharacterClass);
+
+        return GetCombatClassJobId(slot.CharacterClassId);
+    }
+
+    private static int? GetClassJobIdByName(string classNameOrShorthand)
+    {
+        foreach (var job in Plugin.DataManager.GetExcelSheet<ClassJob>())
+        {
+            if (job.Abbreviation.ToString().Equals(classNameOrShorthand, StringComparison.OrdinalIgnoreCase) ||
+                job.Name.ToString().Equals(classNameOrShorthand, StringComparison.OrdinalIgnoreCase))
+            {
+                return GetCombatClassJobId((int)job.RowId);
+            }
+        }
+
+        return null;
+    }
+
+    private static int? GetCombatClassJobId(int? classJobId)
+    {
+        return classJobId is >= 1 and <= 7 or >= 19 and <= 42 ? classJobId : null;
+    }
+
+    private static string GetPhantomJobDisplayName(FullPartyRunDetail runDetail, int phantomJobId)
+    {
+        return runDetail.Slots.FirstOrDefault(slot => slot.PhantomJobId == phantomJobId && !string.IsNullOrWhiteSpace(slot.PhantomJob))
+                   ?.PhantomJob ??
+               $"phantom job {phantomJobId}";
+    }
+
+    private static IReadOnlyList<IReadOnlyList<FullPartyRosterSlot>> GetRosterParties(FullPartyRunDetail runDetail)
+    {
+        return runDetail.Slots
+            .Where(slot => !IsBenchSlot(slot))
+            .GroupBy(slot => slot.GroupKey)
+            .OrderBy(group => group.Min(slot => slot.SortOrder ?? int.MaxValue))
+            .ThenBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
+            .Select(group => group
+                .OrderBy(slot => slot.PositionInGroup ?? int.MaxValue)
+                .ThenBy(slot => slot.SortOrder ?? int.MaxValue)
+                .ThenBy(slot => slot.SlotKey, StringComparer.OrdinalIgnoreCase)
+                .ToList())
+            .ToList();
+    }
+
+    private static IReadOnlyList<FullPartyRosterSlot> GetBenchSlots(FullPartyRunDetail runDetail)
+    {
+        return runDetail.Slots
+            .Where(IsBenchSlot)
+            .OrderBy(slot => slot.PositionInGroup ?? int.MaxValue)
+            .ThenBy(slot => slot.SortOrder ?? int.MaxValue)
+            .ThenBy(slot => slot.SlotKey, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private static FullPartyRosterSlot? ResolveRosterSlot(FullPartyRunDetail runDetail, FullPartyPartySnapshotMember member)
+    {
+        if (member.CharacterId != null)
+            return runDetail.Slots.FirstOrDefault(slot => slot.AssignedCharacter?.Id == member.CharacterId.Value);
+
+        var key = GetCharacterKey(member.Name, member.World);
+        return runDetail.Slots.FirstOrDefault(slot => slot.AssignedCharacter != null &&
+                                                      GetCharacterKey(slot.AssignedCharacter.Name, slot.AssignedCharacter.World)
+                                                          .Equals(key, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static FullPartyRosterCharacter? ResolveCharacter(FullPartyRunDetail runDetail, FullPartyPartySnapshotMember member)
+    {
+        return ResolveRosterSlot(runDetail, member)?.AssignedCharacter;
+    }
+
+    private static string? GetRoleForClassJobId(FullPartyRunDetail runDetail, int? classJobId)
+    {
+        if (classJobId == null)
+            return null;
+
+        return runDetail.Slots
+            .FirstOrDefault(slot => slot.CharacterClassId == classJobId && !string.IsNullOrWhiteSpace(slot.CharacterClassRole))
+            ?.CharacterClassRole;
+    }
+
+    private static IReadOnlyDictionary<string, OccultPartyAssignment> BuildOccultPartyAssignments(
+        FullPartyRunDetail runDetail,
+        IReadOnlyList<FullPartyPartySnapshot> snapshots,
+        GamePresenceList presence)
+    {
+        var assignments = new Dictionary<string, OccultPartyAssignment>(StringComparer.OrdinalIgnoreCase);
+        foreach (var snapshot in snapshots)
+        {
+            var leadSlots = new List<FullPartyRosterSlot>();
+            foreach (var member in snapshot.Members)
+            {
+                var slot = ResolveRosterSlot(runDetail, member);
+                if (slot?.AssignedCharacter == null || !IsValidationPartyLead(slot))
+                    continue;
+
+                if (!presence.TryFind(slot.AssignedCharacter, out _))
+                    continue;
+
+                leadSlots.Add(slot);
+            }
+
+            var leadGroups = leadSlots
+                .GroupBy(slot => slot.GroupKey, StringComparer.OrdinalIgnoreCase)
+                .Select(group => new
+                {
+                    GroupKey = group.Key,
+                    GroupLabel = group.First().GroupLabel,
+                    PartyLeadCount = group.Count(),
+                    MatchesSnapshotKey = group.Key.Equals(snapshot.PartyKey, StringComparison.OrdinalIgnoreCase),
+                })
+                .OrderByDescending(group => group.PartyLeadCount)
+                .ThenByDescending(group => group.MatchesSnapshotKey)
+                .ThenBy(group => group.GroupKey, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (leadGroups.Count == 0)
+                continue;
+
+            var selectedGroup = leadGroups[0];
+            var isAmbiguousTie = leadGroups.Count > 1 &&
+                                 leadGroups[1].PartyLeadCount == selectedGroup.PartyLeadCount &&
+                                 leadGroups[1].MatchesSnapshotKey == selectedGroup.MatchesSnapshotKey;
+            if (isAmbiguousTie)
+                continue;
+
+            if (!assignments.TryGetValue(selectedGroup.GroupKey, out var existing) ||
+                selectedGroup.PartyLeadCount > existing.PartyLeadCount ||
+                (selectedGroup.PartyLeadCount == existing.PartyLeadCount && snapshot.CapturedAt > existing.Snapshot.CapturedAt))
+            {
+                assignments[selectedGroup.GroupKey] = new OccultPartyAssignment(
+                    snapshot with { PartyKey = selectedGroup.GroupKey },
+                    selectedGroup.GroupLabel,
+                    selectedGroup.PartyLeadCount);
+            }
+        }
+
+        return assignments;
+    }
+
+    private static IReadOnlyDictionary<long, ObservedSnapshotMember> BuildObservedByCharacterId(IReadOnlyList<FullPartyPartySnapshot> snapshots)
+    {
+        var observed = new Dictionary<long, ObservedSnapshotMember>();
+        foreach (var snapshot in snapshots)
+        {
+            foreach (var member in snapshot.Members)
+            {
+                if (member.CharacterId != null)
+                    observed[member.CharacterId.Value] = new ObservedSnapshotMember(snapshot, member);
+            }
+        }
+
+        return observed;
+    }
+
+    private static IReadOnlyDictionary<string, ObservedSnapshotMember> BuildObservedByName(
+        FullPartyRunDetail runDetail,
+        IReadOnlyList<FullPartyPartySnapshot> snapshots)
+    {
+        var observed = new Dictionary<string, ObservedSnapshotMember>(StringComparer.OrdinalIgnoreCase);
+        foreach (var snapshot in snapshots)
+        {
+            foreach (var member in snapshot.Members)
+            {
+                var key = member.CharacterId == null
+                    ? GetCharacterKey(member.Name, member.World)
+                    : GetCharacterKey(ResolveCharacter(runDetail, member)?.Name, ResolveCharacter(runDetail, member)?.World);
+
+                if (!string.IsNullOrWhiteSpace(key))
+                    observed[key] = new ObservedSnapshotMember(snapshot, member);
+            }
+        }
+
+        return observed;
+    }
+
+    private static ObservedSnapshotMember? FindObservedForSlot(
+        FullPartyRosterSlot slot,
+        IReadOnlyDictionary<long, ObservedSnapshotMember> observedById,
+        IReadOnlyDictionary<string, ObservedSnapshotMember> observedByName)
+    {
+        if (slot.AssignedCharacter == null)
+            return null;
+
+        if (observedById.TryGetValue(slot.AssignedCharacter.Id, out var observed))
+            return observed;
+
+        return observedByName.TryGetValue(GetCharacterKey(slot.AssignedCharacter.Name, slot.AssignedCharacter.World), out observed)
+            ? observed
+            : null;
+    }
+
+    private static FullPartyPartySnapshotMember? FindExpectedMemberInParty(
+        FullPartyRunDetail runDetail,
+        FullPartyRosterSlot slot,
+        FullPartyPartySnapshot? snapshot)
+    {
+        if (snapshot == null || slot.AssignedCharacter == null)
+            return null;
+
+        return snapshot.Members.FirstOrDefault(member =>
+            IsExpectedCharacter(slot, member, ResolveRosterSlot(runDetail, member)));
+    }
+
+    private static ValidationState GetValidationState(int? expected, int? actual)
+    {
+        if (expected == null)
+            return ValidationState.Neutral;
+
+        if (actual == null)
+            return ValidationState.Warning;
+
+        return expected == actual ? ValidationState.Ok : ValidationState.Error;
+    }
+
+    private static string GetValidationText(ValidationState state)
+    {
+        return state switch
+        {
+            ValidationState.Ok => "OK",
+            ValidationState.Warning => "Unknown",
+            ValidationState.Error => "Wrong",
+            _ => "N/A",
+        };
+    }
+
+    private static void DrawValidationStatus(string text, ValidationState state)
+    {
+        var color = state switch
+        {
+            ValidationState.Ok => new Vector4(0.36f, 0.92f, 0.55f, 1f),
+            ValidationState.Warning => new Vector4(0.94f, 0.78f, 0.32f, 1f),
+            ValidationState.Error => new Vector4(1f, 0.42f, 0.42f, 1f),
+            _ => new Vector4(0.66f, 0.66f, 0.72f, 1f),
+        };
+
+        ImGui.TextColored(color, text);
+    }
+
+    private static Vector4 GetValidationSlotBackground(ValidationState state, bool hovered)
+    {
+        var alpha = hovered ? 0.70f : 0.52f;
+        return state switch
+        {
+            ValidationState.Ok => new Vector4(0.08f, 0.38f, 0.18f, alpha),
+            ValidationState.Warning => new Vector4(0.58f, 0.43f, 0.06f, alpha),
+            ValidationState.Error => new Vector4(0.66f, 0.27f, 0.04f, alpha),
+            _ => new Vector4(0.10f, 0.12f, 0.15f, 0.28f),
+        };
+    }
+
+    private static string GetCharacterKey(string? name, string? world)
+    {
+        return $"{NormalizeKeyPart(name)}@{NormalizeKeyPart(world)}";
+    }
+
+    private static string NormalizeKeyPart(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim().ToLowerInvariant();
+    }
+
     private static bool IsBenchSlot(FullPartyRosterSlot slot)
     {
         return slot.GroupKey.Contains("bench", StringComparison.OrdinalIgnoreCase) ||
                slot.GroupLabel.Contains("bench", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsValidationPartyLead(FullPartyRosterSlot slot)
+    {
+        return slot.IsRaidLeader || slot.IsHost;
     }
 
     private static bool HasPhantomJob(FullPartyRosterSlot slot)
@@ -569,6 +1663,102 @@ public sealed class RunWindow : Window, IDisposable
         detailTask = plugin.ApiClient.GetRunDetailAsync(Run.Id, cancellation.Token);
     }
 
+    private void StartRunCheckIn()
+    {
+        if (detail == null)
+        {
+            checkInStatusMessage = "Run check-in unavailable: roster is not loaded yet.";
+            return;
+        }
+
+        if (OccultCrescentTerritory.IsCurrent() && !plugin.AdventurerList.HasRequestedRefresh)
+        {
+            plugin.AdventurerList.RequestRefresh();
+            checkInStatusMessage = "Refreshing Adventurer List before check-in. Press Run Check-In again once it finishes.";
+            return;
+        }
+
+        var selection = BuildRunCheckInSelection(detail);
+        if (selection.PresentCount == 0)
+        {
+            checkInStatusMessage = $"Run check-in skipped: no present roster players found, {selection.MissingCount} missing.";
+            Plugin.Log.Information(
+                "FullParty run {RunId} check-in skipped: no present roster players found, {MissingCount} missing.",
+                Run.Id,
+                selection.MissingCount);
+            return;
+        }
+
+        checkInStatusMessage = $"Submitting check-in for {selection.PresentCount} present roster players...";
+        checkInTask = SubmitRunCheckInAsync(selection, cancellation.Token);
+    }
+
+    private async Task<RunCheckInSummary> SubmitRunCheckInAsync(RunCheckInSelection selection, CancellationToken cancellationToken)
+    {
+        await plugin.ApiClient.SubmitRunCheckInsAsync(Run.Id, selection.SlotIds, selection.CharacterIds, cancellationToken);
+        return new RunCheckInSummary(selection.PresentCount, selection.MissingCount);
+    }
+
+    private void ObserveCheckInTask()
+    {
+        var task = checkInTask;
+        if (task is not { IsCompleted: true })
+            return;
+
+        checkInTask = null;
+        if (task.IsCanceled)
+        {
+            checkInStatusMessage = "Run check-in cancelled.";
+            return;
+        }
+
+        if (task.Exception != null)
+        {
+            var exception = task.Exception.GetBaseException();
+            Plugin.Log.Warning(exception, "FullParty run {RunId} check-in failed.", Run.Id);
+            checkInStatusMessage = $"Run check-in failed: {exception.Message}";
+            return;
+        }
+
+        var summary = task.Result;
+        checkInStatusMessage = $"Run check-in complete: {summary.CheckedInCount} checked in, {summary.MissingCount} missing.";
+        Plugin.Log.Information(
+            "FullParty run {RunId} check-in complete: {CheckedInCount} checked in, {MissingCount} missing.",
+            Run.Id,
+            summary.CheckedInCount,
+            summary.MissingCount);
+        RefreshRun();
+    }
+
+    private RunCheckInSelection BuildRunCheckInSelection(FullPartyRunDetail runDetail)
+    {
+        var presence = OccultCrescentTerritory.IsCurrent()
+            ? plugin.AdventurerList.GetPresence(runDetail)
+            : RunValidationSources.BuildLocalPartyPresence(runDetail);
+        var assignedSlots = runDetail.Slots
+            .Where(slot => slot.AssignedCharacter != null)
+            .GroupBy(slot => slot.Id)
+            .Select(group => group.First())
+            .ToList();
+        var presentSlots = assignedSlots
+            .Where(slot => presence.TryFind(slot.AssignedCharacter!, out _))
+            .ToList();
+
+        return new RunCheckInSelection(
+            presentSlots.Select(slot => slot.Id).Distinct().ToList(),
+            presentSlots.Select(slot => slot.AssignedCharacter!.Id).Distinct().ToList(),
+            presentSlots.Count,
+            Math.Max(0, assignedSlots.Count - presentSlots.Count));
+    }
+
+    private void RefreshRosterData()
+    {
+        RefreshRun();
+
+        if (OccultCrescentTerritory.IsCurrent())
+            plugin.AdventurerList.RequestRefresh();
+    }
+
     private void EnsureDetailLoaded()
     {
         if (detail != null || detailError != null)
@@ -587,7 +1777,13 @@ public sealed class RunWindow : Window, IDisposable
         {
             detail = detailTask.Result;
             if (detail == null)
+            {
                 detailError = "FullParty returned an empty run.";
+            }
+            else
+            {
+                liveRoom.SetRunDetail(detail);
+            }
         }
         else
         {

@@ -124,7 +124,8 @@ public sealed class FullPartyApiClient
             FindChannelPattern(root) ?? "presence-xivplugin.runs.{run_id}",
             FindConfigString(root, ["path", "ws_path", "wsPath"]),
             FindEventName(root, ["command", "run_command"]) ?? "xivplugin.run.command",
-            FindEventName(root, ["command_acknowledged", "commandAcknowledged", "acknowledged", "run_command_acknowledged"]) ?? "xivplugin.run.command.acknowledged");
+            FindEventName(root, ["command_acknowledged", "commandAcknowledged", "acknowledged", "run_command_acknowledged"]) ?? "xivplugin.run.command.acknowledged",
+            FindEventName(root, ["party_snapshot", "partySnapshot", "run_party_snapshot"]) ?? "xivplugin.run.party_snapshot");
     }
 
     public async Task<FullPartyBroadcastAuth> AuthorizeRealtimeChannelAsync(string authEndpoint, string socketId, string channelName, CancellationToken cancellationToken)
@@ -172,6 +173,35 @@ public sealed class FullPartyApiClient
         _ = await authService.PostJsonAsync<JsonElement>(
             $"/api/xivplugin/runs/{runId}/commands/{Uri.EscapeDataString(commandId)}/ack",
             new RunCommandAckRequest(status),
+            cancellationToken);
+    }
+
+    public async Task SendPartySnapshotAsync(int runId, FullPartyPartySnapshot snapshot, CancellationToken cancellationToken)
+    {
+        _ = await authService.PostJsonAsync<JsonElement>(
+            $"/api/xivplugin/runs/{runId}/party-snapshot",
+            new PartySnapshotRequest(
+                snapshot.Sequence,
+                snapshot.PartyKey,
+                snapshot.Members.Select(member => new PartySnapshotMemberRequest(
+                    member.Position,
+                    member.CharacterId,
+                    string.IsNullOrWhiteSpace(member.Name) ? null : member.Name,
+                    string.IsNullOrWhiteSpace(member.World) ? null : member.World,
+                    member.ClassJobId,
+                    member.PhantomJobId)).ToList()),
+            cancellationToken);
+    }
+
+    public async Task SubmitRunCheckInsAsync(
+        int runId,
+        IReadOnlyList<int> slotIds,
+        IReadOnlyList<long> characterIds,
+        CancellationToken cancellationToken)
+    {
+        _ = await authService.PostJsonAsync<JsonElement>(
+            $"/api/xivplugin/runs/{runId}/check-ins",
+            new RunCheckInsRequest(slotIds, characterIds),
             cancellationToken);
     }
 
@@ -227,6 +257,7 @@ public sealed class FullPartyApiClient
                     slot.AssignedCharacter.Datacenter,
                     slot.AssignedCharacter.AvatarUrl,
                     slot.AssignedCharacter.User?.Name),
+            classValue?.Id,
             classValue?.Shorthand ?? classValue?.Name,
             classValue?.Role,
             phantomJobValue?.Id,
@@ -628,6 +659,23 @@ public sealed class FullPartyApiClient
 
     private sealed record RunCommandAckRequest(
         [property: JsonPropertyName("status")] string Status);
+
+    private sealed record PartySnapshotRequest(
+        [property: JsonPropertyName("seq")] int Sequence,
+        [property: JsonPropertyName("party_key")] string PartyKey,
+        [property: JsonPropertyName("members")] IReadOnlyList<PartySnapshotMemberRequest> Members);
+
+    private sealed record PartySnapshotMemberRequest(
+        [property: JsonPropertyName("p")] int Position,
+        [property: JsonPropertyName("cid")] long? CharacterId,
+        [property: JsonPropertyName("n")] string? Name,
+        [property: JsonPropertyName("w")] string? World,
+        [property: JsonPropertyName("cj")] int? ClassJobId,
+        [property: JsonPropertyName("pj")] int? PhantomJobId);
+
+    private sealed record RunCheckInsRequest(
+        [property: JsonPropertyName("slot_ids")] IReadOnlyList<int> SlotIds,
+        [property: JsonPropertyName("character_ids")] IReadOnlyList<long> CharacterIds);
 
     private sealed class GroupsResponse
     {

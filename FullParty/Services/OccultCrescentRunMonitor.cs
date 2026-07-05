@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Dalamud.Plugin.Services;
 using FullParty.Auth;
 using FullParty.Models;
-using Lumina.Excel.Sheets;
 
 namespace FullParty.Services;
 
@@ -15,8 +14,6 @@ public sealed class OccultCrescentRunMonitor : IDisposable
     private static readonly TimeSpan AuthRetryInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan CheckInterval = TimeSpan.FromSeconds(30);
     private static readonly TimeSpan UpcomingLookahead = TimeSpan.FromMinutes(60);
-    private static readonly string[] TerritoryNameMatches = ["Occult Crescent", "South Horn"];
-
     private readonly Plugin plugin;
     private readonly CancellationTokenSource cancellation = new();
     private readonly HashSet<int> openedRunIds = [];
@@ -47,7 +44,7 @@ public sealed class OccultCrescentRunMonitor : IDisposable
 
     private void OnTerritoryChanged(uint territoryId)
     {
-        if (IsOccultCrescentTerritory(territoryId))
+        if (OccultCrescentTerritory.IsOccultCrescentTerritory(territoryId))
             ScheduleImmediateCheck();
     }
 
@@ -151,18 +148,6 @@ public sealed class OccultCrescentRunMonitor : IDisposable
 
     private static bool IsInOccultCrescent()
     {
-        return IsOccultCrescentTerritory(Plugin.ClientState.TerritoryType);
-    }
-
-    private static bool IsOccultCrescentTerritory(uint territoryId)
-    {
-        if (territoryId == 0)
-            return false;
-
-        if (!Plugin.DataManager.GetExcelSheet<TerritoryType>().TryGetRow(territoryId, out var territory))
-            return false;
-
-        var placeName = territory.PlaceName.Value.Name.ToString();
-        return TerritoryNameMatches.Any(match => placeName.Contains(match, StringComparison.OrdinalIgnoreCase));
+        return OccultCrescentTerritory.IsCurrent();
     }
 }

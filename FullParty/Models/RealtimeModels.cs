@@ -15,7 +15,8 @@ public sealed record FullPartyRealtimeConfig(
     string ChannelPattern,
     string? Path,
     string CommandEventName,
-    string CommandAcknowledgedEventName)
+    string CommandAcknowledgedEventName,
+    string PartySnapshotEventName)
 {
     public string GetRunChannelName(int runId)
     {
@@ -66,3 +67,22 @@ public sealed record FullPartyRunCommand(
     int? CountdownSeconds,
     IReadOnlyList<string> ResolvedUserIds,
     IReadOnlyList<int> ResolvedSlotIds);
+
+public sealed record FullPartyPartySnapshot(
+    int RunId,
+    long SenderUserId,
+    string PartyKey,
+    int Sequence,
+    DateTimeOffset CapturedAt,
+    IReadOnlyList<FullPartyPartySnapshotMember> Members);
+
+public sealed record FullPartyPartySnapshotMember(
+    int Position,
+    long? CharacterId,
+    string? Name,
+    string? World,
+    int? ClassJobId,
+    int? PhantomJobId)
+{
+    public string DisplayName => string.IsNullOrWhiteSpace(Name) ? $"Slot {Position}" : Name;
+}

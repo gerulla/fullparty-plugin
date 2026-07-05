@@ -35,14 +35,20 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private readonly FullPartyApiClient apiClient;
     private readonly object stateLock = new();
     private readonly Dictionary<string, FullPartyLiveMember> members = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, FullPartyPartySnapshot> partySnapshots = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> handledCommandIds = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentQueue<PendingCommandExecution> pendingCommandExecutions = new();
     private const int CommandExpirySeconds = 30;
+    private static readonly TimeSpan PartySnapshotInterval = TimeSpan.FromMilliseconds(2200);
 
     private CancellationTokenSource? cancellation;
     private Task? connectionTask;
     private Task? commandIssueTask;
+    private Task? partySnapshotTask;
     private ClientWebSocket? webSocket;
+    private FullPartyRunDetail? runDetail;
+    private DateTimeOffset lastPartySnapshotAttemptAt = DateTimeOffset.MinValue;
+    private int partySnapshotSequence;
 
     public RealtimeRunRoomClient(int runId, Plugin plugin)
     {
@@ -56,6 +62,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
     public RealtimeRunRoomState State { get; private set; } = RealtimeRunRoomState.Disconnected;
     public string StatusMessage { get; private set; } = "Disconnected";
     public string? CommandStatusMessage { get; private set; }
+    public string? PartySnapshotStatusMessage { get; private set; }
     public string? ChannelName { get; private set; }
 
     public bool IsActive => State is RealtimeRunRoomState.Connecting
@@ -83,6 +90,27 @@ public sealed class RealtimeRunRoomClient : IDisposable
         }
     }
 
+    public IReadOnlyList<FullPartyPartySnapshot> PartySnapshots
+    {
+        get
+        {
+            lock (stateLock)
+            {
+                return partySnapshots.Values
+                    .OrderBy(snapshot => snapshot.PartyKey, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+        }
+    }
+
+    public void SetRunDetail(FullPartyRunDetail detail)
+    {
+        lock (stateLock)
+        {
+            runDetail = detail;
+        }
+    }
+
     public void Connect()
     {
         lock (stateLock)
@@ -95,6 +123,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             cancellation = new CancellationTokenSource();
             members.Clear();
             handledCommandIds.Clear();
+            PartySnapshotStatusMessage = null;
             SetStateNoLock(RealtimeRunRoomState.Connecting, "Connecting to live room...");
             connectionTask = Task.Run(() => RunAsync(cancellation.Token));
         }
@@ -114,6 +143,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             members.Clear();
             handledCommandIds.Clear();
             ChannelName = null;
+            PartySnapshotStatusMessage = null;
             SetStateNoLock(RealtimeRunRoomState.Disconnected, "Disconnected");
         }
 
@@ -307,6 +337,13 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 if (data != null)
                     HandleRunCommand(data.RootElement);
             }
+
+            if (EventMatches(envelope.Event, config.PartySnapshotEventName))
+            {
+                using var data = ParseDataDocument(envelope.Data);
+                if (data != null)
+                    HandlePartySnapshot(data.RootElement);
+            }
         }
     }
 
@@ -390,6 +427,26 @@ public sealed class RealtimeRunRoomClient : IDisposable
         SetCommandStatus($"Received {FormatCommandName(command.Command)}.");
     }
 
+    private void HandlePartySnapshot(JsonElement root)
+    {
+        var snapshot = ParsePartySnapshot(root);
+        if (snapshot == null || snapshot.RunId != runId || string.IsNullOrWhiteSpace(snapshot.PartyKey))
+            return;
+
+        lock (stateLock)
+        {
+            if (partySnapshots.TryGetValue(snapshot.PartyKey, out var existing) &&
+                existing.SenderUserId == snapshot.SenderUserId &&
+                existing.Sequence > snapshot.Sequence)
+            {
+                return;
+            }
+
+            partySnapshots[snapshot.PartyKey] = snapshot;
+            PartySnapshotStatusMessage = $"Party sync: {partySnapshots.Count} parties";
+        }
+    }
+
     private void OnFrameworkUpdate(IFramework framework)
     {
         while (pendingCommandExecutions.TryDequeue(out var pending))
@@ -406,6 +463,86 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 QueueAck(pending.CommandId, "failed");
                 SetCommandStatus($"Failed to execute {FormatCommandName(pending.CommandName)}.");
             }
+        }
+
+        PublishPartySnapshotIfReady();
+    }
+
+    private void PublishPartySnapshotIfReady()
+    {
+        FullPartyRunDetail? currentRunDetail;
+        FullPartyLiveMember? currentMember;
+        CancellationToken token;
+
+        lock (stateLock)
+        {
+            var now = DateTimeOffset.UtcNow;
+
+            if (State != RealtimeRunRoomState.Connected || cancellation == null)
+                return;
+
+            if (partySnapshotTask is { IsCompleted: false })
+                return;
+
+            if (now - lastPartySnapshotAttemptAt < PartySnapshotInterval)
+                return;
+
+            lastPartySnapshotAttemptAt = now;
+            currentRunDetail = runDetail;
+            currentMember = GetCurrentMemberNoLock();
+            token = cancellation.Token;
+        }
+
+        if (currentRunDetail == null || currentMember == null)
+            return;
+
+        if (!currentRunDetail.CanModerate && !currentMember.IsHost && !currentMember.IsPartyLead)
+        {
+            SetPartySnapshotStatus("Party sync requires host, party lead, or moderator.");
+            return;
+        }
+
+        var sequence = Interlocked.Increment(ref partySnapshotSequence);
+        FullPartyPartySnapshot? snapshot;
+        try
+        {
+            snapshot = PartySnapshotBuilder.TryBuild(runId, currentRunDetail, currentMember, plugin.AuthService.User, sequence);
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Warning(ex, "Could not build FullParty party snapshot for run {RunId}.", runId);
+            SetPartySnapshotStatus($"Party sync unavailable: {ex.Message}");
+            return;
+        }
+
+        if (snapshot == null)
+        {
+            SetPartySnapshotStatus("Party sync waiting for assigned party.");
+            return;
+        }
+
+        lock (stateLock)
+        {
+            partySnapshots[snapshot.PartyKey] = snapshot;
+        }
+
+        partySnapshotTask = Task.Run(() => SendPartySnapshotAsync(snapshot, token), token);
+    }
+
+    private async Task SendPartySnapshotAsync(FullPartyPartySnapshot snapshot, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await apiClient.SendPartySnapshotAsync(runId, snapshot, cancellationToken);
+            SetPartySnapshotStatus($"Synced {snapshot.PartyKey}.");
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Warning(ex, "Could not send FullParty party snapshot for run {RunId}.", runId);
+            SetPartySnapshotStatus($"Party sync failed: {ex.Message}");
         }
     }
 
@@ -727,6 +864,53 @@ public sealed class RealtimeRunRoomClient : IDisposable
             GetIntList(commandRoot, ["resolved_slot_ids", "slot_ids"]));
     }
 
+    private static FullPartyPartySnapshot? ParsePartySnapshot(JsonElement root)
+    {
+        if (TryGetObject(root, "data", out var data))
+            root = data;
+
+        var parsedRunId = GetInt(root, "run_id") ?? GetInt(root, "runId");
+        var partyKey = GetString(root, "party_key") ?? GetString(root, "partyKey");
+        var sequence = GetInt(root, "seq") ?? GetInt(root, "sequence");
+        var senderUserId = GetLong(root, "sender_user_id") ?? GetLong(root, "senderUserId") ?? 0;
+        var timestamp = GetLong(root, "ts") ?? GetLong(root, "timestamp");
+
+        if (parsedRunId == null || string.IsNullOrWhiteSpace(partyKey) || sequence == null)
+            return null;
+
+        if (!TryGetArray(root, "members", out var membersArray))
+            return null;
+
+        var members = membersArray.EnumerateArray()
+            .Select(ParsePartySnapshotMember)
+            .Where(member => member != null)
+            .Select(member => member!)
+            .ToList();
+
+        return new FullPartyPartySnapshot(
+            parsedRunId.Value,
+            senderUserId,
+            partyKey,
+            sequence.Value,
+            timestamp is > 0 ? DateTimeOffset.FromUnixTimeSeconds(timestamp.Value) : DateTimeOffset.UtcNow,
+            members);
+    }
+
+    private static FullPartyPartySnapshotMember? ParsePartySnapshotMember(JsonElement member)
+    {
+        var position = GetInt(member, "p") ?? GetInt(member, "position");
+        if (position == null)
+            return null;
+
+        return new FullPartyPartySnapshotMember(
+            position.Value,
+            GetLong(member, "cid") ?? GetLong(member, "character_id") ?? GetLong(member, "characterId"),
+            GetString(member, "n") ?? GetString(member, "name"),
+            GetString(member, "w") ?? GetString(member, "world"),
+            GetInt(member, "cj") ?? GetInt(member, "class_job_id") ?? GetInt(member, "classJobId"),
+            GetInt(member, "pj") ?? GetInt(member, "phantom_job_id") ?? GetInt(member, "phantomJobId"));
+    }
+
     private static JsonElement NormalizeCommandRoot(JsonElement root)
     {
         if (TryGetObject(root, "data", out var data))
@@ -902,6 +1086,15 @@ public sealed class RealtimeRunRoomClient : IDisposable
         }
     }
 
+    private FullPartyLiveMember? GetCurrentMemberNoLock()
+    {
+        var currentUserId = plugin.AuthService.User?.Id.ToString(CultureInfo.InvariantCulture);
+        if (string.IsNullOrWhiteSpace(currentUserId))
+            return null;
+
+        return members.TryGetValue(currentUserId, out var member) ? member : null;
+    }
+
     private void SetState(RealtimeRunRoomState state, string statusMessage)
     {
         lock (stateLock)
@@ -921,6 +1114,14 @@ public sealed class RealtimeRunRoomClient : IDisposable
         lock (stateLock)
         {
             CommandStatusMessage = statusMessage;
+        }
+    }
+
+    private void SetPartySnapshotStatus(string statusMessage)
+    {
+        lock (stateLock)
+        {
+            PartySnapshotStatusMessage = statusMessage;
         }
     }
 
@@ -982,6 +1183,20 @@ public sealed class RealtimeRunRoomClient : IDisposable
             return number;
 
         if (value.ValueKind == JsonValueKind.String && int.TryParse(value.GetString(), out number))
+            return number;
+
+        return null;
+    }
+
+    private static long? GetLong(JsonElement root, string propertyName)
+    {
+        if (!TryGetProperty(root, propertyName, out var value))
+            return null;
+
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out var number))
+            return number;
+
+        if (value.ValueKind == JsonValueKind.String && long.TryParse(value.GetString(), out number))
             return number;
 
         return null;
