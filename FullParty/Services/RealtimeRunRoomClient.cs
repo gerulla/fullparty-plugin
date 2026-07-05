@@ -47,13 +47,12 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private LatestCommandTracker? latestCommand;
     private const int CommandExpirySeconds = 30;
     private const string ReadyCheckStatusClientEventName = "client-xivplugin-ready-check-status";
-    private const string ReadyCheckConfirmationRequestClientEventName = "client-xivplugin-ready-check-request";
-    private const string ReadyCheckConfirmationResponseClientEventName = "client-xivplugin-ready-check-response";
     private static readonly TimeSpan CommandStatusRetention = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan CommandExpiryClockSkewTolerance = TimeSpan.FromHours(2);
     private static readonly TimeSpan PartySnapshotInterval = TimeSpan.FromMilliseconds(2200);
     private static readonly TimeSpan ReadyCheckTrackingDuration = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan ReadyCheckConfirmationTimeout = TimeSpan.FromMinutes(2);
+    private const int ReadyCheckConfirmationExpirySeconds = 120;
     private static readonly TimeSpan ReadyCheckStatusBroadcastInterval = TimeSpan.FromSeconds(1);
     private DateTimeOffset latestCommandUpdatedAt = DateTimeOffset.MinValue;
     private DateTimeOffset commandStatusUpdatedAt = DateTimeOffset.MinValue;
@@ -65,7 +64,6 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private Task? commandIssueTask;
     private Task? partySnapshotTask;
     private Task? readyCheckStatusTask;
-    private Task? readyCheckConfirmationTask;
     private ClientWebSocket? webSocket;
     private FullPartyRunDetail? runDetail;
     private ReadyCheckConfirmationSession? readyCheckConfirmation;
@@ -299,9 +297,9 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     public void ConfirmReadyCheck(bool ready)
     {
-        ReadyCheckConfirmationResponse? response = null;
+        string? commandId = null;
+        string? ackStatus = null;
         var shouldStartReadyCheck = false;
-        var shouldQueueResponse = false;
 
         lock (stateLock)
         {
@@ -317,12 +315,12 @@ public sealed class RealtimeRunRoomClient : IDisposable
             var status = ready ? "ready" : "not_ready";
             readyCheckConfirmation.StatusByUserId[currentUserId] = status;
             readyCheckConfirmationPrompt = null;
-            response = new ReadyCheckConfirmationResponse(runId, readyCheckConfirmation.RequestId, currentUserId, status);
-            shouldQueueResponse = true;
+            commandId = readyCheckConfirmation.RequestId;
+            ackStatus = ready ? "executed" : "failed";
 
             if (latestCommand != null && latestCommand.CommandId.Equals(readyCheckConfirmation.RequestId, StringComparison.OrdinalIgnoreCase))
             {
-                latestCommand.StatusByUserId[currentUserId] = status;
+                latestCommand.StatusByUserId[currentUserId] = ackStatus;
                 TouchCommandTrackerNoLock();
             }
 
@@ -338,8 +336,8 @@ public sealed class RealtimeRunRoomClient : IDisposable
             }
         }
 
-        if (shouldQueueResponse && response != null)
-            QueueReadyCheckConfirmationResponse(response);
+        if (!string.IsNullOrWhiteSpace(commandId) && !string.IsNullOrWhiteSpace(ackStatus))
+            QueueAck(commandId, ackStatus);
 
         if (shouldStartReadyCheck)
             SendReadyCheckAllianceCommand();
@@ -347,88 +345,43 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     private void StartReadyCheckConfirmation()
     {
-        ReadyCheckConfirmationRequest? request;
-        ClientWebSocket? socket;
-        string? channelName;
-        CancellationToken token;
-        var shouldStartReadyCheck = false;
-
-        lock (stateLock)
+        var targetUserIds = GetHostAndPartyLeadUserIds();
+        if (targetUserIds.Count == 0)
         {
-            if (State != RealtimeRunRoomState.Connected)
-            {
-                SetCommandStatusNoLock("Connect to the live room first.");
-                return;
-            }
-
-            if (commandIssueTask is { IsCompleted: false } || readyCheckConfirmationTask is { IsCompleted: false })
-                return;
-
-            if (cancellation == null || webSocket == null || webSocket.State != WebSocketState.Open || string.IsNullOrWhiteSpace(ChannelName))
-            {
-                SetCommandStatusNoLock("Live room is not connected.");
-                return;
-            }
-
-            var currentUserId = GetCurrentUserId();
-            if (string.IsNullOrWhiteSpace(currentUserId))
-            {
-                SetCommandStatusNoLock("Ready check unavailable: not logged in.");
-                return;
-            }
-
-            var targetUserIds = GetHostAndPartyLeadUserIdStringsNoLock();
-            targetUserIds.Add(currentUserId);
-            if (targetUserIds.Count == 0)
-            {
-                SetCommandStatusNoLock("Ready check unavailable: no connected raid leads.");
-                return;
-            }
-
-            var requestId = CreateIdempotencyKey("ready-check-confirm");
-            var expiresAt = GetServerTimeNow() + ReadyCheckConfirmationTimeout;
-            var currentMember = members.TryGetValue(currentUserId, out var member) ? member : null;
-            var initiatorName = currentMember?.DisplayName ?? plugin.AuthService.User?.Name ?? "A raid lead";
-            var statusByUserId = targetUserIds.ToDictionary(userId => userId, _ => "waiting", StringComparer.OrdinalIgnoreCase);
-            statusByUserId[currentUserId] = "confirming";
-
-            readyCheckConfirmation = new ReadyCheckConfirmationSession(
-                requestId,
-                currentUserId,
-                initiatorName,
-                targetUserIds,
-                statusByUserId,
-                expiresAt,
-                true);
-            readyCheckConfirmationPrompt = new FullPartyReadyCheckConfirmationPrompt(requestId, initiatorName, expiresAt);
-            latestCommand = new LatestCommandTracker(
-                requestId,
-                "ready_check_confirm",
-                new HashSet<string>(targetUserIds, StringComparer.OrdinalIgnoreCase),
-                new Dictionary<string, string>(statusByUserId, StringComparer.OrdinalIgnoreCase),
-                new Dictionary<string, ReadyCheckSummary>(StringComparer.OrdinalIgnoreCase));
-            TouchCommandTrackerNoLock();
-            SetCommandStatusNoLock(GetReadyCheckConfirmationStatusTextNoLock(readyCheckConfirmation));
-
-            request = new ReadyCheckConfirmationRequest(
-                runId,
-                requestId,
-                currentUserId,
-                initiatorName,
-                targetUserIds.OrderBy(userId => userId, StringComparer.OrdinalIgnoreCase).ToList(),
-                expiresAt);
-            socket = webSocket;
-            channelName = ChannelName;
-            token = cancellation.Token;
-            readyCheckConfirmationTask = Task.Run(
-                () => SendReadyCheckConfirmationRequestAsync(socket, channelName, request, token),
-                token);
-            shouldStartReadyCheck = TryMarkReadyCheckConfirmationCompleteNoLock(readyCheckConfirmation);
+            SetCommandStatus("Ready check unavailable: no connected hosts or party leads.");
+            return;
         }
 
-        if (shouldStartReadyCheck)
-            SendReadyCheckAllianceCommand();
+        var currentUserId = GetCurrentUserId();
+        if (string.IsNullOrWhiteSpace(currentUserId))
+        {
+            SetCommandStatus("Ready check unavailable: not logged in.");
+            return;
+        }
+
+        FullPartyLiveMember? currentMember;
+        lock (stateLock)
+        {
+            readyCheckConfirmation = null;
+            readyCheckConfirmationPrompt = null;
+            currentMember = members.TryGetValue(currentUserId, out var member) ? member : null;
+        }
+
+        var initiatorName = currentMember?.DisplayName ?? plugin.AuthService.User?.Name ?? "A raid lead";
+        StartCommandIssue(
+            "ready_check_confirm",
+            "users",
+            targetUserIds,
+            new Dictionary<string, object?>
+            {
+                ["message"] = "Ready check confirmation requested",
+                ["initiator_user_id"] = currentUserId,
+                ["initiator_name"] = initiatorName,
+            },
+            "Ready check confirmation",
+            ReadyCheckConfirmationExpirySeconds);
     }
+
 
     private async Task RunAsync(CancellationToken cancellationToken)
     {
@@ -606,20 +559,6 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 if (data != null)
                     HandleReadyCheckStatus(data.RootElement);
             }
-
-            if (EventMatches(envelope.Event, ReadyCheckConfirmationRequestClientEventName))
-            {
-                using var data = ParseDataDocument(envelope.Data);
-                if (data != null)
-                    HandleReadyCheckConfirmationRequest(data.RootElement);
-            }
-
-            if (EventMatches(envelope.Event, ReadyCheckConfirmationResponseClientEventName))
-            {
-                using var data = ParseDataDocument(envelope.Data);
-                if (data != null)
-                    HandleReadyCheckConfirmationResponse(data.RootElement);
-            }
         }
     }
 
@@ -628,7 +567,8 @@ public sealed class RealtimeRunRoomClient : IDisposable
         string targetType,
         IReadOnlyList<long>? targetUserIds,
         object payload,
-        string label)
+        string label,
+        int expiresInSeconds = CommandExpirySeconds)
     {
         CancellationToken token;
         lock (stateLock)
@@ -651,7 +591,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             token = cancellation.Token;
             SetCommandStatusNoLock($"Sending {label}...");
             var idempotencyKey = CreateIdempotencyKey(command);
-            commandIssueTask = Task.Run(() => SendCommandAsync(command, targetType, targetUserIds, payload, idempotencyKey, label, token), token);
+            commandIssueTask = Task.Run(() => SendCommandAsync(command, targetType, targetUserIds, payload, idempotencyKey, label, expiresInSeconds, token), token);
         }
     }
 
@@ -662,11 +602,12 @@ public sealed class RealtimeRunRoomClient : IDisposable
         object payload,
         string idempotencyKey,
         string label,
+        int expiresInSeconds,
         CancellationToken cancellationToken)
     {
         try
         {
-            await apiClient.SendRunCommandAsync(runId, command, targetType, payload, CommandExpirySeconds, idempotencyKey, targetUserIds, cancellationToken);
+            await apiClient.SendRunCommandAsync(runId, command, targetType, payload, expiresInSeconds, idempotencyKey, targetUserIds, cancellationToken);
             SetCommandStatus($"{label} sent. Waiting for live command...");
         }
         catch (OperationCanceledException)
@@ -676,94 +617,6 @@ public sealed class RealtimeRunRoomClient : IDisposable
         {
             Plugin.Log.Warning(ex, "Could not send FullParty live command {Command} for run {RunId}.", command, runId);
             SetCommandStatus($"Could not send {label}: {ex.Message}");
-        }
-    }
-
-    private async Task SendReadyCheckConfirmationRequestAsync(
-        ClientWebSocket socket,
-        string channelName,
-        ReadyCheckConfirmationRequest request,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            await SendSocketEventAsync(
-                socket,
-                ReadyCheckConfirmationRequestClientEventName,
-                new Dictionary<string, object?>
-                {
-                    ["rid"] = request.RunId,
-                    ["id"] = request.RequestId,
-                    ["uid"] = request.InitiatorUserId,
-                    ["name"] = request.InitiatorName,
-                    ["targets"] = request.TargetUserIds,
-                    ["exp"] = request.ExpiresAt.ToUnixTimeSeconds(),
-                },
-                channelName,
-                cancellationToken);
-        }
-        catch (OperationCanceledException)
-        {
-        }
-        catch (Exception ex)
-        {
-            Plugin.Log.Warning(ex, "Could not broadcast FullParty ready-check confirmation request for run {RunId}.", runId);
-            SetCommandStatus($"Could not request ready-check confirmation: {ex.Message}");
-        }
-    }
-
-    private void QueueReadyCheckConfirmationResponse(ReadyCheckConfirmationResponse response)
-    {
-        ClientWebSocket? socket;
-        string? channelName;
-        CancellationToken token;
-
-        lock (stateLock)
-        {
-            if (State != RealtimeRunRoomState.Connected ||
-                cancellation == null ||
-                webSocket == null ||
-                webSocket.State != WebSocketState.Open ||
-                string.IsNullOrWhiteSpace(ChannelName))
-            {
-                return;
-            }
-
-            socket = webSocket;
-            channelName = ChannelName;
-            token = cancellation.Token;
-        }
-
-        _ = Task.Run(() => SendReadyCheckConfirmationResponseAsync(socket, channelName, response, token), token);
-    }
-
-    private async Task SendReadyCheckConfirmationResponseAsync(
-        ClientWebSocket socket,
-        string channelName,
-        ReadyCheckConfirmationResponse response,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            await SendSocketEventAsync(
-                socket,
-                ReadyCheckConfirmationResponseClientEventName,
-                new Dictionary<string, object?>
-                {
-                    ["rid"] = response.RunId,
-                    ["id"] = response.RequestId,
-                    ["uid"] = response.UserId,
-                    ["s"] = response.Status,
-                },
-                channelName,
-                cancellationToken);
-        }
-        catch (OperationCanceledException)
-        {
-        }
-        catch (Exception ex)
-        {
-            Plugin.Log.Debug(ex, "Could not broadcast FullParty ready-check confirmation response for run {RunId}.", runId);
         }
     }
 
@@ -795,6 +648,12 @@ public sealed class RealtimeRunRoomClient : IDisposable
             return;
         }
 
+        if (command.Command.Equals("ready_check_confirm", StringComparison.OrdinalIgnoreCase))
+        {
+            HandleReadyCheckConfirmationCommand(command);
+            return;
+        }
+
         var localCommand = GetLocalCommand(command);
         if (localCommand == null)
         {
@@ -810,12 +669,87 @@ public sealed class RealtimeRunRoomClient : IDisposable
         SetCommandStatus($"Received {FormatCommandName(command.Command)}.");
     }
 
+    private void HandleReadyCheckConfirmationCommand(FullPartyRunCommand command)
+    {
+        var currentUserId = GetCurrentUserId();
+        if (string.IsNullOrWhiteSpace(currentUserId))
+            return;
+
+        var targetUserIds = command.ResolvedUserIds
+            .Where(userId => !string.IsNullOrWhiteSpace(userId))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (targetUserIds.Count == 0)
+        {
+            lock (stateLock)
+            {
+                targetUserIds = BuildTargetUserIdsNoLock(command);
+            }
+        }
+
+        if (targetUserIds.Count == 0)
+            targetUserIds.Add(currentUserId);
+
+        var initiatorUserId = command.InitiatorUserId ?? string.Empty;
+        var initiatorName = command.InitiatorName;
+        lock (stateLock)
+        {
+            if (string.IsNullOrWhiteSpace(initiatorName) &&
+                !string.IsNullOrWhiteSpace(initiatorUserId) &&
+                members.TryGetValue(initiatorUserId, out var initiatorMember))
+            {
+                initiatorName = initiatorMember.DisplayName;
+            }
+
+            initiatorName ??= "A raid lead";
+            var expiresAt = command.ExpiresAt ?? GetServerTimeNow() + ReadyCheckConfirmationTimeout;
+            var existingStatuses = readyCheckConfirmation != null &&
+                readyCheckConfirmation.RequestId.Equals(command.Id, StringComparison.OrdinalIgnoreCase)
+                    ? readyCheckConfirmation.StatusByUserId
+                    : null;
+            var statusByUserId = targetUserIds.ToDictionary(
+                userId => userId,
+                userId => existingStatuses != null && existingStatuses.TryGetValue(userId, out var status)
+                    ? status
+                    : "waiting",
+                StringComparer.OrdinalIgnoreCase);
+            statusByUserId[currentUserId] = statusByUserId.TryGetValue(currentUserId, out var currentStatus) &&
+                IsReadyCheckConfirmedStatus(currentStatus)
+                    ? currentStatus
+                    : "confirming";
+
+            var isInitiator = !string.IsNullOrWhiteSpace(initiatorUserId) &&
+                currentUserId.Equals(initiatorUserId, StringComparison.OrdinalIgnoreCase);
+            readyCheckConfirmation = new ReadyCheckConfirmationSession(
+                command.Id,
+                initiatorUserId,
+                initiatorName,
+                targetUserIds,
+                statusByUserId,
+                expiresAt,
+                isInitiator);
+            readyCheckConfirmationPrompt = IsReadyCheckConfirmedStatus(statusByUserId[currentUserId])
+                ? null
+                : new FullPartyReadyCheckConfirmationPrompt(command.Id, initiatorName, expiresAt);
+
+            if (latestCommand != null && latestCommand.CommandId.Equals(command.Id, StringComparison.OrdinalIgnoreCase))
+            {
+                latestCommand.StatusByUserId[currentUserId] = "received";
+                TouchCommandTrackerNoLock();
+            }
+
+            SetCommandStatusNoLock($"{initiatorName} requested ready-check confirmation.");
+        }
+
+        QueueAck(command.Id, "received");
+    }
+
     private void HandleCommandAck(JsonElement root)
     {
         var ack = ParseCommandAck(root);
         if (ack == null)
             return;
 
+        var shouldStartReadyCheck = false;
         lock (stateLock)
         {
             if (latestCommand == null || !latestCommand.CommandId.Equals(ack.CommandId, StringComparison.OrdinalIgnoreCase))
@@ -826,7 +760,29 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
             latestCommand.StatusByUserId[ack.UserId] = ack.Status;
             TouchCommandTrackerNoLock();
+
+            if (readyCheckConfirmation != null &&
+                readyCheckConfirmation.RequestId.Equals(ack.CommandId, StringComparison.OrdinalIgnoreCase) &&
+                readyCheckConfirmation.TargetUserIds.Contains(ack.UserId))
+            {
+                var confirmationStatus = GetReadyCheckConfirmationStatusFromAck(ack.Status);
+                readyCheckConfirmation.StatusByUserId[ack.UserId] = confirmationStatus;
+                if (confirmationStatus.Equals("not_ready", StringComparison.OrdinalIgnoreCase))
+                {
+                    SetCommandStatusNoLock("Ready check confirmation stopped: a raid lead is not ready.");
+                    readyCheckConfirmationPrompt = null;
+                    readyCheckConfirmation = null;
+                }
+                else
+                {
+                    SetCommandStatusNoLock(GetReadyCheckConfirmationStatusTextNoLock(readyCheckConfirmation));
+                    shouldStartReadyCheck = TryMarkReadyCheckConfirmationCompleteNoLock(readyCheckConfirmation);
+                }
+            }
         }
+
+        if (shouldStartReadyCheck)
+            SendReadyCheckAllianceCommand();
     }
 
     private void HandleReadyCheckStatus(JsonElement root)
@@ -854,110 +810,6 @@ public sealed class RealtimeRunRoomClient : IDisposable
             latestCommand.StatusByUserId.TryAdd(status.UserId, "executed");
             TouchCommandTrackerNoLock();
         }
-    }
-
-    private void HandleReadyCheckConfirmationRequest(JsonElement root)
-    {
-        var request = ParseReadyCheckConfirmationRequest(root);
-        if (request == null || request.RunId != runId)
-            return;
-
-        var currentUserId = GetCurrentUserId();
-        if (string.IsNullOrWhiteSpace(currentUserId) ||
-            !request.TargetUserIds.Contains(currentUserId, StringComparer.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        if (GetServerTimeNow() > request.ExpiresAt)
-            return;
-
-        ReadyCheckConfirmationResponse? response = null;
-        lock (stateLock)
-        {
-            var targetUserIds = request.TargetUserIds
-                .Where(userId => !string.IsNullOrWhiteSpace(userId))
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-            if (targetUserIds.Count == 0)
-                return;
-
-            var statusByUserId = targetUserIds.ToDictionary(userId => userId, _ => "waiting", StringComparer.OrdinalIgnoreCase);
-            var isInitiator = currentUserId.Equals(request.InitiatorUserId, StringComparison.OrdinalIgnoreCase);
-            var existingCurrentStatus = readyCheckConfirmation != null &&
-                readyCheckConfirmation.RequestId.Equals(request.RequestId, StringComparison.OrdinalIgnoreCase) &&
-                readyCheckConfirmation.StatusByUserId.TryGetValue(currentUserId, out var existingStatus)
-                    ? existingStatus
-                    : null;
-            statusByUserId[currentUserId] = existingCurrentStatus ?? "confirming";
-            var alreadyConfirmed = IsReadyCheckConfirmedStatus(statusByUserId[currentUserId]);
-
-            readyCheckConfirmation = new ReadyCheckConfirmationSession(
-                request.RequestId,
-                request.InitiatorUserId,
-                request.InitiatorName,
-                targetUserIds,
-                statusByUserId,
-                request.ExpiresAt,
-                isInitiator);
-            readyCheckConfirmationPrompt = alreadyConfirmed
-                ? null
-                : new FullPartyReadyCheckConfirmationPrompt(request.RequestId, request.InitiatorName, request.ExpiresAt);
-            latestCommand = new LatestCommandTracker(
-                request.RequestId,
-                "ready_check_confirm",
-                new HashSet<string>(targetUserIds, StringComparer.OrdinalIgnoreCase),
-                new Dictionary<string, string>(statusByUserId, StringComparer.OrdinalIgnoreCase),
-                new Dictionary<string, ReadyCheckSummary>(StringComparer.OrdinalIgnoreCase));
-            TouchCommandTrackerNoLock();
-            SetCommandStatusNoLock(alreadyConfirmed
-                ? GetReadyCheckConfirmationStatusTextNoLock(readyCheckConfirmation)
-                : $"{request.InitiatorName} requested ready-check confirmation.");
-
-            if (!isInitiator && existingCurrentStatus == null)
-                response = new ReadyCheckConfirmationResponse(runId, request.RequestId, currentUserId, "confirming");
-        }
-
-        if (response != null)
-            QueueReadyCheckConfirmationResponse(response);
-    }
-
-    private void HandleReadyCheckConfirmationResponse(JsonElement root)
-    {
-        var response = ParseReadyCheckConfirmationResponse(root);
-        if (response == null || response.RunId != runId)
-            return;
-
-        var shouldStartReadyCheck = false;
-        lock (stateLock)
-        {
-            if (readyCheckConfirmation == null ||
-                !readyCheckConfirmation.RequestId.Equals(response.RequestId, StringComparison.OrdinalIgnoreCase) ||
-                !readyCheckConfirmation.TargetUserIds.Contains(response.UserId))
-            {
-                return;
-            }
-
-            readyCheckConfirmation.StatusByUserId[response.UserId] = response.Status;
-            if (latestCommand != null && latestCommand.CommandId.Equals(response.RequestId, StringComparison.OrdinalIgnoreCase))
-            {
-                latestCommand.StatusByUserId[response.UserId] = response.Status;
-                TouchCommandTrackerNoLock();
-            }
-
-            if (response.Status.Equals("not_ready", StringComparison.OrdinalIgnoreCase))
-            {
-                SetCommandStatusNoLock("Ready check confirmation stopped: a raid lead is not ready.");
-                readyCheckConfirmationPrompt = null;
-                readyCheckConfirmation = null;
-                return;
-            }
-
-            SetCommandStatusNoLock(GetReadyCheckConfirmationStatusTextNoLock(readyCheckConfirmation));
-            shouldStartReadyCheck = TryMarkReadyCheckConfirmationCompleteNoLock(readyCheckConfirmation);
-        }
-
-        if (shouldStartReadyCheck)
-            SendReadyCheckAllianceCommand();
     }
 
     private void HandlePartySnapshot(JsonElement root)
@@ -1244,6 +1096,20 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private static bool IsReadyCheckConfirmedStatus(string status)
     {
         return status.Equals("ready", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string GetReadyCheckConfirmationStatusFromAck(string status)
+    {
+        return status switch
+        {
+            _ when status.Equals("executed", StringComparison.OrdinalIgnoreCase) => "ready",
+            _ when status.Equals("ready", StringComparison.OrdinalIgnoreCase) => "ready",
+            _ when status.Equals("failed", StringComparison.OrdinalIgnoreCase) => "not_ready",
+            _ when status.Equals("not_ready", StringComparison.OrdinalIgnoreCase) => "not_ready",
+            _ when status.Equals("expired", StringComparison.OrdinalIgnoreCase) => "expired",
+            _ when status.Equals("received", StringComparison.OrdinalIgnoreCase) => "confirming",
+            _ => status,
+        };
     }
 
     private string GetReadyCheckConfirmationStatusTextNoLock(ReadyCheckConfirmationSession session)
@@ -1766,6 +1632,8 @@ public sealed class RealtimeRunRoomClient : IDisposable
             GetTargetType(commandRoot),
             GetDateTimeOffset(commandRoot, "expires_at"),
             GetPayloadInt(commandRoot, "seconds"),
+            GetPayloadString(commandRoot, "initiator_user_id") ?? GetPayloadString(commandRoot, "initiatorUserId"),
+            GetPayloadString(commandRoot, "initiator_name") ?? GetPayloadString(commandRoot, "initiatorName"),
             GetStringList(commandRoot, ["resolved_user_ids", "user_ids"]),
             GetIntList(commandRoot, ["resolved_slot_ids", "slot_ids"]));
     }
@@ -1890,71 +1758,6 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 unknown,
                 total,
                 timestamp is > 0 ? DateTimeOffset.FromUnixTimeSeconds(timestamp.Value) : GetServerTimeNow()));
-    }
-
-    private static ReadyCheckConfirmationRequest? ParseReadyCheckConfirmationRequest(JsonElement root)
-    {
-        if (TryGetObject(root, "data", out var data))
-            root = data;
-
-        var parsedRunId = GetInt(root, "rid") ?? GetInt(root, "run_id") ?? GetInt(root, "runId");
-        var requestId = GetString(root, "id") ?? GetString(root, "request_id") ?? GetString(root, "requestId");
-        var initiatorUserId = GetString(root, "uid") ??
-                              GetString(root, "initiator_user_id") ??
-                              GetString(root, "initiatorUserId") ??
-                              GetString(root, "sender_user_id") ??
-                              GetString(root, "senderUserId");
-        var initiatorName = GetString(root, "name") ?? GetString(root, "initiator_name") ?? "A raid lead";
-        var targetUserIds = GetStringList(root, ["targets", "target_user_ids", "targetUserIds", "user_ids", "userIds"]);
-        var expiresAtSeconds = GetLong(root, "exp") ?? GetLong(root, "expires_at_ts") ?? GetLong(root, "expiresAtTs");
-        var expiresAt = expiresAtSeconds is > 0
-            ? DateTimeOffset.FromUnixTimeSeconds(expiresAtSeconds.Value)
-            : GetDateTimeOffset(root, "expires_at") ?? GetDateTimeOffset(root, "expiresAt") ?? GetServerTimeNow() + ReadyCheckConfirmationTimeout;
-
-        if (parsedRunId == null ||
-            string.IsNullOrWhiteSpace(requestId) ||
-            string.IsNullOrWhiteSpace(initiatorUserId) ||
-            targetUserIds.Count == 0)
-        {
-            return null;
-        }
-
-        return new ReadyCheckConfirmationRequest(
-            parsedRunId.Value,
-            requestId,
-            initiatorUserId,
-            initiatorName,
-            targetUserIds,
-            expiresAt);
-    }
-
-    private static ReadyCheckConfirmationResponse? ParseReadyCheckConfirmationResponse(JsonElement root)
-    {
-        if (TryGetObject(root, "data", out var data))
-            root = data;
-
-        var parsedRunId = GetInt(root, "rid") ?? GetInt(root, "run_id") ?? GetInt(root, "runId");
-        var requestId = GetString(root, "id") ?? GetString(root, "request_id") ?? GetString(root, "requestId");
-        var userId = GetString(root, "uid") ?? GetString(root, "user_id") ?? GetString(root, "userId");
-        var status = GetString(root, "s") ?? GetString(root, "status");
-
-        if (parsedRunId == null ||
-            string.IsNullOrWhiteSpace(requestId) ||
-            string.IsNullOrWhiteSpace(userId) ||
-            string.IsNullOrWhiteSpace(status))
-        {
-            return null;
-        }
-
-        status = status switch
-        {
-            "confirmed" => "ready",
-            "notReady" => "not_ready",
-            "not-ready" => "not_ready",
-            _ => status,
-        };
-
-        return new ReadyCheckConfirmationResponse(parsedRunId.Value, requestId, userId, status);
     }
 
     private static FullPartyPartySnapshotMember? ParsePartySnapshotMember(JsonElement member)
@@ -2128,6 +1931,14 @@ public sealed class RealtimeRunRoomClient : IDisposable
             return GetInt(payload, propertyName);
 
         return GetInt(root, propertyName);
+    }
+
+    private static string? GetPayloadString(JsonElement root, string propertyName)
+    {
+        if (TryGetObject(root, "payload", out var payload))
+            return GetString(payload, propertyName);
+
+        return GetString(root, propertyName);
     }
 
     private static string? GetLocalCommand(FullPartyRunCommand command)
@@ -2470,20 +2281,6 @@ public sealed class RealtimeRunRoomClient : IDisposable
         string CommandId,
         string UserId,
         ReadyCheckSummary Summary);
-
-    private sealed record ReadyCheckConfirmationRequest(
-        int RunId,
-        string RequestId,
-        string InitiatorUserId,
-        string InitiatorName,
-        IReadOnlyList<string> TargetUserIds,
-        DateTimeOffset ExpiresAt);
-
-    private sealed record ReadyCheckConfirmationResponse(
-        int RunId,
-        string RequestId,
-        string UserId,
-        string Status);
 
     private sealed class ReadyCheckConfirmationSession(
         string requestId,
