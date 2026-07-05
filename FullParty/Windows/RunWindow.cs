@@ -103,6 +103,7 @@ public sealed class RunWindow : Window, IDisposable
     private bool applyRosterCompanionSizeNextDraw = true;
     private bool compactMode;
     private bool? lastOccultState;
+    private string? readyCheckPromptPopupRequestId;
 
     public FullPartyRun Run { get; }
 
@@ -152,6 +153,7 @@ public sealed class RunWindow : Window, IDisposable
 
         DrawSectionSeparator();
         DrawLiveRoom();
+        DrawReadyCheckConfirmationPopup();
         if (!compactMode)
             DrawRosterCompanion(runWindowPosition, runWindowSize, isLoading);
     }
@@ -231,6 +233,50 @@ public sealed class RunWindow : Window, IDisposable
             ImGui.Spacing();
             ImGui.TextWrapped(checkInStatusMessage);
         }
+    }
+
+    private void DrawReadyCheckConfirmationPopup()
+    {
+        const string PopupName = "Ready Check Confirmation##fullparty_ready_check_confirm";
+        var prompt = liveRoom.ReadyCheckConfirmationPrompt;
+        if (prompt == null)
+        {
+            readyCheckPromptPopupRequestId = null;
+            return;
+        }
+
+        if (!prompt.RequestId.Equals(readyCheckPromptPopupRequestId, StringComparison.Ordinal))
+        {
+            readyCheckPromptPopupRequestId = prompt.RequestId;
+            ImGui.OpenPopup(PopupName);
+        }
+
+        var popupOpen = true;
+        if (!ImGui.BeginPopupModal(PopupName, ref popupOpen, ImGuiWindowFlags.AlwaysAutoResize))
+            return;
+
+        ImGui.TextWrapped($"{prompt.InitiatorName} wants to start an alliance ready check.");
+        ImGui.TextWrapped("Confirm when you are ready for your party to receive the in-game ready check.");
+        ImGui.Spacing();
+        ImGui.TextDisabled($"Expires at {prompt.ExpiresAt:HH:mm:ss}.");
+        ImGui.Spacing();
+
+        if (ImGui.Button("I'm Ready", new Vector2(110f, 0)))
+        {
+            liveRoom.ConfirmReadyCheck(true);
+            readyCheckPromptPopupRequestId = null;
+            ImGui.CloseCurrentPopup();
+        }
+
+        ImGui.SameLine();
+        if (ImGui.Button("Not Ready", new Vector2(110f, 0)) || !popupOpen)
+        {
+            liveRoom.ConfirmReadyCheck(false);
+            readyCheckPromptPopupRequestId = null;
+            ImGui.CloseCurrentPopup();
+        }
+
+        ImGui.EndPopup();
     }
 
     private void DrawRosterControls(bool isLoading)
