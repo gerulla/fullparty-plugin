@@ -257,7 +257,7 @@ internal static unsafe class PartyListDebugDumper
 
     private static string DescribeMember(IPartyMember member)
     {
-        return $"name=\"{SafeValue(() => member.Name.ToString())}\" world=\"{SafeValue(() => member.World.Value.Name.ToString())}\" class={SafeValue(() => member.ClassJob.RowId)}:{SafeValue(() => member.ClassJob.Value.Name.ToString())} level={SafeValue(() => member.Level)} pos={SafeValue(() => member.Position)} content={SafeValue(() => member.ContentId)} entity={SafeValue(() => member.EntityId)}";
+        return $"name=\"{SafeValue(() => member.Name.ToString())}\" world=\"{SafeValue(() => member.World.Value.Name.ToString())}\" class={SafeValue(() => member.ClassJob.RowId)}:{SafeValue(() => member.ClassJob.Value.Name.ToString())} level={SafeValue(() => member.Level)} pos={SafeValue(() => member.Position)} content={SafeValue(() => member.ContentId)} entity={SafeValue(() => member.EntityId)} statuses={FormatPartyMemberStatuses(member)}";
     }
 
     private static bool IsEmptyAllianceMember(IPartyMember member)
@@ -304,6 +304,27 @@ internal static unsafe class PartyListDebugDumper
     {
         var names = PartySnapshotBuilder.GetStatusNames(statusId);
         return names.Count == 0 ? "(none)" : string.Join(" | ", names.Select(name => $"\"{name}\""));
+    }
+
+    private static string FormatPartyMemberStatuses(IPartyMember member)
+    {
+        try
+        {
+            var statuses = new List<string>();
+            foreach (var statusObject in member.Statuses)
+            {
+                if (!PartySnapshotBuilder.TryGetStatusId(statusObject, out var statusId))
+                    continue;
+
+                statuses.Add($"{statusId}:{FormatStatusNames(statusId)}");
+            }
+
+            return statuses.Count == 0 ? "[]" : $"[{string.Join("; ", statuses)}]";
+        }
+        catch (Exception ex)
+        {
+            return $"<error: {ex.Message}>";
+        }
     }
 
     private static string? GetWorldName(ushort worldId)

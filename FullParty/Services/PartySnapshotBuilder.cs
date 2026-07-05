@@ -250,10 +250,10 @@ internal static class PartySnapshotBuilder
 
         foreach (var statusObject in statuses)
         {
-            if (statusObject is not IStatus status)
+            if (!TryGetStatusId(statusObject, out var statusId))
                 continue;
 
-            var statusTokens = GetStatusNames((uint)status.StatusId)
+            var statusTokens = GetStatusNames(statusId)
                 .Select(NormalizePhantomJobToken)
                 .Where(token => token.Length > 0)
                 .Distinct(StringComparer.Ordinal);
@@ -267,6 +267,63 @@ internal static class PartySnapshotBuilder
         }
 
         return null;
+    }
+
+    internal static bool TryGetStatusId(object? statusObject, out uint statusId)
+    {
+        statusId = 0;
+        if (statusObject == null)
+            return false;
+
+        if (statusObject is IStatus status)
+        {
+            statusId = (uint)status.StatusId;
+            return statusId > 0;
+        }
+
+        var type = statusObject.GetType();
+        foreach (var propertyName in new[] { "StatusId", "StatusID", "Id", "RowId" })
+        {
+            var property = type.GetProperty(propertyName);
+            if (property != null && TryConvertStatusId(property.GetValue(statusObject), out statusId))
+                return true;
+        }
+
+        foreach (var fieldName in new[] { "StatusId", "StatusID", "Id", "RowId" })
+        {
+            var field = type.GetField(fieldName);
+            if (field != null && TryConvertStatusId(field.GetValue(statusObject), out statusId))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryConvertStatusId(object? value, out uint statusId)
+    {
+        statusId = 0;
+        if (value == null)
+            return false;
+
+        try
+        {
+            statusId = value switch
+            {
+                byte id => id,
+                ushort id => id,
+                uint id => id,
+                int id when id > 0 => (uint)id,
+                short id when id > 0 => (uint)id,
+                string text when uint.TryParse(text, out var parsed) => parsed,
+                _ => Convert.ToUInt32(value),
+            };
+        }
+        catch
+        {
+            return false;
+        }
+
+        return statusId > 0;
     }
 
     private sealed record ExpectedPhantomJob(string SnapshotName, HashSet<string> Aliases)
