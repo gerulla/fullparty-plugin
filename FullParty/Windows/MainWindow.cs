@@ -9,8 +9,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
+using ElezenTools.UI;
 using FullParty.Auth;
 using FullParty.Models;
 
@@ -37,6 +39,7 @@ public class MainWindow : Window, IDisposable
     private Task<string?>? avatarDownloadTask;
     private long? dashboardUserId;
     private string? selectedGroupSlug;
+    private bool windowStylePushed;
 
     // We give this window a hidden ID using ##.
     // The user will see "FullParty" as window title,
@@ -61,8 +64,26 @@ public class MainWindow : Window, IDisposable
         dashboardCancellation.Dispose();
     }
 
+    public override void PreDraw()
+    {
+        ModernWindowStyle.PushTitleBar();
+        windowStylePushed = true;
+        base.PreDraw();
+    }
+
+    public override void PostDraw()
+    {
+        base.PostDraw();
+        if (!windowStylePushed)
+            return;
+
+        ModernWindowStyle.PopTitleBar();
+        windowStylePushed = false;
+    }
+
     public override void Draw()
     {
+        using var palette = ModernWindowStyle.PushContentPalette();
         DrawAuthenticationState();
     }
 
@@ -102,10 +123,10 @@ public class MainWindow : Window, IDisposable
 
     private static void DrawWelcomeHeader()
     {
-        ImGui.Text("Thank you for installing the FullParty Plugin");
+        FullPartyModernPalette.SectionHeader(FontAwesomeIcon.InfoCircle, "Thank you for installing the FullParty Plugin");
         ImGui.TextWrapped("Connect your FullParty.gg account once so the plugin can safely unlock in-game companion features for your profile and character.");
         ImGui.Spacing();
-        ImGui.Separator();
+        FullPartyModernPalette.SoftSeparator();
         ImGui.Spacing();
     }
 
@@ -643,8 +664,7 @@ public class MainWindow : Window, IDisposable
 
     private static void DrawPanelHeader(string label)
     {
-        ImGui.Text(label);
-        ImGui.Separator();
+        FullPartyModernPalette.SectionHeader(FontAwesomeIcon.InfoCircle, label);
         ImGui.Spacing();
     }
 

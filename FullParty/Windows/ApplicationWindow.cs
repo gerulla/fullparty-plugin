@@ -6,8 +6,10 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
+using ElezenTools.UI;
 using FullParty.Models;
 
 namespace FullParty.Windows;
@@ -25,6 +27,7 @@ public sealed class ApplicationWindow : Window, IDisposable
     private FullPartyApplication? application;
     private string? error;
     private int transientId;
+    private bool windowStylePushed;
 
     public int RunId { get; }
     public int SlotId { get; }
@@ -49,8 +52,26 @@ public sealed class ApplicationWindow : Window, IDisposable
         cancellation.Dispose();
     }
 
+    public override void PreDraw()
+    {
+        ModernWindowStyle.PushTitleBar();
+        windowStylePushed = true;
+        base.PreDraw();
+    }
+
+    public override void PostDraw()
+    {
+        base.PostDraw();
+        if (!windowStylePushed)
+            return;
+
+        ModernWindowStyle.PopTitleBar();
+        windowStylePushed = false;
+    }
+
     public override void Draw()
     {
+        using var palette = ModernWindowStyle.PushContentPalette();
         EnsureLoaded();
 
         if (applicationTask is { IsCompleted: false })
@@ -619,9 +640,7 @@ public sealed class ApplicationWindow : Window, IDisposable
 
     private static void DrawSectionTitle(string title)
     {
-        ImGui.PushStyleColor(ImGuiCol.Text, SectionTitleColor);
-        ImGui.Text(title.ToUpperInvariant());
-        ImGui.PopStyleColor();
+        FullPartyModernPalette.SectionHeader(FontAwesomeIcon.InfoCircle, title);
         ImGui.Spacing();
     }
 

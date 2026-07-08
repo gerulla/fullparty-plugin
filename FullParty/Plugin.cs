@@ -7,6 +7,8 @@ using FullParty.Api;
 using FullParty.Auth;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
+using ElezenTools;
+using ElezenTools.UI;
 using FullParty.Models;
 using FullParty.Services;
 using FullParty.Windows;
@@ -35,17 +37,21 @@ public sealed class Plugin : IDalamudPlugin
     public FullPartyApiClient ApiClient { get; init; }
     public RemoteImageCache ImageCache { get; init; }
     internal AdventurerListService AdventurerList { get; init; }
+    public LiveRoomManager LiveRoomManager { get; init; }
     public OccultCrescentRunMonitor OccultCrescentRunMonitor { get; init; }
     public string VersionText { get; init; }
 
     public readonly WindowSystem WindowSystem = new("FullParty");
     private ConfigWindow ConfigWindow { get; init; }
     private MainWindow MainWindow { get; init; }
+    private LiveRoomStatusOverlay LiveRoomStatusOverlay { get; init; }
     private readonly List<RunWindow> runWindows = [];
     private readonly List<ApplicationWindow> applicationWindows = [];
 
     public Plugin()
     {
+        ElezenInit.Init(PluginInterface, this);
+
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         Environment = FullPartyEnvironment.Load(PluginInterface.AssemblyLocation.Directory?.FullName ?? AppContext.BaseDirectory);
         AuthService = new AuthService(Configuration, Environment);
@@ -53,6 +59,7 @@ public sealed class Plugin : IDalamudPlugin
         ApiClient = new FullPartyApiClient(AuthService);
         ImageCache = new RemoteImageCache(AuthService);
         AdventurerList = new AdventurerListService();
+        LiveRoomManager = new LiveRoomManager(this);
         OccultCrescentRunMonitor = new OccultCrescentRunMonitor(this);
         VersionText = PluginInterface.Manifest.AssemblyVersion?.ToString() ?? "dev";
         ClassJobResolver.WarmUp();
@@ -60,9 +67,11 @@ public sealed class Plugin : IDalamudPlugin
 
         ConfigWindow = new ConfigWindow(this);
         MainWindow = new MainWindow(this);
+        LiveRoomStatusOverlay = new LiveRoomStatusOverlay(this);
 
         WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(MainWindow);
+        WindowSystem.AddWindow(LiveRoomStatusOverlay);
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
@@ -70,7 +79,7 @@ public sealed class Plugin : IDalamudPlugin
         });
 
         // Tell the UI system that we want our windows to be drawn through the window system
-        PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
+        PluginInterface.UiBuilder.Draw += DrawUi;
 
         // This adds a button to the plugin installer entry of this plugin which allows
         // toggling the display status of the configuration ui
@@ -90,7 +99,7 @@ public sealed class Plugin : IDalamudPlugin
         OccultCrescentRunMonitor.Dispose();
 
         // Unregister all actions to not leak anything during disposal of plugin
-        PluginInterface.UiBuilder.Draw -= WindowSystem.Draw;
+        PluginInterface.UiBuilder.Draw -= DrawUi;
         PluginInterface.UiBuilder.OpenConfigUi -= ToggleConfigUi;
         PluginInterface.UiBuilder.OpenMainUi -= ToggleMainUi;
         
@@ -98,6 +107,7 @@ public sealed class Plugin : IDalamudPlugin
 
         ConfigWindow.Dispose();
         MainWindow.Dispose();
+        LiveRoomStatusOverlay.Dispose();
         foreach (var runWindow in runWindows)
         {
             runWindow.Dispose();
@@ -110,9 +120,18 @@ public sealed class Plugin : IDalamudPlugin
 
         ImageCache.Dispose();
         AdventurerList.Dispose();
+        LiveRoomManager.Dispose();
         AuthService.Dispose();
 
         CommandManager.RemoveHandler(CommandName);
+        ElezenInit.Dispose();
+    }
+
+    private void DrawUi()
+    {
+        using var theme = ModernTheme.Push(FullPartyModernPalette.Value);
+        using var style = FullPartyModernPalette.PushImGuiStyle();
+        WindowSystem.Draw();
     }
 
     private void OnCommand(string command, string args)

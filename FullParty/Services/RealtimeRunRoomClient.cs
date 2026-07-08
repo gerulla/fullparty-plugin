@@ -41,6 +41,19 @@ internal sealed record FullPartyPartySyncDebug(
     FullPartyPartySnapshot? OutgoingSnapshot,
     string? Status);
 
+public enum LiveRoomFeedbackKind
+{
+    Info,
+    Success,
+    Warning,
+    Error,
+}
+
+public sealed record LiveRoomFeedback(
+    string Text,
+    LiveRoomFeedbackKind Kind,
+    DateTimeOffset ExpiresAt);
+
 public sealed class RealtimeRunRoomClient : IDisposable
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
@@ -61,6 +74,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private static readonly TimeSpan CommandStatusRetention = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan CommandExpiryClockSkewTolerance = TimeSpan.FromHours(2);
     private static readonly TimeSpan PartySnapshotInterval = TimeSpan.FromMilliseconds(2200);
+    private static readonly TimeSpan OverlayFeedbackDuration = TimeSpan.FromSeconds(4);
     private static readonly TimeSpan ReadyCheckTrackingDuration = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan ReadyCheckConfirmationTimeout = TimeSpan.FromMinutes(2);
     private const int ReadyCheckConfirmationExpirySeconds = 120;
@@ -79,6 +93,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private FullPartyRunDetail? runDetail;
     private ReadyCheckConfirmationSession? readyCheckConfirmation;
     private FullPartyReadyCheckConfirmationPrompt? readyCheckConfirmationPrompt;
+    private LiveRoomFeedback? overlayFeedback;
     private DateTimeOffset lastPartySnapshotAttemptAt = DateTimeOffset.MinValue;
     private DateTimeOffset lastReadyCheckStatusBroadcastAt = DateTimeOffset.MinValue;
     private string? lastReadyCheckStatusPayloadKey;
@@ -99,7 +114,23 @@ public sealed class RealtimeRunRoomClient : IDisposable
     public string? CommandStatusMessage { get; private set; }
     public string? PartySnapshotStatusMessage { get; private set; }
     public string? ChannelName { get; private set; }
+    public DateTimeOffset StateUpdatedAt { get; private set; } = GetServerTimeNow();
+    public bool HasEverStarted { get; private set; }
     internal FullPartyPartySyncDebug? PartySyncDebug { get; private set; }
+
+    public LiveRoomFeedback? OverlayFeedback
+    {
+        get
+        {
+            lock (stateLock)
+            {
+                if (overlayFeedback == null || overlayFeedback.ExpiresAt <= GetServerTimeNow())
+                    return null;
+
+                return overlayFeedback;
+            }
+        }
+    }
 
     public bool IsActive => State is RealtimeRunRoomState.Connecting
         or RealtimeRunRoomState.Authorizing
@@ -242,6 +273,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             commandStatusUpdatedAt = DateTimeOffset.MinValue;
             CommandStatusMessage = null;
             PartySnapshotStatusMessage = null;
+            HasEverStarted = true;
             SetStateNoLock(RealtimeRunRoomState.Connecting, "Connecting to live room...");
             connectionTask = Task.Run(() => RunAsync(cancellation.Token));
         }
@@ -681,6 +713,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
         if (command.Command.Equals("ready_check_confirm", StringComparison.OrdinalIgnoreCase))
         {
+            ShowOverlayFeedback("Ready check requested", LiveRoomFeedbackKind.Info);
             HandleReadyCheckConfirmationCommand(command);
             return;
         }
@@ -698,6 +731,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
         QueueAck(command.Id, "received");
         pendingCommandExecutions.Enqueue(new PendingCommandExecution(command.Id, command.Command, localCommand));
         SetCommandStatus($"Received {FormatCommandName(command.Command)}.");
+        ShowOverlayFeedback(GetReceivedFeedbackText(command), LiveRoomFeedbackKind.Info);
     }
 
     private void HandleReadyCheckConfirmationCommand(FullPartyRunCommand command)
@@ -876,6 +910,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 UpdateCurrentUserCommandStatus(pending.CommandId, "executed");
                 QueueAck(pending.CommandId, "executed");
                 SetCommandStatus($"Executed {FormatCommandName(pending.CommandName)}.");
+                ShowOverlayFeedback(GetExecutedFeedbackText(pending), LiveRoomFeedbackKind.Success);
             }
             catch (Exception ex)
             {
@@ -883,6 +918,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 UpdateCurrentUserCommandStatus(pending.CommandId, "failed");
                 QueueAck(pending.CommandId, "failed");
                 SetCommandStatus($"Failed to execute {FormatCommandName(pending.CommandName)}.");
+                ShowOverlayFeedback($"Failed: {FormatCommandName(pending.CommandName)}", LiveRoomFeedbackKind.Error);
             }
         }
 
@@ -2140,6 +2176,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
     {
         State = state;
         StatusMessage = statusMessage;
+        StateUpdatedAt = GetServerTimeNow();
     }
 
     private void SetCommandStatus(string statusMessage)
@@ -2154,6 +2191,42 @@ public sealed class RealtimeRunRoomClient : IDisposable
     {
         CommandStatusMessage = statusMessage;
         commandStatusUpdatedAt = GetServerTimeNow();
+    }
+
+    private void ShowOverlayFeedback(string text, LiveRoomFeedbackKind kind)
+    {
+        lock (stateLock)
+        {
+            overlayFeedback = new LiveRoomFeedback(text, kind, GetServerTimeNow() + OverlayFeedbackDuration);
+        }
+    }
+
+    private static string GetReceivedFeedbackText(FullPartyRunCommand command)
+    {
+        return command.Command switch
+        {
+            "ready_check" => "Ready check received",
+            "countdown" => $"Countdown {Math.Clamp(command.CountdownSeconds ?? 20, 1, 99)}s received",
+            _ => $"{FormatCommandName(command.Command)} received",
+        };
+    }
+
+    private static string GetExecutedFeedbackText(PendingCommandExecution pending)
+    {
+        return pending.CommandName switch
+        {
+            "ready_check" => "Ready check executed",
+            "countdown" => $"Countdown {GetCountdownSeconds(pending.LocalCommand)}s started",
+            _ => $"{FormatCommandName(pending.CommandName)} executed",
+        };
+    }
+
+    private static int GetCountdownSeconds(string localCommand)
+    {
+        var parts = localCommand.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return parts.Length >= 2 && int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var seconds)
+            ? Math.Clamp(seconds, 1, 99)
+            : 20;
     }
 
     private void TouchCommandTrackerNoLock()

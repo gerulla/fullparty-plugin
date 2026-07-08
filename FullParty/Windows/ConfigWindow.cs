@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
+using ElezenTools.UI;
 using FullParty.Models;
 using FullParty.Services;
 
@@ -14,6 +16,7 @@ public class ConfigWindow : Window, IDisposable
     private readonly Configuration configuration;
     private readonly Plugin plugin;
     private string? localCommandStatus;
+    private bool windowStylePushed;
 
     // We give this window a constant ID using ###.
     // This allows for labels to be dynamic, like "{FPS Counter}fps###XYZ counter window",
@@ -33,6 +36,9 @@ public class ConfigWindow : Window, IDisposable
 
     public override void PreDraw()
     {
+        ModernWindowStyle.PushTitleBar();
+        windowStylePushed = true;
+
         // Flags must be added or removed before Draw() is being called, or they won't apply
         if (configuration.IsConfigWindowMovable)
         {
@@ -42,11 +48,25 @@ public class ConfigWindow : Window, IDisposable
         {
             Flags |= ImGuiWindowFlags.NoMove;
         }
+
+        base.PreDraw();
+    }
+
+    public override void PostDraw()
+    {
+        base.PostDraw();
+        if (!windowStylePushed)
+            return;
+
+        ModernWindowStyle.PopTitleBar();
+        windowStylePushed = false;
     }
 
     public override void Draw()
     {
-        ImGui.Text("Settings");
+        using var palette = ModernWindowStyle.PushContentPalette();
+
+        FullPartyModernPalette.SectionHeader(FontAwesomeIcon.Cog, "Settings");
 
         var movable = configuration.IsConfigWindowMovable;
         if (ImGui.Checkbox("Movable", ref movable))
@@ -68,7 +88,7 @@ public class ConfigWindow : Window, IDisposable
 
         var auth = plugin.AuthService;
         var environment = plugin.Environment;
-        ImGui.Text("Auth Debug");
+        FullPartyModernPalette.SectionHeader(FontAwesomeIcon.InfoCircle, "Auth Debug");
         ImGui.Text($"Debug: {environment.Debug}");
         ImGui.Text($"State: {auth.State}");
         ImGui.TextWrapped($"Base URL: {auth.BaseUrl}");
@@ -129,7 +149,7 @@ public class ConfigWindow : Window, IDisposable
         ImGui.Separator();
         ImGui.Spacing();
 
-        ImGui.Text("Local Command Tests");
+        FullPartyModernPalette.SectionHeader(FontAwesomeIcon.InfoCircle, "Local Command Tests");
         ImGui.TextDisabled("Runs the vanilla game command locally without websocket.");
 
         if (ImGui.Button("Test /readycheck"))

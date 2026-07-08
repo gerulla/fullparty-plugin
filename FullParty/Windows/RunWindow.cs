@@ -6,8 +6,10 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Windowing;
+using ElezenTools.UI;
 using FullParty.Models;
 using FullParty.Services;
 
@@ -105,6 +107,7 @@ public sealed class RunWindow : Window, IDisposable
     private bool compactMode;
     private bool? lastOccultState;
     private string? readyCheckPromptPopupRequestId;
+    private bool windowStylePushed;
 
     public FullPartyRun Run { get; }
 
@@ -113,7 +116,7 @@ public sealed class RunWindow : Window, IDisposable
     {
         Run = run;
         this.plugin = plugin;
-        liveRoom = new RealtimeRunRoomClient(run.Id, plugin);
+        liveRoom = plugin.LiveRoomManager.GetOrCreate(run);
         ApplySizeConstraints();
         Size = new Vector2(RunWindowDefaultWidth, RunWindowDefaultHeight);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -124,21 +127,33 @@ public sealed class RunWindow : Window, IDisposable
     {
         cancellation.Cancel();
         cancellation.Dispose();
-        liveRoom.Dispose();
     }
 
     public override void OnClose()
     {
-        liveRoom.Disconnect();
     }
 
     public override void PreDraw()
     {
+        ModernWindowStyle.PushTitleBar();
+        windowStylePushed = true;
         ApplySizeConstraints();
+        base.PreDraw();
+    }
+
+    public override void PostDraw()
+    {
+        base.PostDraw();
+        if (!windowStylePushed)
+            return;
+
+        ModernWindowStyle.PopTitleBar();
+        windowStylePushed = false;
     }
 
     public override void Draw()
     {
+        using var palette = ModernWindowStyle.PushContentPalette();
         EnsureDetailLoaded();
         ObserveCheckInTask();
 
@@ -189,7 +204,7 @@ public sealed class RunWindow : Window, IDisposable
 
     private void DrawPartyActionsSection(bool canModerate)
     {
-        ImGui.Text("Party Actions");
+        FullPartyModernPalette.SectionHeader(FontAwesomeIcon.Users, "Party Actions");
         ImGui.Spacing();
 
         var canSendLiveCommand = canModerate && liveRoom.State == RealtimeRunRoomState.Connected && !liveRoom.IsIssuingCommand;
@@ -330,7 +345,7 @@ public sealed class RunWindow : Window, IDisposable
 
     private void DrawRosterControls(bool isLoading)
     {
-        ImGui.Text("Roster");
+        FullPartyModernPalette.SectionHeader(FontAwesomeIcon.InfoCircle, "Roster");
         ImGui.Spacing();
 
         if (isLoading)
@@ -387,8 +402,13 @@ public sealed class RunWindow : Window, IDisposable
             new Vector2(RosterCompanionMinWidth, RosterCompanionMinHeight),
             new Vector2(float.MaxValue, float.MaxValue));
 
-        if (ImGui.Begin($"{GetRosterViewTitle(rosterViewMode)}##fullparty_roster_companion_{Run.Id}", flags))
+        ModernWindowStyle.PushTitleBar();
+        var companionOpen = ImGui.Begin($"{GetRosterViewTitle(rosterViewMode)}##fullparty_roster_companion_{Run.Id}", flags);
+        ModernWindowStyle.PopTitleBar();
+
+        if (companionOpen)
         {
+            using var palette = ModernWindowStyle.PushContentPalette();
             RememberRosterCompanionSize(ImGui.GetWindowSize());
             applyRosterCompanionSizeNextDraw = false;
             DrawRosterCompanionContent(isLoading);
@@ -401,7 +421,7 @@ public sealed class RunWindow : Window, IDisposable
     {
         if (!compactMode)
         {
-            ImGui.Text("Live Room");
+            FullPartyModernPalette.SectionHeader(FontAwesomeIcon.Cloud, "Live Room");
             ImGui.Spacing();
 
             var isBusy = liveRoom.IsBusy;
@@ -513,7 +533,7 @@ public sealed class RunWindow : Window, IDisposable
         ImGui.Spacing();
         ImGui.Separator();
         ImGui.Spacing();
-        ImGui.Text("Liveroom Data");
+        FullPartyModernPalette.SectionHeader(FontAwesomeIcon.InfoCircle, "Liveroom Data");
 
         if (ImGui.TreeNode("Outgoing"))
         {
