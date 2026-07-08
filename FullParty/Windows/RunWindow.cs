@@ -623,30 +623,37 @@ public sealed class RunWindow : Window, IDisposable
             return;
         }
 
-        var flags = ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable | ImGuiTableFlags.ScrollX;
-        if (ImGui.BeginTable($"##fullparty_liveroom_debug_members_{id}", 6, flags))
+        foreach (var member in snapshot.Members.OrderBy(member => member.Position))
+            DrawPartySnapshotMemberDebug(member, id);
+    }
+
+    private static void DrawPartySnapshotMemberDebug(FullPartyPartySnapshotMember member, string id)
+    {
+        var displayName = member.CharacterId != null
+            ? $"cid {member.CharacterId}"
+            : FormatDebugValue(member.Name);
+        var label = $"p{member.Position}: {displayName}##fullparty_liveroom_debug_member_{id}_{member.Position}_{member.CharacterId?.ToString() ?? member.Name ?? "unknown"}";
+
+        ImGui.PushStyleColor(ImGuiCol.Header, new Vector4(1f, 1f, 1f, 0.08f));
+        var open = ImGui.TreeNode(label);
+        ImGui.PopStyleColor();
+        if (!open)
+            return;
+
+        if (ImGui.BeginTable($"##fullparty_liveroom_debug_member_fields_{id}_{member.Position}", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg))
         {
-            ImGui.TableSetupColumn("p", ImGuiTableColumnFlags.WidthFixed, 28f);
-            ImGui.TableSetupColumn("cid", ImGuiTableColumnFlags.WidthFixed, 56f);
-            ImGui.TableSetupColumn("n", ImGuiTableColumnFlags.WidthStretch);
-            ImGui.TableSetupColumn("w", ImGuiTableColumnFlags.WidthFixed, 80f);
-            ImGui.TableSetupColumn("cj", ImGuiTableColumnFlags.WidthFixed, 48f);
-            ImGui.TableSetupColumn("pj", ImGuiTableColumnFlags.WidthStretch);
-            ImGui.TableHeadersRow();
-
-            foreach (var member in snapshot.Members.OrderBy(member => member.Position))
-            {
-                ImGui.TableNextRow();
-                DrawDebugCell(member.Position.ToString());
-                DrawDebugCell(member.CharacterId?.ToString());
-                DrawDebugCell(member.Name);
-                DrawDebugCell(member.World);
-                DrawDebugCell(member.ClassJob);
-                DrawDebugCell(member.PhantomJob);
-            }
-
+            ImGui.TableSetupColumn("Key", ImGuiTableColumnFlags.WidthFixed, 42f);
+            ImGui.TableSetupColumn("Value");
+            DrawDebugKeyValue("p", member.Position.ToString());
+            DrawDebugKeyValue("cid", member.CharacterId?.ToString());
+            DrawDebugKeyValue("n", member.Name);
+            DrawDebugKeyValue("w", member.World);
+            DrawDebugKeyValue("cj", member.ClassJob);
+            DrawDebugKeyValue("pj", member.PhantomJob);
             ImGui.EndTable();
         }
+
+        ImGui.TreePop();
     }
 
     private static void DrawYesNo(bool value)
@@ -665,10 +672,9 @@ public sealed class RunWindow : Window, IDisposable
         ImGui.TextWrapped(string.IsNullOrWhiteSpace(value) ? "-" : value);
     }
 
-    private static void DrawDebugCell(string? value)
+    private static string FormatDebugValue(string? value)
     {
-        ImGui.TableNextColumn();
-        ImGui.TextWrapped(string.IsNullOrWhiteSpace(value) ? "-" : value);
+        return string.IsNullOrWhiteSpace(value) ? "-" : value;
     }
 
     private static string FormatNameWorld(string? name, string? world)

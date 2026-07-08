@@ -152,7 +152,44 @@ public class ConfigWindow : Window, IDisposable
         ImGui.Separator();
         ImGui.Spacing();
 
+        DrawTerritoryDebug();
+
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+
         DrawStatusDebug();
+    }
+
+    private static void DrawTerritoryDebug()
+    {
+        if (!ImGui.CollapsingHeader("Territory / Instance Debug", ImGuiTreeNodeFlags.DefaultOpen))
+            return;
+
+        var territory = OccultCrescentTerritory.GetCurrentDebugInfo();
+        ImGui.Text($"Current territory ID: {territory.TerritoryId}");
+        ImGui.Text($"Detected as Occult Crescent: {(territory.IsOccultCrescent ? "Yes" : "No")}");
+        ImGui.TextWrapped($"Match source: {territory.MatchSource}");
+        ImGui.Text($"PlaceName row ID: {territory.PlaceNameRowId}");
+
+        if (!string.IsNullOrWhiteSpace(territory.DirectPlaceName))
+        {
+            ImGui.TextWrapped($"Direct PlaceName.Value: {territory.DirectPlaceName}");
+        }
+
+        if (territory.PlaceNames.Count > 0)
+        {
+            ImGui.Text("PlaceName by language:");
+            foreach (var (language, placeName) in territory.PlaceNames)
+            {
+                ImGui.BulletText($"{language}: {(string.IsNullOrWhiteSpace(placeName) ? "(empty)" : placeName)}");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(territory.Error))
+        {
+            ImGui.TextWrapped($"Error: {territory.Error}");
+        }
     }
 
     private static void DrawStatusDebug()
