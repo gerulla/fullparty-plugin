@@ -26,9 +26,9 @@ public sealed unsafe class LiveRoomStatusOverlay : Window, IDisposable
         IsOpen = true;
         RespectCloseHotkey = false;
         Flags = ImGuiWindowFlags.NoDecoration |
-                ImGuiWindowFlags.NoInputs |
                 ImGuiWindowFlags.NoSavedSettings |
                 ImGuiWindowFlags.NoFocusOnAppearing |
+                ImGuiWindowFlags.NoBringToFrontOnFocus |
                 ImGuiWindowFlags.NoNav |
                 ImGuiWindowFlags.NoBackground;
     }
@@ -87,9 +87,27 @@ public sealed unsafe class LiveRoomStatusOverlay : Window, IDisposable
 
         DrawPill(status.Text, GetStatusColor(status.State), y);
 
-        if (!string.IsNullOrWhiteSpace(status.Detail) && ImGui.IsWindowHovered(ImGuiHoveredFlags.AllowWhenBlockedByActiveItem))
+        var statusSize = GetPillSize(status.Text);
+        var canOpenRun = status.State == RealtimeRunRoomState.Connected;
+        var statusHovered = false;
+        if (canOpenRun)
         {
-            ImGui.SetTooltip(status.Detail);
+            ImGui.SetCursorPos(new Vector2(0f, y));
+            if (ImGui.InvisibleButton("##fullparty_live_room_overlay_open_run", statusSize))
+                plugin.LiveRoomManager.OpenOverlayRunWindow();
+
+            statusHovered = ImGui.IsItemHovered();
+            if (statusHovered)
+                ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+        }
+
+        if (!string.IsNullOrWhiteSpace(status.Detail) &&
+            (statusHovered || ImGui.IsWindowHovered(ImGuiHoveredFlags.AllowWhenBlockedByActiveItem)))
+        {
+            var tooltip = canOpenRun
+                ? $"{status.Detail}\nClick to open run window."
+                : status.Detail;
+            ImGui.SetTooltip(tooltip);
         }
     }
 

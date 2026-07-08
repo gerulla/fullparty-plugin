@@ -48,7 +48,7 @@ public sealed class LiveRoomManager : IDisposable
         LiveRoomEntry? entry;
         lock (stateLock)
         {
-            entry = GetFocusedEntryNoLock() ?? rooms.Values.FirstOrDefault(room => room.Client.IsActive);
+            entry = GetOverlayEntryNoLock();
         }
 
         if (entry == null)
@@ -64,6 +64,23 @@ public sealed class LiveRoomManager : IDisposable
             detail = $"{detail}\n{client.PartySnapshotStatusMessage}";
 
         return new LiveRoomOverlayStatus(text, client.State, detail, client.OverlayFeedback);
+    }
+
+    public bool OpenOverlayRunWindow()
+    {
+        LiveRoomEntry? entry;
+        lock (stateLock)
+        {
+            entry = GetOverlayEntryNoLock();
+            if (entry != null)
+                focusedRunId = entry.Run.Id;
+        }
+
+        if (entry == null)
+            return false;
+
+        plugin.OpenRunWindow(entry.Run);
+        return true;
     }
 
     public void Dispose()
@@ -87,6 +104,11 @@ public sealed class LiveRoomManager : IDisposable
         return focusedRunId is { } runId && rooms.TryGetValue(runId, out var entry)
             ? entry
             : null;
+    }
+
+    private LiveRoomEntry? GetOverlayEntryNoLock()
+    {
+        return GetFocusedEntryNoLock() ?? rooms.Values.FirstOrDefault(room => room.Client.IsActive);
     }
 
     private static bool ShouldShowOverlay(RealtimeRunRoomClient client)
