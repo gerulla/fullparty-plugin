@@ -26,6 +26,13 @@ internal sealed unsafe class AdventurerListService : IDisposable
     public bool IsRefreshing => isRefreshing;
     public int Count => presence.Count;
 
+    public void ResetForOccultVisit()
+    {
+        presence = GamePresenceList.Empty;
+        HasRequestedRefresh = false;
+        StatusMessage = "Adventurer List has not been refreshed for this Occult visit yet.";
+    }
+
     public void RequestRefresh()
     {
         HasRequestedRefresh = true;

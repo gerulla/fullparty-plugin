@@ -55,6 +55,13 @@ public class ConfigWindow : Window, IDisposable
             configuration.Save();
         }
 
+        var showLiveRoomData = configuration.ShowLiveRoomData;
+        if (ImGui.Checkbox("Show Liveroom Data", ref showLiveRoomData))
+        {
+            configuration.ShowLiveRoomData = showLiveRoomData;
+            configuration.Save();
+        }
+
         ImGui.Spacing();
         ImGui.Separator();
         ImGui.Spacing();

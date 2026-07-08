@@ -31,6 +31,16 @@ internal sealed record FullPartyReadyCheckConfirmationPrompt(
     string InitiatorName,
     DateTimeOffset ExpiresAt);
 
+internal sealed record FullPartyPartySyncDebug(
+    DateTimeOffset CapturedAt,
+    bool FoundRaidLead,
+    string? RaidLeadName,
+    string? RaidLeadWorld,
+    bool FoundParty,
+    string? PartyKey,
+    FullPartyPartySnapshot? OutgoingSnapshot,
+    string? Status);
+
 public sealed class RealtimeRunRoomClient : IDisposable
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
@@ -89,6 +99,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
     public string? CommandStatusMessage { get; private set; }
     public string? PartySnapshotStatusMessage { get; private set; }
     public string? ChannelName { get; private set; }
+    internal FullPartyPartySyncDebug? PartySyncDebug { get; private set; }
 
     public bool IsActive => State is RealtimeRunRoomState.Connecting
         or RealtimeRunRoomState.Authorizing
@@ -913,11 +924,15 @@ public sealed class RealtimeRunRoomClient : IDisposable
         }
 
         if (currentRunDetail == null || currentMember == null)
+        {
+            SetPartySyncDebug(null, null, null, "Party sync waiting for live room user/run detail.");
             return;
+        }
 
         if (!currentRunDetail.CanModerate && !currentMember.IsHost && !currentMember.IsPartyLead)
         {
             SetPartySnapshotStatus("Party sync requires host, party lead, or moderator.");
+            SetPartySyncDebug(currentRunDetail, currentMember, null, "Party sync requires host, party lead, or moderator.");
             return;
         }
 
@@ -931,14 +946,18 @@ public sealed class RealtimeRunRoomClient : IDisposable
         {
             Plugin.Log.Warning(ex, "Could not build FullParty party snapshot for run {RunId}.", runId);
             SetPartySnapshotStatus($"Party sync unavailable: {ex.Message}");
+            SetPartySyncDebug(currentRunDetail, currentMember, null, $"Party sync unavailable: {ex.Message}");
             return;
         }
 
         if (snapshot == null)
         {
             SetPartySnapshotStatus("Party sync waiting for assigned party.");
+            SetPartySyncDebug(currentRunDetail, currentMember, null, "Party sync waiting for assigned party.");
             return;
         }
+
+        SetPartySyncDebug(currentRunDetail, currentMember, snapshot, "Outgoing party snapshot ready.");
 
         lock (stateLock)
         {
@@ -947,6 +966,36 @@ public sealed class RealtimeRunRoomClient : IDisposable
         }
 
         partySnapshotTask = Task.Run(() => SendPartySnapshotAsync(snapshot, token), token);
+    }
+
+    private void SetPartySyncDebug(
+        FullPartyRunDetail? currentRunDetail,
+        FullPartyLiveMember? currentMember,
+        FullPartyPartySnapshot? snapshot,
+        string status)
+    {
+        PartySnapshotBuilder.PartySnapshotBuildDebug? buildDebug = null;
+        if (currentRunDetail != null && currentMember != null)
+        {
+            try
+            {
+                buildDebug = PartySnapshotBuilder.BuildDebug(currentRunDetail, currentMember, plugin.AuthService.User, snapshot);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.Debug("Could not build FullParty party sync debug data: {Message}", ex.Message);
+            }
+        }
+
+        PartySyncDebug = new FullPartyPartySyncDebug(
+            DateTimeOffset.UtcNow,
+            !string.IsNullOrWhiteSpace(buildDebug?.RaidLeadName),
+            buildDebug?.RaidLeadName,
+            buildDebug?.RaidLeadWorld,
+            !string.IsNullOrWhiteSpace(buildDebug?.PartyKey),
+            buildDebug?.PartyKey,
+            snapshot,
+            status);
     }
 
     private async Task SendPartySnapshotAsync(FullPartyPartySnapshot snapshot, CancellationToken cancellationToken)

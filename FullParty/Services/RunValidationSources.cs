@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Party;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using FullParty.Models;
@@ -44,6 +46,7 @@ internal sealed class GamePresenceList
     }
 
     public int Count => members.Count;
+    public IReadOnlyList<GamePresenceMember> Members => members;
 
     public bool TryFind(FullPartyRosterCharacter character, out GamePresenceMember member)
     {
@@ -67,6 +70,50 @@ internal static class RunValidationSources
                 AddPresence(members, member.Name, member.World, member.ClassJob, member.PhantomJob);
 
         return new GamePresenceList([.. members.Values]);
+    }
+
+    public static GamePresenceList BuildNearbyPlayerPresence(FullPartyRunDetail runDetail)
+    {
+        var members = new Dictionary<string, GamePresenceMember>(StringComparer.OrdinalIgnoreCase);
+
+        try
+        {
+            foreach (var playerObject in Plugin.ObjectTable.PlayerObjects)
+            {
+                if (playerObject is IPlayerCharacter player)
+                    AddNearbyPlayerPresence(members, player, runDetail);
+                else
+                    AddNearbyBattleCharaPresence(members, playerObject, runDetail);
+            }
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Debug("Could not enumerate nearby players for FullParty validation: {Message}", ex.Message);
+        }
+
+        return new GamePresenceList([.. members.Values]);
+    }
+
+    public static GamePresenceList MergePresence(params GamePresenceList[] sources)
+    {
+        var members = new Dictionary<string, GamePresenceMember>(StringComparer.OrdinalIgnoreCase);
+        foreach (var source in sources)
+        {
+            foreach (var member in source.Members)
+            {
+                AddPresenceReplacingName(members, member.Name, member.World, member.ClassJob, member.PhantomJob);
+            }
+        }
+
+        return new GamePresenceList([.. members.Values]);
+    }
+
+    public static bool HasMissingActiveRosterPresence(FullPartyRunDetail runDetail, GamePresenceList presence)
+    {
+        return runDetail.Slots.Any(slot =>
+            !IsBenchSlot(slot) &&
+            slot.AssignedCharacter != null &&
+            !presence.TryFind(slot.AssignedCharacter, out _));
     }
 
     public static FullPartyPartySnapshot? BuildCurrentPartySnapshot(FullPartyRunDetail runDetail)
@@ -420,6 +467,77 @@ internal static class RunValidationSources
             return;
 
         members[GetCharacterKey(name, world)] = new GamePresenceMember(name, world, classJob, phantomJob);
+    }
+
+    private static void AddPresenceReplacingName(
+        IDictionary<string, GamePresenceMember> members,
+        string? name,
+        string? world,
+        string? classJob,
+        string? phantomJob)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return;
+
+        var normalizedName = NormalizeKeyPart(name);
+        foreach (var key in members
+                     .Where(pair => NormalizeKeyPart(pair.Value.Name).Equals(normalizedName, StringComparison.OrdinalIgnoreCase))
+                     .Select(pair => pair.Key)
+                     .ToList())
+        {
+            members.Remove(key);
+        }
+
+        AddPresence(members, name, world, classJob, phantomJob);
+    }
+
+    private static void AddNearbyPlayerPresence(
+        IDictionary<string, GamePresenceMember> members,
+        IPlayerCharacter player,
+        FullPartyRunDetail runDetail)
+    {
+        try
+        {
+            var name = player.Name.ToString();
+            if (string.IsNullOrWhiteSpace(name))
+                return;
+
+            var world = player.HomeWorld.Value.Name.ToString();
+            AddPresence(
+                members,
+                name,
+                world,
+                PartySnapshotBuilder.GetCombatClassJobShorthand(player.ClassJob.RowId),
+                PartySnapshotBuilder.GetPhantomJobFromStatuses(player.StatusList, runDetail));
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Debug("Could not read a nearby player for FullParty validation: {Message}", ex.Message);
+        }
+    }
+
+    private static void AddNearbyBattleCharaPresence(
+        IDictionary<string, GamePresenceMember> members,
+        IBattleChara player,
+        FullPartyRunDetail runDetail)
+    {
+        try
+        {
+            var name = player.Name.ToString();
+            if (string.IsNullOrWhiteSpace(name))
+                return;
+
+            AddPresence(
+                members,
+                name,
+                null,
+                PartySnapshotBuilder.GetCombatClassJobShorthand(player.ClassJob.RowId),
+                PartySnapshotBuilder.GetPhantomJobFromStatuses(player.StatusList, runDetail));
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Debug("Could not read a nearby battle character for FullParty validation: {Message}", ex.Message);
+        }
     }
 
     private static string GetName(IPartyMember member)

@@ -442,6 +442,11 @@ public sealed class RunWindow : Window, IDisposable
             {
                 ImGui.TextDisabled(liveRoom.PartySnapshotStatusMessage);
             }
+
+            if (plugin.Configuration.ShowLiveRoomData)
+            {
+                DrawLiveRoomDebugData();
+            }
         }
 
         var members = liveRoom.Members;
@@ -498,6 +503,189 @@ public sealed class RunWindow : Window, IDisposable
         }
 
         ImGui.EndTable();
+    }
+
+    private void DrawLiveRoomDebugData()
+    {
+        var debug = liveRoom.PartySyncDebug;
+        var incomingSnapshots = liveRoom.PartySnapshots;
+
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+        ImGui.Text("Liveroom Data");
+
+        if (ImGui.TreeNode("Outgoing"))
+        {
+            DrawLiveRoomOutgoingDebugData(debug);
+            ImGui.TreePop();
+        }
+
+        if (ImGui.TreeNode("Incoming"))
+        {
+            DrawLiveRoomIncomingDebugData(incomingSnapshots);
+            ImGui.TreePop();
+        }
+    }
+
+    private void DrawLiveRoomOutgoingDebugData(FullPartyPartySyncDebug? debug)
+    {
+        if (debug == null)
+        {
+            ImGui.TextDisabled("No party-sync attempt has happened yet.");
+            return;
+        }
+
+        if (ImGui.BeginTable("##fullparty_liveroom_debug_summary", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg))
+        {
+            ImGui.TableSetupColumn("Check", ImGuiTableColumnFlags.WidthFixed, 120f);
+            ImGui.TableSetupColumn("Value");
+
+            ImGui.TableNextRow();
+            ImGui.TableNextColumn();
+            ImGui.TextUnformatted("Found Raidlead");
+            ImGui.TableNextColumn();
+            DrawYesNo(debug.FoundRaidLead);
+            if (debug.FoundRaidLead)
+            {
+                ImGui.SameLine();
+                ImGui.TextDisabled($"[{FormatNameWorld(debug.RaidLeadName, debug.RaidLeadWorld)}]");
+            }
+
+            ImGui.TableNextRow();
+            ImGui.TableNextColumn();
+            ImGui.TextUnformatted("Found Party");
+            ImGui.TableNextColumn();
+            DrawYesNo(debug.FoundParty);
+            if (debug.FoundParty)
+            {
+                ImGui.SameLine();
+                ImGui.TextDisabled($"[{FormatPartyLetter(debug.PartyKey)}]");
+            }
+
+            ImGui.EndTable();
+        }
+
+        ImGui.TextDisabled($"Last attempt: {debug.CapturedAt:HH:mm:ss} UTC");
+        if (!string.IsNullOrWhiteSpace(debug.Status))
+            ImGui.TextWrapped(debug.Status);
+
+        ImGui.Spacing();
+        ImGui.TextUnformatted("Outgoing party-sync payload");
+
+        var snapshot = debug.OutgoingSnapshot;
+        if (snapshot == null)
+        {
+            ImGui.TextDisabled("No outbound payload was built.");
+            return;
+        }
+
+        DrawPartySnapshotDebugPayload(snapshot, "outgoing");
+    }
+
+    private void DrawLiveRoomIncomingDebugData(IReadOnlyList<FullPartyPartySnapshot> snapshots)
+    {
+        if (snapshots.Count == 0)
+        {
+            ImGui.TextDisabled("No party snapshots received yet.");
+            return;
+        }
+
+        foreach (var snapshot in snapshots.OrderBy(snapshot => snapshot.PartyKey, StringComparer.OrdinalIgnoreCase))
+        {
+            var label = $"{FormatPartyKey(snapshot.PartyKey)}##fullparty_liveroom_incoming_{snapshot.PartyKey}";
+            if (!ImGui.TreeNode(label))
+                continue;
+
+            DrawPartySnapshotDebugPayload(snapshot, $"incoming_{snapshot.PartyKey}");
+            ImGui.TreePop();
+        }
+    }
+
+    private static void DrawPartySnapshotDebugPayload(FullPartyPartySnapshot snapshot, string id)
+    {
+        if (ImGui.BeginTable($"##fullparty_liveroom_debug_payload_header_{id}", 2, ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg))
+        {
+            ImGui.TableSetupColumn("Key", ImGuiTableColumnFlags.WidthFixed, 90f);
+            ImGui.TableSetupColumn("Value");
+            DrawDebugKeyValue("seq", snapshot.Sequence.ToString());
+            DrawDebugKeyValue("party_key", snapshot.PartyKey);
+            DrawDebugKeyValue("sender", snapshot.SenderUserId.ToString());
+            DrawDebugKeyValue("captured", snapshot.CapturedAt.ToString("HH:mm:ss"));
+            ImGui.EndTable();
+        }
+
+        var flags = ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable | ImGuiTableFlags.ScrollX;
+        if (ImGui.BeginTable($"##fullparty_liveroom_debug_members_{id}", 6, flags))
+        {
+            ImGui.TableSetupColumn("p", ImGuiTableColumnFlags.WidthFixed, 28f);
+            ImGui.TableSetupColumn("cid", ImGuiTableColumnFlags.WidthFixed, 56f);
+            ImGui.TableSetupColumn("n", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn("w", ImGuiTableColumnFlags.WidthFixed, 80f);
+            ImGui.TableSetupColumn("cj", ImGuiTableColumnFlags.WidthFixed, 48f);
+            ImGui.TableSetupColumn("pj", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableHeadersRow();
+
+            foreach (var member in snapshot.Members.OrderBy(member => member.Position))
+            {
+                ImGui.TableNextRow();
+                DrawDebugCell(member.Position.ToString());
+                DrawDebugCell(member.CharacterId?.ToString());
+                DrawDebugCell(member.Name);
+                DrawDebugCell(member.World);
+                DrawDebugCell(member.ClassJob);
+                DrawDebugCell(member.PhantomJob);
+            }
+
+            ImGui.EndTable();
+        }
+    }
+
+    private static void DrawYesNo(bool value)
+    {
+        ImGui.TextColored(
+            value ? new Vector4(0.35f, 0.92f, 0.55f, 1f) : new Vector4(1f, 0.42f, 0.42f, 1f),
+            value ? "Yes" : "No");
+    }
+
+    private static void DrawDebugKeyValue(string key, string? value)
+    {
+        ImGui.TableNextRow();
+        ImGui.TableNextColumn();
+        ImGui.TextDisabled(key);
+        ImGui.TableNextColumn();
+        ImGui.TextWrapped(string.IsNullOrWhiteSpace(value) ? "-" : value);
+    }
+
+    private static void DrawDebugCell(string? value)
+    {
+        ImGui.TableNextColumn();
+        ImGui.TextWrapped(string.IsNullOrWhiteSpace(value) ? "-" : value);
+    }
+
+    private static string FormatNameWorld(string? name, string? world)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return "-";
+
+        return string.IsNullOrWhiteSpace(world) ? name : $"{name} @ {world}";
+    }
+
+    private static string FormatPartyLetter(string? partyKey)
+    {
+        if (string.IsNullOrWhiteSpace(partyKey))
+            return "-";
+
+        const string prefix = "party-";
+        return partyKey.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && partyKey.Length > prefix.Length
+            ? partyKey[prefix.Length..].ToUpperInvariant()
+            : partyKey;
+    }
+
+    private static string FormatPartyKey(string partyKey)
+    {
+        var letter = FormatPartyLetter(partyKey);
+        return letter.Length == 1 ? $"Party {letter}" : letter;
     }
 
     private void DrawRosterCompanionContent(bool isLoading)
@@ -833,8 +1021,8 @@ public sealed class RunWindow : Window, IDisposable
             ImGui.Spacing();
             ImGui.TextDisabled(plugin.AdventurerList.StatusMessage);
             ImGui.TextDisabled(occultPresenceCount == 0
-                ? "Validate: Occult mode, waiting for Adventurer List data."
-                : $"Validate: Occult mode, {occultPresenceCount} Adventurer List players known, {occultPartyCount} parties identified by party leads.");
+                ? "Validate: Occult mode, waiting for nearby or Adventurer List players."
+                : $"Validate: Occult mode, {occultPresenceCount} nearby/Adventurer List players known, {occultPartyCount} parties identified by party leads.");
             return;
         }
 
@@ -964,7 +1152,7 @@ public sealed class RunWindow : Window, IDisposable
                 null,
                 null,
                 ValidationState.Error,
-                ["Missing from Adventurer List."]);
+                ["Missing from nearby players and Adventurer List."]);
         }
 
         if (actualMember == null)
@@ -997,8 +1185,8 @@ public sealed class RunWindow : Window, IDisposable
                 else
                 {
                     occultMessages.Add(expectedPartySynced
-                        ? $"Present in Adventurer List, but not in the synced {plannedSlot.GroupLabel} party."
-                        : $"Present in Adventurer List; waiting for a party lead snapshot for {plannedSlot.GroupLabel}.");
+                        ? $"Present in nearby players or Adventurer List, but not in the synced {plannedSlot.GroupLabel} party."
+                        : $"Present in nearby players or Adventurer List; waiting for a party lead snapshot for {plannedSlot.GroupLabel}.");
                 }
 
                 return new ValidationSlotResult(
@@ -1029,14 +1217,14 @@ public sealed class RunWindow : Window, IDisposable
                 state = ValidationState.Warning;
                 classJob = NormalizeClassJob(expectedPresence.ClassJob);
                 phantomJob = expectedPresence.PhantomJob ?? plannedSlot.PhantomJob;
-                missingMessages.Add("Present in Adventurer List; party position has not been synced yet.");
+                missingMessages.Add("Present in nearby players or Adventurer List; party position has not been synced yet.");
                 AddClassValidationMessage(plannedSlot, classJob, missingMessages);
                 AddPresencePhantomJobValidationMessage(runDetail, plannedSlot, expectedPresence.PhantomJob, missingMessages);
             }
             else
             {
                 missingMessages.Add(useOccultPresence
-                    ? "Missing from Adventurer List."
+                    ? "Missing from nearby players and Adventurer List."
                     : "Missing from alliance/party list.");
             }
 
@@ -1080,12 +1268,12 @@ public sealed class RunWindow : Window, IDisposable
             }
             else if (expectedPresence != null)
             {
-                messages.Add("Expected player is present in Adventurer List, but not in this slot.");
+                messages.Add("Expected player is present in nearby players or Adventurer List, but not in this slot.");
             }
             else
             {
                 messages.Add(useOccultPresence
-                    ? "Expected player is missing from Adventurer List."
+                    ? "Expected player is missing from nearby players and Adventurer List."
                     : "Expected player is missing from alliance/party list.");
             }
 
@@ -1835,11 +2023,8 @@ public sealed class RunWindow : Window, IDisposable
     {
         var inOccult = OccultCrescentTerritory.IsCurrent();
         ObserveOccultState(inOccult);
-        if (inOccult && requestOccultRefresh && !plugin.AdventurerList.HasRequestedRefresh)
-            plugin.AdventurerList.RequestRefresh();
-
         var occultPresence = inOccult
-            ? plugin.AdventurerList.GetPresence(runDetail)
+            ? BuildOccultPresence(runDetail, requestOccultRefresh)
             : GamePresenceList.Empty;
         var sourceSnapshots = inOccult
             ? BuildOccultSourceSnapshots(runDetail)
@@ -1871,6 +2056,7 @@ public sealed class RunWindow : Window, IDisposable
         if (inOccult)
         {
             liveRoom.ClearPartySnapshots("Entered Occult Crescent; discarded pre-Occult party sync.");
+            plugin.AdventurerList.ResetForOccultVisit();
         }
 
         lastOccultState = inOccult;
@@ -1884,6 +2070,22 @@ public sealed class RunWindow : Window, IDisposable
             snapshots.Add(currentPartySnapshot);
 
         return snapshots;
+    }
+
+    private GamePresenceList BuildOccultPresence(FullPartyRunDetail runDetail, bool requestOccultRefresh)
+    {
+        var nearbyPresence = RunValidationSources.BuildNearbyPlayerPresence(runDetail);
+        if (requestOccultRefresh &&
+            !plugin.AdventurerList.HasRequestedRefresh &&
+            !plugin.AdventurerList.IsRefreshing &&
+            RunValidationSources.HasMissingActiveRosterPresence(runDetail, nearbyPresence))
+        {
+            plugin.AdventurerList.RequestRefresh();
+        }
+
+        return RunValidationSources.MergePresence(
+            plugin.AdventurerList.GetPresence(runDetail),
+            nearbyPresence);
     }
 
     private static IReadOnlyDictionary<string, OccultPartyAssignment> BuildOccultPartyAssignments(
@@ -2166,9 +2368,13 @@ public sealed class RunWindow : Window, IDisposable
 
         if (OccultCrescentTerritory.IsCurrent() && !plugin.AdventurerList.HasRequestedRefresh)
         {
-            plugin.AdventurerList.RequestRefresh();
-            checkInStatusMessage = "Refreshing Adventurer List before check-in. Press Run Check-In again once it finishes.";
-            return;
+            var nearbyPresence = RunValidationSources.BuildNearbyPlayerPresence(detail);
+            if (RunValidationSources.HasMissingActiveRosterPresence(detail, nearbyPresence))
+            {
+                plugin.AdventurerList.RequestRefresh();
+                checkInStatusMessage = "Nearby check still has missing roster players, so Adventurer List is refreshing. Press Run Check-In again once it finishes.";
+                return;
+            }
         }
 
         var selection = BuildRunCheckInSelection(detail);
@@ -2226,7 +2432,7 @@ public sealed class RunWindow : Window, IDisposable
     private RunCheckInSelection BuildRunCheckInSelection(FullPartyRunDetail runDetail)
     {
         var presence = OccultCrescentTerritory.IsCurrent()
-            ? plugin.AdventurerList.GetPresence(runDetail)
+            ? BuildOccultPresence(runDetail, false)
             : RunValidationSources.BuildLocalPartyPresence(runDetail);
         var assignedSlots = runDetail.Slots
             .Where(slot => slot.AssignedCharacter != null)

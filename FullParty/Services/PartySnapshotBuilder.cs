@@ -60,6 +60,32 @@ internal static class PartySnapshotBuilder
                 members);
     }
 
+    public static PartySnapshotBuildDebug BuildDebug(
+        FullPartyRunDetail runDetail,
+        FullPartyLiveMember currentMember,
+        FullPartyUser? currentUser,
+        FullPartyPartySnapshot? snapshot)
+    {
+        var assignedSlot = GetCurrentAssignedSlot(runDetail, currentMember, currentUser);
+        var raidLeadSlot = assignedSlot?.AssignedCharacter != null && (assignedSlot.IsHost || assignedSlot.IsRaidLeader)
+            ? assignedSlot
+            : runDetail.Slots
+                .Where(slot =>
+                    slot.AssignedCharacter != null &&
+                    (slot.IsHost || slot.IsRaidLeader) &&
+                    assignedSlot != null &&
+                    slot.GroupKey.Equals(assignedSlot.GroupKey, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(slot => slot.IsHost)
+                .ThenBy(slot => slot.PositionInGroup ?? int.MaxValue)
+                .ThenBy(slot => slot.SortOrder ?? int.MaxValue)
+                .FirstOrDefault();
+
+        return new PartySnapshotBuildDebug(
+            raidLeadSlot?.AssignedCharacter?.Name,
+            raidLeadSlot?.AssignedCharacter?.World,
+            assignedSlot?.GroupKey ?? snapshot?.PartyKey);
+    }
+
     private static List<FullPartyPartySnapshotMember> BuildPartyMembers(
         FullPartyRunDetail runDetail,
         IReadOnlyDictionary<string, FullPartyRosterSlot> rosterByName)
@@ -254,6 +280,11 @@ internal static class PartySnapshotBuilder
     }
 
     internal sealed record PhantomJobDetection(string SnapshotName, uint StatusId, string StatusName);
+
+    internal sealed record PartySnapshotBuildDebug(
+        string? RaidLeadName,
+        string? RaidLeadWorld,
+        string? PartyKey);
 
     internal static IReadOnlyList<FullPartyStatusDebug> GetStatusDebugList(IEnumerable? statuses)
     {
