@@ -615,6 +615,14 @@ public sealed class RunWindow : Window, IDisposable
             ImGui.EndTable();
         }
 
+        ImGui.Spacing();
+        ImGui.TextUnformatted($"members ({snapshot.Members.Count})");
+        if (snapshot.Members.Count == 0)
+        {
+            ImGui.TextDisabled("No members in this party-sync snapshot.");
+            return;
+        }
+
         var flags = ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable | ImGuiTableFlags.ScrollX;
         if (ImGui.BeginTable($"##fullparty_liveroom_debug_members_{id}", 6, flags))
         {

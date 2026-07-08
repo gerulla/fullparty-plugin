@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Dalamud.Game;
 using Lumina.Excel.Sheets;
 
 namespace FullParty.Services;
@@ -18,7 +19,7 @@ internal static class OccultCrescentTerritory
         if (territoryId == 0)
             return false;
 
-        if (!Plugin.DataManager.GetExcelSheet<TerritoryType>().TryGetRow(territoryId, out var territory))
+        if (!Plugin.DataManager.GetExcelSheet<TerritoryType>(ClientLanguage.English).TryGetRow(territoryId, out var territory))
             return false;
 
         var placeName = territory.PlaceName.Value.Name.ToString();
