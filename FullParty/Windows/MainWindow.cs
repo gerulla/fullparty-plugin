@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -21,11 +22,13 @@ namespace FullParty.Windows;
 public class MainWindow : Window, IDisposable
 {
     private const int MaxAvatarBytes = 5 * 1024 * 1024;
+    private const float SidebarWidth = 230f;
     private static readonly TimeSpan UpcomingLookahead = TimeSpan.FromMinutes(60);
     private static readonly HttpClient AvatarHttpClient = new();
 
     private readonly Plugin plugin;
     private readonly List<FullPartyGroup> groups = [];
+    private readonly List<FullPartyUserCharacter> userCharacters = [];
     private readonly Dictionary<string, IReadOnlyList<FullPartyRun>> runsByGroupSlug = new();
     private readonly Dictionary<string, Task<IReadOnlyList<FullPartyRun>>> runLoadTasks = new();
     private readonly Dictionary<string, string> runErrors = new();
@@ -36,9 +39,13 @@ public class MainWindow : Window, IDisposable
     private string? avatarPath;
     private string? avatarError;
     private string? groupsError;
+    private string? charactersError;
     private Task<string?>? avatarDownloadTask;
     private long? dashboardUserId;
     private string? selectedGroupSlug;
+    private Task<IReadOnlyList<FullPartyUserCharacter>>? charactersLoadTask;
+    private bool isGroupBrowserOpen;
+    private bool isUserPageSelected = true;
     private bool windowStylePushed;
 
     // We give this window a hidden ID using ##.
@@ -235,45 +242,485 @@ public class MainWindow : Window, IDisposable
         ObserveDashboardTasks();
         EnsureGroupsLoading();
         EnsureUpcomingRunsLoading();
-
-        DrawProfileStrip(user);
-        ImGui.Spacing();
+        if (isUserPageSelected && !isGroupBrowserOpen)
+            EnsureCharactersLoading();
 
         var available = ImGui.GetContentRegionAvail();
-        var leftWidth = Math.Clamp(available.X * 0.34f, 240f, 310f);
-        var upcomingRuns = GetUpcomingRuns();
-        var topRowHeight = GetTopDashboardRowHeight(available.Y, upcomingRuns.Count);
+        var sidebarWidth = Math.Clamp(SidebarWidth, 210f, MathF.Max(210f, available.X * 0.36f));
+        var contentWidth = MathF.Max(0, available.X - sidebarWidth - ImGui.GetStyle().ItemSpacing.X);
 
-        using (var leftRail = ImRaii.Child("##fullparty_left_rail", new Vector2(leftWidth, available.Y), false))
+        using (var sidebar = ImRaii.Child("##fullparty_sidebar", new Vector2(sidebarWidth, available.Y), true))
         {
-            if (leftRail.Success)
+            if (sidebar.Success)
             {
-                DrawCharactersPanel(user, topRowHeight);
-                ImGui.Spacing();
-                DrawGroupsPanel();
+                DrawSidebar(user);
             }
         }
 
         ImGui.SameLine();
 
-        using var rightRail = ImRaii.Child("##fullparty_right_rail", new Vector2(0, available.Y), false);
-        if (rightRail.Success)
+        using var content = ImRaii.Child("##fullparty_dashboard_content", new Vector2(contentWidth, available.Y), false);
+        if (content.Success)
         {
-            if (upcomingRuns.Count > 0)
+            if (isGroupBrowserOpen)
             {
-                using (var upcomingPanel = ImRaii.Child("##fullparty_upcoming_panel", new Vector2(0, topRowHeight), true))
+                using var groupBrowser = ImRaii.Child("##fullparty_group_browser", Vector2.Zero, true);
+                if (groupBrowser.Success)
+                    DrawGroupBrowserPanel();
+
+                return;
+            }
+
+            if (isUserPageSelected)
+            {
+                using var userPage = ImRaii.Child("##fullparty_user_page", Vector2.Zero, true);
+                if (userPage.Success)
                 {
-                    if (upcomingPanel.Success)
-                        DrawUpcomingRunsPanel(upcomingRuns);
+                    DrawCharactersContent(user);
                 }
 
-                ImGui.Spacing();
+                return;
             }
 
             using var runsPane = ImRaii.Child("##fullparty_runs_pane", Vector2.Zero, true);
             if (runsPane.Success)
             {
                 DrawRunsPanel();
+            }
+        }
+    }
+
+    private void DrawSidebar(FullPartyUser? user)
+    {
+        DrawSidebarProfile(user);
+        ImGui.Spacing();
+        DrawSidebarNavButton(FontAwesomeIcon.User, "User", isUserPageSelected && !isGroupBrowserOpen, () =>
+        {
+            isUserPageSelected = true;
+            isGroupBrowserOpen = false;
+        });
+        DrawSidebarNavButton(FontAwesomeIcon.Cog, "Settings", false, () => plugin.ToggleSettingsUi());
+        ImGui.Spacing();
+        DrawSidebarSeparator("Groups");
+
+        var footerHeight = 92f;
+        var groupsHeight = MathF.Max(90f, ImGui.GetContentRegionAvail().Y - footerHeight);
+        using (var groupList = ImRaii.Child("##fullparty_sidebar_groups", new Vector2(0, groupsHeight), false))
+        {
+            if (groupList.Success)
+            {
+                DrawSidebarGroups();
+                DrawSidebarUpcomingRuns();
+            }
+        }
+
+        ImGui.Spacing();
+        DrawSidebarFooter(user);
+        DrawDisconnectConfirmationPopup();
+    }
+
+    private void DrawSidebarProfile(FullPartyUser? user)
+    {
+        var availableWidth = ImGui.GetContentRegionAvail().X;
+        const float avatarSize = 76f;
+        var avatarX = MathF.Max(0, (availableWidth - avatarSize) * 0.5f);
+
+        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + avatarX);
+        DrawRoundUserAvatar(user, avatarSize);
+
+        ImGui.Spacing();
+        var name = user?.Name ?? "FullParty user";
+        var nameWidth = ImGui.CalcTextSize(name).X;
+        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + MathF.Max(0, (availableWidth - nameWidth) * 0.5f));
+        ImGui.TextUnformatted(name);
+    }
+
+    private void DrawSidebarNavButton(FontAwesomeIcon icon, string label, bool selected, Action? onClick = null)
+    {
+        var width = ImGui.GetContentRegionAvail().X;
+        using var color = selected
+            ? ImRaii.PushColor(ImGuiCol.Button, FullPartyModernPalette.BrandSoft)
+            : ImRaii.PushColor(ImGuiCol.Button, FullPartyModernPalette.Surface with { W = 0f });
+
+        if (FullPartyModernPalette.IconButton(icon, label, width))
+        {
+            onClick?.Invoke();
+        }
+    }
+
+    private static void DrawSidebarSeparator(string label)
+    {
+        var drawList = ImGui.GetWindowDrawList();
+        var cursor = ImGui.GetCursorScreenPos();
+        var width = ImGui.GetContentRegionAvail().X;
+        var textSize = ImGui.CalcTextSize(label);
+        var y = cursor.Y + (textSize.Y * 0.5f);
+        var gap = 8f;
+        var leftEnd = cursor.X + MathF.Max(18f, (width - textSize.X) * 0.5f - gap);
+        var rightStart = cursor.X + MathF.Min(width - 18f, (width + textSize.X) * 0.5f + gap);
+        var color = FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft);
+
+        drawList.AddLine(cursor + new Vector2(0, y - cursor.Y), new Vector2(leftEnd, y), color);
+        drawList.AddLine(new Vector2(rightStart, y), new Vector2(cursor.X + width, y), color);
+        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + MathF.Max(0, (width - textSize.X) * 0.5f));
+        ImGui.TextDisabled(label);
+        ImGui.Spacing();
+    }
+
+    private void DrawSidebarGroups()
+    {
+        if (groupsLoadTask is { IsCompleted: false })
+        {
+            ImGui.TextDisabled("Loading groups...");
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(groupsError))
+        {
+            ImGui.TextWrapped(groupsError);
+            if (ImGui.Button("Retry groups", new Vector2(ImGui.GetContentRegionAvail().X, 0)))
+            {
+                groupsError = null;
+                EnsureGroupsLoading();
+            }
+
+            return;
+        }
+
+        if (groups.Count == 0)
+        {
+            ImGui.TextDisabled("No moderator groups found.");
+            return;
+        }
+
+        var orderedGroups = GetSidebarOrderedGroups().ToList();
+        foreach (var group in orderedGroups.Take(4))
+        {
+            var selected = !isUserPageSelected && !isGroupBrowserOpen && selectedGroupSlug == group.Slug;
+            if (DrawSidebarGroupRow(group, selected))
+            {
+                selectedGroupSlug = group.Slug;
+                isGroupBrowserOpen = false;
+                isUserPageSelected = false;
+            }
+        }
+
+        if (groups.Count > 4)
+        {
+            ImGui.Spacing();
+            if (FullPartyModernPalette.IconButton(FontAwesomeIcon.List, $"Show all groups ({groups.Count})", ImGui.GetContentRegionAvail().X))
+            {
+                isGroupBrowserOpen = true;
+                isUserPageSelected = false;
+            }
+        }
+    }
+
+    private IEnumerable<FullPartyGroup> GetSidebarOrderedGroups()
+    {
+        var favoriteSlugs = plugin.Configuration.FavoriteGroupSlugs;
+        return groups
+            .OrderByDescending(group => favoriteSlugs.Contains(group.Slug, StringComparer.OrdinalIgnoreCase))
+            .ThenBy(group =>
+            {
+                var index = favoriteSlugs.FindIndex(slug => string.Equals(slug, group.Slug, StringComparison.OrdinalIgnoreCase));
+                return index < 0 ? int.MaxValue : index;
+            })
+            .ThenBy(group => group.Name, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private void DrawSidebarUpcomingRuns()
+    {
+        var upcomingRun = GetUpcomingRuns().FirstOrDefault();
+        if (upcomingRun == null)
+            return;
+
+        ImGui.Spacing();
+        DrawSidebarSeparator("Upcoming");
+        DrawSidebarUpcomingRunButton(upcomingRun);
+    }
+
+    private void DrawSidebarUpcomingRunButton(FullPartyRun run)
+    {
+        var width = ImGui.GetContentRegionAvail().X;
+        var height = 138f;
+
+        if (ImGui.InvisibleButton($"##sidebar_upcoming_{run.Id}", new Vector2(width, height)))
+        {
+            plugin.OpenRunWindow(run);
+        }
+
+        var hovered = ImGui.IsItemHovered();
+        var drawList = ImGui.GetWindowDrawList();
+        var min = ImGui.GetItemRectMin();
+        var max = ImGui.GetItemRectMax() - new Vector2(0, 8f);
+        var rounding = 5f;
+        var bg = hovered
+            ? FullPartyModernPalette.BrandSoft
+            : FullPartyModernPalette.Elevated;
+
+        drawList.AddRectFilled(min, max, FullPartyModernPalette.Color(bg), rounding);
+        DrawUpcomingRunBackground(run, min, max, rounding);
+        drawList.AddRectFilled(min, max, ImGui.ColorConvertFloat4ToU32(new Vector4(0.04f, 0.03f, 0.05f, 0.33f)), rounding);
+        drawList.AddRectFilled(min, new Vector2(max.X, min.Y + 34f), ImGui.ColorConvertFloat4ToU32(new Vector4(0.03f, 0.02f, 0.04f, 0.18f)), rounding);
+        drawList.AddRect(min, max, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft), rounding);
+
+        var statusLabel = string.IsNullOrWhiteSpace(run.Status) ? "Scheduled" : char.ToUpperInvariant(run.Status[0]) + run.Status[1..];
+        DrawUpcomingPill(min + new Vector2(9f, 9f), FontAwesomeIcon.CalendarAlt, statusLabel);
+
+        var visibility = run.IsPublic ? "Public" : "Private";
+        var visibilitySize = ImGui.CalcTextSize(visibility) + new Vector2(16f, 7f);
+        DrawUpcomingPill(new Vector2(max.X - visibilitySize.X - 9f, min.Y + 9f), null, visibility);
+
+        var textMin = min + new Vector2(12f, 46f);
+        var lineWidth = width - 24f;
+        var groupName = GetGroupName(run.GroupId) ?? "FullParty";
+        var relative = FormatRelativeStart(run.StartsAt);
+        var starts = $"Starts {run.StartsAt:ddd d MMM, HH:mm}".ToUpperInvariant();
+
+        drawList.AddText(textMin, FullPartyModernPalette.Color(FullPartyModernPalette.Muted), TrimToWidth(starts, lineWidth));
+        drawList.AddText(textMin + new Vector2(0, 22f), ImGui.GetColorU32(ImGuiCol.Text), TrimToWidth(run.Title, lineWidth));
+        drawList.AddText(textMin + new Vector2(0, 50f), FullPartyModernPalette.Color(FullPartyModernPalette.Muted), TrimToWidth($"{groupName} · {relative}", lineWidth));
+    }
+
+    private void DrawUpcomingRunBackground(FullPartyRun run, Vector2 min, Vector2 max, float rounding)
+    {
+        var imageUrl = run.ActivityType?.BannerImageUrl ?? run.ActivityType?.SmallImageUrl;
+        var path = plugin.ImageCache.GetImagePath(imageUrl, $"sidebar-upcoming-{run.Id}");
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            return;
+
+        var texture = Plugin.TextureProvider.GetFromFile(path).GetWrapOrDefault();
+        if (texture == null)
+            return;
+
+        ImGui.GetWindowDrawList().AddImageRounded(
+            texture.Handle,
+            min,
+            max,
+            Vector2.Zero,
+            Vector2.One,
+            ImGui.GetColorU32(ImGuiCol.Text),
+            rounding);
+    }
+
+    private static void DrawUpcomingPill(Vector2 position, FontAwesomeIcon? icon, string label)
+    {
+        var drawList = ImGui.GetWindowDrawList();
+        var textSize = ImGui.CalcTextSize(label);
+        var iconWidth = icon.HasValue ? 15f : 0f;
+        var size = new Vector2(textSize.X + iconWidth + 16f, textSize.Y + 7f);
+        drawList.AddRectFilled(position, position + size, FullPartyModernPalette.Color(FullPartyModernPalette.BrandSoft with { W = 0.86f }), 4f);
+        drawList.AddRect(position, position + size, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft), 4f);
+
+        ImGui.SetCursorScreenPos(position + new Vector2(8f, 3f));
+        using (ImRaii.PushColor(ImGuiCol.Text, FullPartyModernPalette.Text))
+        {
+            if (icon.HasValue)
+            {
+                ElezenImgui.ShowIcon(icon.Value);
+                ImGui.SameLine(0, 4f);
+            }
+
+            ImGui.TextUnformatted(label);
+        }
+    }
+
+    private static string FormatRelativeStart(DateTimeOffset startsAt)
+    {
+        var delta = startsAt - GetServerTimeNow();
+        if (delta <= TimeSpan.Zero)
+            return "starting now";
+
+        if (delta.TotalMinutes < 60)
+            return $"in {Math.Max(1, (int)Math.Ceiling(delta.TotalMinutes))} min";
+
+        if (delta.TotalHours < 24)
+            return $"in {Math.Max(1, (int)Math.Ceiling(delta.TotalHours))} hours";
+
+        return $"in {Math.Max(1, (int)Math.Ceiling(delta.TotalDays))} days";
+    }
+
+    private void DrawGroupBrowserPanel()
+    {
+        ImGui.BeginGroup();
+        FullPartyModernPalette.SectionHeader(FontAwesomeIcon.List, "Groups");
+        ImGui.TextDisabled("Favorite groups are prioritized in the sidebar.");
+        ImGui.EndGroup();
+
+        var closeWidth = 72f;
+        ImGui.SameLine(ImGui.GetWindowContentRegionMax().X - closeWidth);
+        if (ImGui.Button("Close", new Vector2(closeWidth, 0)))
+        {
+            isGroupBrowserOpen = false;
+            isUserPageSelected = true;
+        }
+
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+
+        if (groupsLoadTask is { IsCompleted: false })
+        {
+            ImGui.TextDisabled("Loading groups...");
+            return;
+        }
+
+        if (groups.Count == 0)
+        {
+            ImGui.TextDisabled("No moderator groups found.");
+            return;
+        }
+
+        foreach (var group in GetSidebarOrderedGroups())
+        {
+            DrawGroupBrowserRow(group);
+        }
+    }
+
+    private void DrawGroupBrowserRow(FullPartyGroup group)
+    {
+        var favorite = IsFavoriteGroup(group.Slug);
+        var width = ImGui.GetContentRegionAvail().X;
+        var rowHeight = 62f;
+        var buttonWidth = 86f;
+
+        using var row = ImRaii.Child($"##group_browser_row_{group.Id}", new Vector2(width, rowHeight), true);
+        if (!row.Success)
+            return;
+
+        ImGui.BeginGroup();
+        ImGui.TextUnformatted(group.Name);
+        ImGui.TextDisabled($"{group.Datacenter ?? "Any DC"} - {group.Role}");
+        ImGui.EndGroup();
+
+        ImGui.SameLine(ImGui.GetWindowContentRegionMax().X - (buttonWidth * 2f) - ImGui.GetStyle().ItemSpacing.X);
+        if (ImGui.Button(favorite ? "Unfav" : "Favorite", new Vector2(buttonWidth, 0)))
+        {
+            ToggleFavoriteGroup(group.Slug);
+        }
+
+        ImGui.SameLine();
+        if (ImGui.Button("Open", new Vector2(buttonWidth, 0)))
+        {
+            selectedGroupSlug = group.Slug;
+            isGroupBrowserOpen = false;
+            isUserPageSelected = false;
+        }
+    }
+
+    private bool IsFavoriteGroup(string slug)
+    {
+        return plugin.Configuration.FavoriteGroupSlugs.Contains(slug, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private void ToggleFavoriteGroup(string slug)
+    {
+        var favoriteSlugs = plugin.Configuration.FavoriteGroupSlugs;
+        var index = favoriteSlugs.FindIndex(existing => string.Equals(existing, slug, StringComparison.OrdinalIgnoreCase));
+        if (index >= 0)
+        {
+            favoriteSlugs.RemoveAt(index);
+        }
+        else
+        {
+            favoriteSlugs.Add(slug);
+        }
+
+        plugin.Configuration.Save();
+    }
+
+    private bool DrawSidebarGroupRow(FullPartyGroup group, bool selected)
+    {
+        var width = ImGui.GetContentRegionAvail().X;
+        var height = 54f;
+
+        if (ImGui.InvisibleButton($"##sidebar_group_{group.Id}", new Vector2(width, height)))
+            return true;
+
+        var hovered = ImGui.IsItemHovered();
+        var drawList = ImGui.GetWindowDrawList();
+        var min = ImGui.GetItemRectMin();
+        var max = ImGui.GetItemRectMax() - new Vector2(0, 3f);
+        var bg = selected
+            ? FullPartyModernPalette.BrandSoft with { W = 0.88f }
+            : hovered
+                ? FullPartyModernPalette.Elevated with { W = 0.70f }
+                : FullPartyModernPalette.Surface with { W = 0.20f };
+
+        drawList.AddRectFilled(min, max, FullPartyModernPalette.Color(bg), 4f);
+        if (selected)
+            drawList.AddRectFilled(min, new Vector2(min.X + 3f, max.Y), FullPartyModernPalette.Color(FullPartyModernPalette.Brand), 4f);
+
+        var iconPos = min + new Vector2(10f, 9f);
+        DrawSidebarGroupIcon(group, iconPos, new Vector2(34f, 34f));
+
+        var nameColor = ImGui.GetColorU32(ImGuiCol.Text);
+        var mutedColor = ImGui.GetColorU32(ImGuiCol.TextDisabled);
+        var textMin = min + new Vector2(52f, 8f);
+        var textWidth = MathF.Max(40f, width - 62f);
+        drawList.AddText(textMin, nameColor, TrimToWidth(group.Name, textWidth));
+        drawList.AddText(textMin + new Vector2(0, 21f), mutedColor, TrimToWidth($"{group.Datacenter ?? "Any DC"} - {group.Role}", textWidth));
+        return false;
+    }
+
+    private void DrawSidebarGroupIcon(FullPartyGroup group, Vector2 position, Vector2 size)
+    {
+        var drawList = ImGui.GetWindowDrawList();
+        drawList.AddRectFilled(position, position + size, FullPartyModernPalette.Color(FullPartyModernPalette.Elevated), 5f);
+
+        var path = plugin.ImageCache.GetImagePath(group.ProfilePictureUrl, $"sidebar-group-{group.Id}");
+        if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+        {
+            var texture = Plugin.TextureProvider.GetFromFile(path).GetWrapOrDefault();
+            if (texture != null)
+            {
+                drawList.AddImageRounded(
+                    texture.Handle,
+                    position,
+                    position + size,
+                    Vector2.Zero,
+                    Vector2.One,
+                    ImGui.GetColorU32(ImGuiCol.Text),
+                    5f);
+                drawList.AddRect(position, position + size, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft), 5f);
+                return;
+            }
+        }
+
+        var initials = GetGroupInitials(group.Name);
+        var textSize = ImGui.CalcTextSize(initials);
+        drawList.AddText(position + ((size - textSize) * 0.5f), FullPartyModernPalette.Color(FullPartyModernPalette.Muted), initials);
+        drawList.AddRect(position, position + size, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft), 5f);
+    }
+
+    private static string GetGroupInitials(string name)
+    {
+        var words = name
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Take(2)
+            .Select(word => word[..1].ToUpperInvariant())
+            .ToArray();
+
+        return words.Length == 0 ? "G" : string.Concat(words);
+    }
+
+    private void DrawSidebarFooter(FullPartyUser? user)
+    {
+        var width = ImGui.GetContentRegionAvail().X;
+        if (FullPartyModernPalette.IconButton(FontAwesomeIcon.SyncAlt, "Refresh", width))
+        {
+            RefreshDashboard(user?.Id);
+        }
+
+        ImGui.Spacing();
+        using (ImRaii.PushColor(ImGuiCol.Button, FullPartyModernPalette.Danger with { W = 0.74f }))
+        using (ImRaii.PushColor(ImGuiCol.ButtonHovered, FullPartyModernPalette.Danger))
+        using (ImRaii.PushColor(ImGuiCol.ButtonActive, FullPartyModernPalette.Danger with { W = 0.88f }))
+        {
+            if (FullPartyModernPalette.IconButton(FontAwesomeIcon.SignOutAlt, "Disconnect", width))
+            {
+                ImGui.OpenPopup("Disconnect FullParty?##fullparty_disconnect");
             }
         }
     }
@@ -285,11 +732,14 @@ public class MainWindow : Window, IDisposable
         dashboardCancellation = new CancellationTokenSource();
         dashboardUserId = userId;
         groups.Clear();
+        userCharacters.Clear();
         runsByGroupSlug.Clear();
         runLoadTasks.Clear();
         runErrors.Clear();
         groupsLoadTask = null;
+        charactersLoadTask = null;
         groupsError = null;
+        charactersError = null;
         selectedGroupSlug = null;
     }
 
@@ -307,6 +757,14 @@ public class MainWindow : Window, IDisposable
             return;
 
         runLoadTasks[group.Slug] = plugin.ApiClient.GetGroupRunsAsync(group.Slug, dashboardCancellation.Token);
+    }
+
+    private void EnsureCharactersLoading()
+    {
+        if (userCharacters.Count > 0 || charactersLoadTask != null || charactersError != null)
+            return;
+
+        charactersLoadTask = plugin.ApiClient.GetCharactersAsync(dashboardCancellation.Token);
     }
 
     private void EnsureUpcomingRunsLoading()
@@ -349,6 +807,22 @@ public class MainWindow : Window, IDisposable
             }
 
             runLoadTasks.Remove(pair.Key);
+        }
+
+        if (charactersLoadTask is { IsCompleted: true })
+        {
+            if (charactersLoadTask.IsCompletedSuccessfully)
+            {
+                userCharacters.Clear();
+                userCharacters.AddRange(charactersLoadTask.Result);
+            }
+            else
+            {
+                charactersError = "Could not load your FullParty characters.";
+                Plugin.Log.Warning(charactersLoadTask.Exception, "Could not load FullParty characters.");
+            }
+
+            charactersLoadTask = null;
         }
     }
 
@@ -442,19 +916,376 @@ public class MainWindow : Window, IDisposable
         if (!panel.Success)
             return;
 
-        DrawPanelHeader("Characters");
+        DrawCharactersContent(user);
+    }
 
-        var character = user?.PrimaryCharacter;
-        if (character == null)
+    private void DrawCharactersContent(FullPartyUser? user)
+    {
+        FullPartyModernPalette.SectionHeader(FontAwesomeIcon.User, "User");
+
+        if (charactersLoadTask is { IsCompleted: false })
+        {
+            ImGui.TextDisabled("Loading characters...");
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(charactersError))
+        {
+            ImGui.TextWrapped(charactersError);
+            if (ImGui.Button("Retry characters"))
+            {
+                charactersError = null;
+                EnsureCharactersLoading();
+            }
+
+            ImGui.Spacing();
+        }
+
+        if (userCharacters.Count > 0)
+        {
+            foreach (var character in userCharacters.OrderByDescending(character => character.IsPrimary).ThenBy(character => character.Name))
+            {
+                DrawUserCharacterCard(character);
+                ImGui.Spacing();
+            }
+
+            return;
+        }
+
+        var characters = GetUserCharacters(user).ToList();
+        if (characters.Count == 0)
         {
             ImGui.TextDisabled("No linked characters yet.");
             return;
         }
 
-        ImGui.Text(character.Name);
-        ImGui.TextDisabled($"{character.World} - {character.Datacenter}");
+        foreach (var character in characters)
+        {
+            DrawCharacterCard(user, character);
+            ImGui.Spacing();
+        }
+    }
+
+    private void DrawUserCharacterCard(FullPartyUserCharacter character)
+    {
+        var width = ImGui.GetContentRegionAvail().X;
+        var height = 186f;
+
+        using var card = ImRaii.Child($"##user_character_card_{character.Id}", new Vector2(width, height), true);
+        if (!card.Success)
+            return;
+
+        var drawList = ImGui.GetWindowDrawList();
+        var min = ImGui.GetWindowPos();
+        var max = min + ImGui.GetWindowSize();
+        drawList.AddRectFilled(min, new Vector2(min.X + 3f, max.Y), FullPartyModernPalette.Color(FullPartyModernPalette.Brand), 0f);
+
+        var contentStart = ImGui.GetCursorPos();
+        ImGui.SetCursorPos(contentStart + new Vector2(24f, 22f));
+
+        if (!DrawCharacterPortrait(character.Id, character.AvatarUrl, new Vector2(82f, 82f), "user-character"))
+            DrawCharacterPortraitFallback(character.Id, character.Name, new Vector2(82f, 82f), "user-character");
+
+        ImGui.SameLine();
+        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 12f);
+        ImGui.BeginGroup();
+
+        ImGui.AlignTextToFramePadding();
+        ImGui.TextUnformatted(character.Name);
+        ImGui.SameLine();
+        DrawCharacterBadge(FontAwesomeIcon.Star, "Primary", character.IsPrimary, FullPartyModernPalette.Elevated);
+        ImGui.SameLine();
+        DrawCharacterBadge(FontAwesomeIcon.CheckCircle, "Verified", character.IsVerified, FullPartyModernPalette.Success with { W = 0.26f }, FullPartyModernPalette.Success);
+
         ImGui.Spacing();
-        ImGui.TextDisabled("Additional linked characters will appear here.");
+        var source = FormatAddMethod(character.AddMethod);
+        ImGui.TextDisabled($"{character.Datacenter}  ·  {character.World}  ·  From {source}");
+        ImGui.Spacing();
+
+        if (!string.IsNullOrWhiteSpace(character.LodestoneId))
+        {
+            using (ImRaii.PushColor(ImGuiCol.Text, FullPartyModernPalette.Brand))
+            {
+                ImGui.TextUnformatted("View Lodestone Profile");
+            }
+
+            if (ImGui.IsItemHovered())
+                ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+
+            if (ImGui.IsItemClicked())
+                OpenExternalUrl($"https://na.finalfantasyxiv.com/lodestone/character/{character.LodestoneId}/");
+        }
+        else
+        {
+            ImGui.TextDisabled("Lodestone profile unavailable");
+        }
+
+        ImGui.EndGroup();
+
+        ImGui.SetCursorPos(contentStart + new Vector2(24f, 120f));
+        DrawCharacterClassSummary(character.Classes);
+
+        ImGui.SameLine();
+        ImGui.SetCursorPosX(MathF.Max(ImGui.GetCursorPosX(), width * 0.52f));
+        DrawOccultSummary(character.Occult);
+    }
+
+    private void DrawCharacterClassSummary(IReadOnlyList<FullPartyCharacterClass> classes)
+    {
+        ImGui.BeginGroup();
+        ImGui.TextDisabled("Preferred Classes");
+
+        var preferred = classes.Where(job => job.IsPreferred).Take(4).ToList();
+        if (preferred.Count == 0)
+        {
+            ImGui.TextDisabled("-");
+        }
+        else
+        {
+            foreach (var job in preferred)
+            {
+                DrawCharacterIconChip(job.FlatIconUrl ?? job.IconUrl, $"class-chip-{job.Id}", $"{job.Shorthand} {job.Level?.ToString() ?? "--"}", GetRoleColor(job.Role));
+                ImGui.SameLine();
+            }
+
+            ImGui.NewLine();
+        }
+
+        ImGui.EndGroup();
+    }
+
+    private void DrawOccultSummary(FullPartyCharacterOccult? occult)
+    {
+        ImGui.BeginGroup();
+        ImGui.TextDisabled("Occult");
+
+        if (occult == null)
+        {
+            ImGui.TextDisabled("-");
+            ImGui.EndGroup();
+            return;
+        }
+
+        ImGui.TextUnformatted($"Knowledge {occult.KnowledgeLevel?.ToString() ?? "--"}");
+        ImGui.SameLine();
+
+        var preferredJob = occult.PhantomJobs.FirstOrDefault(job => job.IsPreferred) ?? occult.PhantomJobs.FirstOrDefault();
+        if (preferredJob != null)
+        {
+            var level = preferredJob.CurrentLevel.HasValue && preferredJob.MaxLevel.HasValue
+                ? $"{preferredJob.CurrentLevel}/{preferredJob.MaxLevel}"
+                : "--";
+            DrawCharacterIconChip(preferredJob.TransparentIconUrl ?? preferredJob.IconUrl, $"phantom-chip-{preferredJob.Id}", $"{preferredJob.Name} {level}", FullPartyModernPalette.BrandSoft);
+        }
+        else
+        {
+            ImGui.TextDisabled("No phantom jobs");
+        }
+
+        ImGui.EndGroup();
+    }
+
+    private void DrawCharacterIconChip(string? iconUrl, string cacheKey, string label, Vector4 background)
+    {
+        var textSize = ImGui.CalcTextSize(label);
+        var size = new Vector2(textSize.X + 32f, 24f);
+        var pos = ImGui.GetCursorScreenPos();
+        var drawList = ImGui.GetWindowDrawList();
+        ImGui.InvisibleButton($"##{cacheKey}_{label}", size);
+
+        drawList.AddRectFilled(pos, pos + size, FullPartyModernPalette.Color(background with { W = MathF.Max(background.W, 0.78f) }), 4f);
+        drawList.AddRect(pos, pos + size, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft), 4f);
+
+        var iconPath = plugin.ImageCache.GetImagePath(iconUrl, cacheKey);
+        if (!string.IsNullOrWhiteSpace(iconPath) && File.Exists(iconPath))
+        {
+            var texture = Plugin.TextureProvider.GetFromFile(iconPath).GetWrapOrDefault();
+            if (texture != null)
+            {
+                drawList.AddImage(texture.Handle, pos + new Vector2(5f, 4f), pos + new Vector2(21f, 20f));
+            }
+        }
+
+        drawList.AddText(pos + new Vector2(26f, 4f), ImGui.GetColorU32(ImGuiCol.Text), TrimToWidth(label, size.X - 31f));
+    }
+
+    private static Vector4 GetRoleColor(string role)
+    {
+        return role.ToLowerInvariant() switch
+        {
+            "tank" => new Vector4(0.16f, 0.30f, 0.55f, 0.82f),
+            "healer" => new Vector4(0.12f, 0.42f, 0.28f, 0.82f),
+            "melee" or "physical_ranged" or "magical_ranged" or "dps" => new Vector4(0.48f, 0.16f, 0.18f, 0.82f),
+            _ => FullPartyModernPalette.Elevated,
+        };
+    }
+
+    private static string FormatAddMethod(string? addMethod)
+    {
+        if (string.IsNullOrWhiteSpace(addMethod))
+            return "FullParty";
+
+        return addMethod.Equals("xivauth", StringComparison.OrdinalIgnoreCase) ? "XIVAuth" : addMethod;
+    }
+
+    private static IEnumerable<FullPartyCharacter> GetUserCharacters(FullPartyUser? user)
+    {
+        if (user == null)
+            yield break;
+
+        var seen = new HashSet<long>();
+        foreach (var character in user.Characters)
+        {
+            if (seen.Add(character.Id))
+                yield return character;
+        }
+
+        if (user.PrimaryCharacter != null && seen.Add(user.PrimaryCharacter.Id))
+            yield return user.PrimaryCharacter;
+    }
+
+    private void DrawCharacterCard(FullPartyUser? user, FullPartyCharacter character)
+    {
+        var width = ImGui.GetContentRegionAvail().X;
+        const float height = 150f;
+
+        using var card = ImRaii.Child($"##character_card_{character.Id}", new Vector2(width, height), true);
+        if (!card.Success)
+            return;
+
+        var drawList = ImGui.GetWindowDrawList();
+        var min = ImGui.GetWindowPos();
+        var max = min + ImGui.GetWindowSize();
+        drawList.AddRectFilled(min, new Vector2(min.X + 3f, max.Y), FullPartyModernPalette.Color(FullPartyModernPalette.Brand), 0f);
+
+        var contentStart = ImGui.GetCursorPos();
+        ImGui.SetCursorPos(contentStart + new Vector2(24f, 22f));
+
+        var portraitDrawn = DrawCharacterPortrait(character, new Vector2(82f, 82f));
+        if (!portraitDrawn)
+        {
+            DrawCharacterPortraitFallback(character, new Vector2(82f, 82f));
+        }
+
+        ImGui.SameLine();
+        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 12f);
+        ImGui.BeginGroup();
+
+        ImGui.AlignTextToFramePadding();
+        ImGui.TextUnformatted(character.Name);
+        ImGui.SameLine();
+        DrawCharacterBadge(FontAwesomeIcon.Star, "Primary", IsPrimaryCharacter(user, character), FullPartyModernPalette.Elevated);
+        ImGui.SameLine();
+        DrawCharacterBadge(FontAwesomeIcon.CheckCircle, "Verified", character.IsVerified != false, FullPartyModernPalette.Success with { W = 0.26f }, FullPartyModernPalette.Success);
+
+        ImGui.Spacing();
+        var source = string.IsNullOrWhiteSpace(character.Source) ? "FullParty" : character.Source;
+        ImGui.TextDisabled($"{character.Datacenter}  ·  {character.World}  ·  From {source}");
+        ImGui.Spacing();
+
+        if (!string.IsNullOrWhiteSpace(character.LodestoneId))
+        {
+            using (ImRaii.PushColor(ImGuiCol.Text, FullPartyModernPalette.Brand))
+            {
+                ImGui.TextUnformatted("View Lodestone Profile");
+            }
+
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+            }
+
+            if (ImGui.IsItemClicked())
+            {
+                OpenExternalUrl($"https://na.finalfantasyxiv.com/lodestone/character/{character.LodestoneId}/");
+            }
+        }
+        else
+        {
+            ImGui.TextDisabled("Lodestone profile unavailable");
+        }
+
+        ImGui.EndGroup();
+    }
+
+    private bool DrawCharacterPortrait(FullPartyCharacter character, Vector2 size)
+    {
+        return DrawCharacterPortrait(character.Id, character.AvatarUrl, size, "main-character");
+    }
+
+    private bool DrawCharacterPortrait(long characterId, string? avatarUrl, Vector2 size, string cachePrefix)
+    {
+        var path = plugin.ImageCache.GetImagePath(avatarUrl, $"{cachePrefix}-{characterId}");
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            return false;
+
+        var texture = Plugin.TextureProvider.GetFromFile(path).GetWrapOrDefault();
+        if (texture == null)
+            return false;
+
+        var position = ImGui.GetCursorScreenPos();
+        ImGui.InvisibleButton($"##character_portrait_{cachePrefix}_{characterId}", size);
+        var drawList = ImGui.GetWindowDrawList();
+        drawList.AddRectFilled(position + new Vector2(4f), position + size + new Vector2(4f), FullPartyModernPalette.Color(FullPartyModernPalette.BrandSoft), 2f);
+        drawList.AddImage(texture.Handle, position, position + size);
+        drawList.AddRect(position, position + size, FullPartyModernPalette.Color(FullPartyModernPalette.Brand), 2f, ImDrawFlags.None, 1.5f);
+        return true;
+    }
+
+    private static void DrawCharacterPortraitFallback(FullPartyCharacter character, Vector2 size)
+    {
+        DrawCharacterPortraitFallback(character.Id, character.Name, size, "main-character");
+    }
+
+    private static void DrawCharacterPortraitFallback(long characterId, string characterName, Vector2 size, string cachePrefix)
+    {
+        var position = ImGui.GetCursorScreenPos();
+        ImGui.InvisibleButton($"##character_portrait_fallback_{cachePrefix}_{characterId}", size);
+        var drawList = ImGui.GetWindowDrawList();
+        drawList.AddRectFilled(position, position + size, FullPartyModernPalette.Color(FullPartyModernPalette.Elevated), 2f);
+        drawList.AddRect(position, position + size, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft), 2f);
+        var initial = string.IsNullOrWhiteSpace(characterName) ? "?" : characterName[..1].ToUpperInvariant();
+        var textSize = ImGui.CalcTextSize(initial);
+        drawList.AddText(position + ((size - textSize) * 0.5f), FullPartyModernPalette.Color(FullPartyModernPalette.Muted), initial);
+    }
+
+    private static void DrawCharacterBadge(FontAwesomeIcon icon, string label, bool visible, Vector4 background, Vector4? textColor = null)
+    {
+        if (!visible)
+            return;
+
+        var padding = new Vector2(7f, 3f);
+        var textSize = ImGui.CalcTextSize(label);
+        var badgeSize = new Vector2(textSize.X + 25f, textSize.Y + (padding.Y * 2f));
+        var position = ImGui.GetCursorScreenPos();
+        var drawList = ImGui.GetWindowDrawList();
+
+        ImGui.InvisibleButton($"##badge_{label}_{position.X}_{position.Y}", badgeSize);
+        drawList.AddRectFilled(position, position + badgeSize, FullPartyModernPalette.Color(background), 4f);
+        ImGui.SetCursorScreenPos(position + new Vector2(7f, 3f));
+        using (ImRaii.PushColor(ImGuiCol.Text, textColor ?? FullPartyModernPalette.Text))
+        {
+            ElezenImgui.ShowIcon(icon);
+            ImGui.SameLine(0, 4f);
+            ImGui.TextUnformatted(label);
+        }
+    }
+
+    private static bool IsPrimaryCharacter(FullPartyUser? user, FullPartyCharacter character)
+    {
+        return character.IsPrimary == true || user?.PrimaryCharacter?.Id == character.Id;
+    }
+
+    private static void OpenExternalUrl(string url)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Warning(ex, "Could not open FullParty external URL {Url}", url);
+        }
     }
 
     private void DrawGroupsPanel()
@@ -523,7 +1354,6 @@ public class MainWindow : Window, IDisposable
         EnsureRunsLoading(group);
 
         DrawPanelHeader(group.Name);
-        ImGui.TextDisabled($"{group.Datacenter ?? "Any datacenter"} - {group.Role}");
         ImGui.Spacing();
         ImGui.Separator();
         ImGui.Spacing();
@@ -555,6 +1385,7 @@ public class MainWindow : Window, IDisposable
         foreach (var run in runs.OrderBy(run => run.StartsAt))
         {
             DrawRunRow(run);
+            ImGui.Dummy(new Vector2(1f, 10f));
         }
     }
 
@@ -599,41 +1430,128 @@ public class MainWindow : Window, IDisposable
     private void DrawRunRow(FullPartyRun run, string idScope = "run", string? subtitlePrefix = null)
     {
         var width = ImGui.GetContentRegionAvail().X;
-        var height = 72f;
+        const float cardHeight = 136f;
 
-        if (ImGui.InvisibleButton($"##{idScope}_{run.Id}", new Vector2(width, height)))
-        {
+        using var card = ImRaii.Child($"##{idScope}_card_{run.Id}", new Vector2(width, cardHeight), true);
+        if (!card.Success)
+            return;
+
+        var hovered = ImGui.IsWindowHovered(ImGuiHoveredFlags.AllowWhenBlockedByActiveItem);
+        if (hovered && ImGui.IsMouseClicked(ImGuiMouseButton.Left))
             plugin.OpenRunWindow(run);
-        }
 
-        var hovered = ImGui.IsItemHovered();
         var drawList = ImGui.GetWindowDrawList();
-        var min = ImGui.GetItemRectMin();
-        var max = ImGui.GetItemRectMax() - new Vector2(0, 4f);
-        var bg = hovered
-            ? new Vector4(0.25f, 0.30f, 0.36f, 0.32f)
-            : new Vector4(0.12f, 0.14f, 0.17f, 0.24f);
-        drawList.AddRectFilled(min, max, ImGui.ColorConvertFloat4ToU32(bg), 4f);
-        drawList.AddRect(min, max, ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, 0.10f)), 4f);
+        var min = ImGui.GetWindowPos();
+        var max = min + ImGui.GetWindowSize();
+        var bg = hovered ? FullPartyModernPalette.Elevated with { W = 0.92f } : FullPartyModernPalette.Surface with { W = 0.62f };
+        drawList.AddRectFilled(min, max, FullPartyModernPalette.Color(bg), 4f);
+        drawList.AddRect(min, max, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft), 4f);
 
-        var rightWidth = Math.Clamp(width * 0.30f, 140f, 190f);
-        var leftWidth = Math.Max(80f, width - rightWidth - 28f);
-        var left = min + new Vector2(10f, 9f);
-        var right = new Vector2(max.X - rightWidth, min.Y + 9f);
+        var artworkWidth = 112f;
+        var contentWidth = max.X - min.X;
+        var scheduleWidth = Math.Clamp(contentWidth * 0.24f, 190f, 260f);
+        var metaWidth = Math.Clamp(contentWidth * 0.17f, 130f, 180f);
+        var mainStartX = min.X + artworkWidth + 16f;
+        var scheduleStartX = max.X - scheduleWidth - metaWidth;
+        var metaStartX = max.X - metaWidth;
+
+        DrawRunArtwork(run, min + new Vector2(1f, 1f), new Vector2(artworkWidth, max.Y - min.Y - 2f));
+        DrawVerticalDivider(scheduleStartX, min.Y, max.Y);
+        DrawVerticalDivider(metaStartX, min.Y, max.Y);
+
+        var left = new Vector2(mainStartX, min.Y + 20f);
+        var titleWidth = MathF.Max(120f, scheduleStartX - mainStartX - 20f);
         var textColor = ImGui.GetColorU32(ImGuiCol.Text);
         var disabledColor = ImGui.GetColorU32(ImGuiCol.TextDisabled);
-        var subtitle = run.ActivityType?.DisplayName ?? run.Name;
-        if (!string.IsNullOrWhiteSpace(subtitlePrefix))
+
+        drawList.AddText(left, textColor, TrimToWidth(run.Title, titleWidth));
+        drawList.AddText(left + new Vector2(0, 28f), disabledColor, TrimToWidth(GetGroupName(run.GroupId) ?? subtitlePrefix ?? "FullParty", titleWidth));
+        drawList.AddText(left + new Vector2(0, 64f), disabledColor, TrimToWidth(string.IsNullOrWhiteSpace(run.Notes) ? "No description provided." : run.Notes, titleWidth));
+
+        var schedule = new Vector2(scheduleStartX + 18f, min.Y + 40f);
+        DrawRunIconText(schedule, FontAwesomeIcon.CalendarAlt, $"{FormatRunDayLabel(run.StartsAt)} · {run.StartsAt:HH:mm} ST", textColor);
+        DrawRunIconText(schedule + new Vector2(0, 34f), FontAwesomeIcon.Globe, run.Datacenter ?? "Any DC", textColor);
+
+        var meta = new Vector2(metaStartX + 18f, min.Y + 40f);
+        var metaTitle = run.ApplicationCount is { } applications
+            ? $"{applications} Applications"
+            : run.NeedsApplication ? "Applications open" : "No applications";
+        drawList.AddText(meta, textColor, TrimToWidth(metaTitle, metaWidth - 34f));
+        drawList.AddText(meta + new Vector2(0, 34f), FullPartyModernPalette.Color(FullPartyModernPalette.Muted), TrimToWidth(FormatRelativeStart(run.StartsAt), metaWidth - 34f));
+    }
+
+    private void DrawRunArtwork(FullPartyRun run, Vector2 position, Vector2 size)
+    {
+        var drawList = ImGui.GetWindowDrawList();
+        drawList.AddRectFilled(position, position + size, FullPartyModernPalette.Color(FullPartyModernPalette.Elevated), 3f);
+
+        var imageUrl = run.ActivityType?.SmallImageUrl ?? run.ActivityType?.BannerImageUrl;
+        var path = plugin.ImageCache.GetImagePath(imageUrl, $"run-row-{run.Id}");
+        if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
         {
-            subtitle = $"{subtitlePrefix} - {subtitle}";
+            var texture = Plugin.TextureProvider.GetFromFile(path).GetWrapOrDefault();
+            if (texture != null)
+            {
+                var (uv0, uv1) = GetCoverUvs(texture.Size, size);
+                drawList.AddImageRounded(texture.Handle, position, position + size, uv0, uv1, ImGui.GetColorU32(ImGuiCol.Text), 3f);
+            }
         }
 
-        var meta = $"{run.StartsAt:HH:mm} - {FormatRunMeta(run)}";
+        drawList.AddRectFilled(position, position + size, ImGui.ColorConvertFloat4ToU32(new Vector4(0.02f, 0.02f, 0.03f, 0.34f)), 3f);
+        drawList.AddRect(position, position + size, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft), 3f);
 
-        drawList.AddText(left, textColor, TrimToWidth(run.Title, leftWidth));
-        drawList.AddText(left + new Vector2(0, 24f), disabledColor, TrimToWidth(subtitle, leftWidth));
-        drawList.AddText(right, textColor, TrimToWidth($"{run.StartsAt:MMM d}", rightWidth));
-        drawList.AddText(right + new Vector2(0, 24f), disabledColor, TrimToWidth(meta, rightWidth));
+    }
+
+    private static (Vector2 Uv0, Vector2 Uv1) GetCoverUvs(Vector2 imageSize, Vector2 targetSize)
+    {
+        if (imageSize.X <= 0 || imageSize.Y <= 0 || targetSize.X <= 0 || targetSize.Y <= 0)
+            return (Vector2.Zero, Vector2.One);
+
+        var imageAspect = imageSize.X / imageSize.Y;
+        var targetAspect = targetSize.X / targetSize.Y;
+
+        if (imageAspect > targetAspect)
+        {
+            var visibleWidth = targetAspect / imageAspect;
+            var offset = (1f - visibleWidth) * 0.5f;
+            return (new Vector2(offset, 0f), new Vector2(1f - offset, 1f));
+        }
+
+        var visibleHeight = imageAspect / targetAspect;
+        var verticalOffset = (1f - visibleHeight) * 0.5f;
+        return (new Vector2(0f, verticalOffset), new Vector2(1f, 1f - verticalOffset));
+    }
+
+    private static void DrawVerticalDivider(float x, float yMin, float yMax)
+    {
+        ImGui.GetWindowDrawList().AddLine(
+            new Vector2(x, yMin),
+            new Vector2(x, yMax),
+            FullPartyModernPalette.Color(FullPartyModernPalette.Border));
+    }
+
+    private static void DrawRunIconText(Vector2 position, FontAwesomeIcon icon, string text, uint color)
+    {
+        ImGui.SetCursorScreenPos(position);
+        using (ImRaii.PushColor(ImGuiCol.Text, FullPartyModernPalette.Muted))
+        {
+            ElezenImgui.ShowIcon(icon);
+        }
+
+        ImGui.GetWindowDrawList().AddText(position + new Vector2(26f, 0), color, text);
+    }
+
+    private static string FormatRunDayLabel(DateTimeOffset startsAt)
+    {
+        var today = GetServerTimeNow().Date;
+        var date = startsAt.Date;
+        if (date == today)
+            return "Today";
+
+        if (date == today.AddDays(1))
+            return "Tomorrow";
+
+        return startsAt.ToString("ddd d MMM");
     }
 
     private static string FormatRunMeta(FullPartyRun run)
@@ -698,6 +1616,43 @@ public class MainWindow : Window, IDisposable
 
         avatarSize *= MathF.Min(targetSize.X / avatarSize.X, targetSize.Y / avatarSize.Y);
         ImGui.Image(avatar.Handle, avatarSize);
+        return true;
+    }
+
+    private bool DrawRoundUserAvatar(FullPartyUser? user, float size)
+    {
+        var position = ImGui.GetCursorScreenPos();
+        var drawList = ImGui.GetWindowDrawList();
+        var center = position + new Vector2(size * 0.5f);
+        var radius = size * 0.5f;
+        var path = GetAvatarPath(user);
+
+        ImGui.InvisibleButton("##fullparty_sidebar_avatar", new Vector2(size, size));
+
+        drawList.AddCircleFilled(center, radius, FullPartyModernPalette.Color(FullPartyModernPalette.Elevated), 48);
+        drawList.AddCircle(center, radius, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft), 48, 1.5f);
+
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+        {
+            var initial = string.IsNullOrWhiteSpace(user?.Name) ? "F" : user.Name[..1].ToUpperInvariant();
+            var textSize = ImGui.CalcTextSize(initial);
+            drawList.AddText(center - (textSize * 0.5f), FullPartyModernPalette.Color(FullPartyModernPalette.Muted), initial);
+            return false;
+        }
+
+        var avatar = Plugin.TextureProvider.GetFromFile(path).GetWrapOrDefault();
+        if (avatar == null)
+            return false;
+
+        drawList.AddImageRounded(
+            avatar.Handle,
+            position,
+            position + new Vector2(size),
+            Vector2.Zero,
+            Vector2.One,
+            ImGui.GetColorU32(ImGuiCol.Text),
+            radius);
+        drawList.AddCircle(center, radius, FullPartyModernPalette.Color(FullPartyModernPalette.Brand), 48, 2f);
         return true;
     }
 

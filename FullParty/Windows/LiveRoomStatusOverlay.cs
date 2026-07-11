@@ -15,9 +15,11 @@ public sealed unsafe class LiveRoomStatusOverlay : Window, IDisposable
     private const float AccentWidth = 3f;
     private const float OverlayGap = -10f;
     private const float BadgeGap = 3f;
+    private static readonly Vector2 PromptSize = new(300f, 88f);
 
     private readonly Plugin plugin;
     private bool stylePushed;
+    private bool overlayWasDragged;
 
     public LiveRoomStatusOverlay(Plugin plugin)
         : base("FullParty Live Room Status##FullPartyLiveRoomStatusOverlay")
@@ -39,27 +41,48 @@ public sealed unsafe class LiveRoomStatusOverlay : Window, IDisposable
 
     public override bool DrawConditions()
     {
-        return plugin.LiveRoomManager.GetOverlayStatus() != null;
+        return plugin.LiveRoomManager.GetOverlayStatus() != null ||
+               plugin.LiveRoomManager.GetOverlayReadyCheckPrompt() != null;
     }
 
     public override void PreDraw()
     {
         var status = plugin.LiveRoomManager.GetOverlayStatus();
-        if (status == null)
+        var prompt = plugin.LiveRoomManager.GetOverlayReadyCheckPrompt();
+        if (status == null && prompt == null)
             return;
 
-        var statusSize = GetPillSize(status.Text);
-        var feedbackSize = status.Feedback == null ? Vector2.Zero : GetPillSize(status.Feedback.Text);
-        var width = MathF.Max(statusSize.X, feedbackSize.X);
-        var height = statusSize.Y + (status.Feedback == null ? 0f : feedbackSize.Y + BadgeGap);
+        var statusSize = status == null ? Vector2.Zero : GetPillSize(status.Text);
+        var feedbackSize = status?.Feedback == null ? Vector2.Zero : GetPillSize(status.Feedback.Text);
+        var width = MathF.Max(MathF.Max(statusSize.X, feedbackSize.X), prompt == null ? 0f : PromptSize.X);
+        var height = 0f;
+        if (prompt != null)
+            height += PromptSize.Y + BadgeGap;
 
-        var position = TryGetPartyListBounds(out var min, out _)
-            ? new Vector2(min.X, MathF.Max(0f, min.Y - statusSize.Y - OverlayGap - (status.Feedback == null ? 0f : feedbackSize.Y + BadgeGap)))
-            : ImGui.GetMainViewport().WorkPos + new Vector2(16f, 140f);
+        if (status?.Feedback != null)
+            height += feedbackSize.Y + BadgeGap;
+
+        if (status != null)
+            height += statusSize.Y;
+
+        var movable = plugin.Configuration.MovableLiveRoomStatus;
+        if (movable)
+        {
+            Flags &= ~ImGuiWindowFlags.NoSavedSettings;
+            Flags &= ~ImGuiWindowFlags.NoMove;
+        }
+        else
+        {
+            Flags |= ImGuiWindowFlags.NoSavedSettings;
+            Flags |= ImGuiWindowFlags.NoMove;
+            var position = TryGetPartyListBounds(out var min, out _)
+                ? new Vector2(min.X, MathF.Max(0f, min.Y - height - OverlayGap))
+                : ImGui.GetMainViewport().WorkPos + new Vector2(16f, 140f);
+            ImGui.SetNextWindowPos(position, ImGuiCond.Always);
+        }
 
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
         stylePushed = true;
-        ImGui.SetNextWindowPos(position, ImGuiCond.Always);
         ImGui.SetNextWindowSize(new Vector2(width, height), ImGuiCond.Always);
     }
 
@@ -75,30 +98,51 @@ public sealed unsafe class LiveRoomStatusOverlay : Window, IDisposable
     public override void Draw()
     {
         var status = plugin.LiveRoomManager.GetOverlayStatus();
-        if (status == null)
+        var prompt = plugin.LiveRoomManager.GetOverlayReadyCheckPrompt();
+        if (status == null && prompt == null)
             return;
 
         var y = 0f;
-        if (status.Feedback != null)
+        if (prompt != null)
+        {
+            DrawReadyCheckPrompt(prompt, y);
+            y += PromptSize.Y + BadgeGap;
+        }
+
+        if (status?.Feedback != null)
         {
             DrawPill(status.Feedback.Text, GetFeedbackColor(status.Feedback.Kind), y);
             y += GetPillSize(status.Feedback.Text).Y + BadgeGap;
         }
 
+        if (status == null)
+            return;
+
         DrawPill(status.Text, GetStatusColor(status.State), y);
 
         var statusSize = GetPillSize(status.Text);
         var canOpenRun = status.State == RealtimeRunRoomState.Connected;
+        var movable = plugin.Configuration.MovableLiveRoomStatus;
         var statusHovered = false;
-        if (canOpenRun)
+        if (canOpenRun || movable)
         {
             ImGui.SetCursorPos(new Vector2(0f, y));
-            if (ImGui.InvisibleButton("##fullparty_live_room_overlay_open_run", statusSize))
+            var clicked = ImGui.InvisibleButton("##fullparty_live_room_overlay_interaction", statusSize);
+            if (movable && ImGui.IsItemActive() && ImGui.IsMouseDragging(ImGuiMouseButton.Left))
+            {
+                ImGui.SetWindowPos(ImGui.GetWindowPos() + ImGui.GetIO().MouseDelta);
+                overlayWasDragged = true;
+            }
+
+            if (clicked && canOpenRun && !overlayWasDragged)
                 plugin.LiveRoomManager.OpenOverlayRunWindow();
 
             statusHovered = ImGui.IsItemHovered();
             if (statusHovered)
-                ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+                ImGui.SetMouseCursor(movable ? ImGuiMouseCursor.ResizeAll : ImGuiMouseCursor.Hand);
+
+            if (!ImGui.IsMouseDown(ImGuiMouseButton.Left))
+                overlayWasDragged = false;
         }
 
         if (!string.IsNullOrWhiteSpace(status.Detail) &&
@@ -115,6 +159,29 @@ public sealed unsafe class LiveRoomStatusOverlay : Window, IDisposable
     {
         var textSize = ImGui.CalcTextSize(text);
         return new Vector2(textSize.X + (HorizontalPadding * 2f) + AccentWidth, textSize.Y + (VerticalPadding * 2f));
+    }
+
+    private void DrawReadyCheckPrompt(FullPartyReadyCheckConfirmationPrompt prompt, float yOffset)
+    {
+        var drawList = ImGui.GetWindowDrawList();
+        var min = ImGui.GetWindowPos() + new Vector2(0f, yOffset);
+        var max = min + PromptSize;
+        drawList.AddRectFilled(min, max, FullPartyModernPalette.Color(FullPartyModernPalette.Surface with { W = 0.94f }), 5f);
+        drawList.AddRectFilled(min, new Vector2(min.X + AccentWidth, max.Y), FullPartyModernPalette.Color(new Vector4(0.92f, 0.70f, 0.24f, 1f)), 5f);
+        drawList.AddRect(min, max, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft), 5f);
+
+        ImGui.SetCursorScreenPos(min + new Vector2(HorizontalPadding + AccentWidth, 7f));
+        ImGui.TextUnformatted("Ready check confirmation");
+        ImGui.SetCursorScreenPos(min + new Vector2(HorizontalPadding + AccentWidth, 28f));
+        ImGui.TextDisabled($"{prompt.InitiatorName} is checking raid leads.");
+
+        ImGui.SetCursorScreenPos(min + new Vector2(HorizontalPadding + AccentWidth, 55f));
+        if (ImGui.Button("Ready##fullparty_overlay_ready_check_ready", new Vector2(92f, 24f)))
+            plugin.LiveRoomManager.ConfirmOverlayReadyCheck(true);
+
+        ImGui.SameLine();
+        if (ImGui.Button("Not Ready##fullparty_overlay_ready_check_not_ready", new Vector2(106f, 24f)))
+            plugin.LiveRoomManager.ConfirmOverlayReadyCheck(false);
     }
 
     private static Vector4 GetStatusColor(RealtimeRunRoomState state)

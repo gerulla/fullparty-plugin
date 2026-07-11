@@ -66,6 +66,25 @@ public sealed class LiveRoomManager : IDisposable
         return new LiveRoomOverlayStatus(text, client.State, detail, client.OverlayFeedback);
     }
 
+    internal FullPartyReadyCheckConfirmationPrompt? GetOverlayReadyCheckPrompt()
+    {
+        lock (stateLock)
+        {
+            return GetOverlayEntryNoLock()?.Client.ReadyCheckConfirmationPrompt;
+        }
+    }
+
+    internal void ConfirmOverlayReadyCheck(bool ready)
+    {
+        RealtimeRunRoomClient? client;
+        lock (stateLock)
+        {
+            client = GetOverlayEntryNoLock()?.Client;
+        }
+
+        client?.ConfirmReadyCheck(ready);
+    }
+
     public bool OpenOverlayRunWindow()
     {
         LiveRoomEntry? entry;

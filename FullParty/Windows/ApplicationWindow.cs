@@ -312,11 +312,13 @@ public sealed class ApplicationWindow : Window, IDisposable
     {
         var width = ImGui.GetContentRegionAvail().X;
         var columnWidth = (width - ImGui.GetStyle().ItemSpacing.X) * 0.5f;
+        var leftValueOffset = GetKeyValueOffset(left, columnWidth);
+        var rightValueOffset = GetKeyValueOffset(right, columnWidth);
 
         ImGui.BeginGroup();
         foreach (var item in left)
         {
-            DrawKeyValue(item.Label, item.Value, columnWidth);
+            DrawKeyValue(item.Label, item.Value, leftValueOffset);
         }
         ImGui.EndGroup();
 
@@ -325,15 +327,23 @@ public sealed class ApplicationWindow : Window, IDisposable
         ImGui.BeginGroup();
         foreach (var item in right)
         {
-            DrawKeyValue(item.Label, item.Value, columnWidth);
+            DrawKeyValue(item.Label, item.Value, rightValueOffset);
         }
         ImGui.EndGroup();
     }
 
-    private static void DrawKeyValue(string label, string value, float width)
+    private static float GetKeyValueOffset(IReadOnlyList<(string Label, string Value)> items, float columnWidth)
+    {
+        var longestLabel = items.Count == 0
+            ? 0f
+            : items.Max(item => ImGui.CalcTextSize(item.Label).X);
+        return MathF.Max(MathF.Max(96f, columnWidth * 0.42f), longestLabel + 12f);
+    }
+
+    private static void DrawKeyValue(string label, string value, float valueOffset)
     {
         ImGui.TextDisabled(label);
-        ImGui.SameLine(MathF.Max(96f, width * 0.42f));
+        ImGui.SameLine(valueOffset);
         ImGui.Text(value);
     }
 

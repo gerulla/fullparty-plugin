@@ -19,6 +19,7 @@ public sealed record FullPartyRun(
     string Status,
     string Name,
     string Title,
+    string? Notes,
     DateTimeOffset StartsAt,
     DateTimeOffset? EndsAt,
     int? DurationMinutes,
@@ -35,6 +36,59 @@ public sealed record FullPartyActivity(
     string? Difficulty,
     string? SmallImageUrl,
     string? BannerImageUrl);
+
+public sealed record FullPartyUserCharacter(
+    long Id,
+    bool IsPrimary,
+    string Name,
+    string World,
+    string Datacenter,
+    string? LodestoneId,
+    string? AvatarUrl,
+    bool IsVerified,
+    DateTimeOffset? VerifiedAt,
+    DateTimeOffset? LodestoneRefreshedAt,
+    string? AddMethod,
+    IReadOnlyList<FullPartyCharacterField> Fields,
+    IReadOnlyList<FullPartyCharacterClass> Classes,
+    FullPartyCharacterOccult? Occult);
+
+public sealed record FullPartyCharacterField(
+    string Key,
+    string Name,
+    string? Description,
+    string Type,
+    string Group,
+    string Source,
+    bool IsEditable,
+    string? Value);
+
+public sealed record FullPartyCharacterClass(
+    int Id,
+    string Name,
+    string Shorthand,
+    string Role,
+    string? IconUrl,
+    string? FlatIconUrl,
+    int? Level,
+    bool IsPreferred);
+
+public sealed record FullPartyCharacterOccult(
+    int? KnowledgeLevel,
+    FullPartyBloodProgress? BloodProgress,
+    IReadOnlyList<FullPartyCharacterPhantomJob> PhantomJobs);
+
+public sealed record FullPartyCharacterPhantomJob(
+    int Id,
+    string Name,
+    string? IconUrl,
+    string? BlackIconUrl,
+    string? TransparentIconUrl,
+    string? SpriteUrl,
+    int? CurrentLevel,
+    int? MaxLevel,
+    bool IsPreferred,
+    bool IsMaxed);
 
 public sealed record FullPartyRunDetail(
     int Id,

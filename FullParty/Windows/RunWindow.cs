@@ -38,6 +38,19 @@ internal enum ReadyCheckGlyph
     Clock,
 }
 
+internal enum RosterDataMode
+{
+    Off,
+    Validate,
+    Only,
+}
+
+internal enum RosterLayoutMode
+{
+    Normal,
+    SplitThreeByThree,
+}
+
 internal sealed record ObservedSnapshotMember(
     FullPartyPartySnapshot Snapshot,
     FullPartyPartySnapshotMember Member);
@@ -77,14 +90,10 @@ public sealed class RunWindow : Window, IDisposable
 {
     private static readonly Dictionary<string, uint?> JobIconCache = new(StringComparer.OrdinalIgnoreCase);
     private static IReadOnlyDictionary<string, string>? phantomJobIconFileCache;
-    private const float RunWindowDefaultWidth = 420f;
-    private const float RunWindowDefaultHeight = 560f;
-    private const float RunWindowMinWidth = 420f;
-    private const float RunWindowMinHeight = 360f;
-    private const float CompactRunWindowDefaultWidth = 340f;
-    private const float CompactRunWindowDefaultHeight = 260f;
-    private const float CompactRunWindowMinWidth = 260f;
-    private const float CompactRunWindowMinHeight = 160f;
+    private const float RunWindowDefaultWidth = 680f;
+    private const float RunWindowDefaultHeight = 860f;
+    private const float RunWindowMinWidth = 500f;
+    private const float RunWindowMinHeight = 560f;
     private const float RosterCompanionDefaultWidth = 980f;
     private const float RosterCompanionDefaultHeight = 560f;
     private const float RosterCompanionMinWidth = 620f;
@@ -95,6 +104,7 @@ public sealed class RunWindow : Window, IDisposable
     private readonly Plugin plugin;
     private readonly CancellationTokenSource cancellation = new();
     private readonly RealtimeRunRoomClient liveRoom;
+    private readonly RunMiniWindow miniWindow;
     private Task<FullPartyRunDetail?>? detailTask;
     private Task<RunCheckInSummary>? checkInTask;
     private FullPartyRunDetail? detail;
@@ -104,10 +114,15 @@ public sealed class RunWindow : Window, IDisposable
     private Vector2 rosterCompanionSize = new(RosterCompanionDefaultWidth, RosterCompanionDefaultHeight);
     private bool hasRosterCompanionSize;
     private bool applyRosterCompanionSizeNextDraw = true;
-    private bool compactMode;
     private bool? lastOccultState;
     private string? readyCheckPromptPopupRequestId;
     private bool windowStylePushed;
+    private Vector2 runContentClipMin;
+    private Vector2 runContentClipMax;
+    private string rosterSearch = string.Empty;
+    private RosterLayoutMode rosterLayoutMode;
+    private RosterDataMode rosterDataMode = RosterDataMode.Off;
+    private bool rosterShowEmptySlots = true;
 
     public FullPartyRun Run { get; }
 
@@ -117,6 +132,11 @@ public sealed class RunWindow : Window, IDisposable
         Run = run;
         this.plugin = plugin;
         liveRoom = plugin.LiveRoomManager.GetOrCreate(run);
+        miniWindow = new RunMiniWindow(this, run);
+        rosterViewMode = plugin.Configuration.RosterHiddenByDefault
+            ? RunRosterViewMode.None
+            : RunRosterViewMode.Roster;
+        plugin.WindowSystem.AddWindow(miniWindow);
         ApplySizeConstraints();
         Size = new Vector2(RunWindowDefaultWidth, RunWindowDefaultHeight);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -125,6 +145,7 @@ public sealed class RunWindow : Window, IDisposable
 
     public void Dispose()
     {
+        miniWindow.IsOpen = false;
         cancellation.Cancel();
         cancellation.Dispose();
     }
@@ -159,53 +180,236 @@ public sealed class RunWindow : Window, IDisposable
 
         var runWindowPosition = ImGui.GetWindowPos();
         var runWindowSize = ImGui.GetWindowSize();
+        UpdateCurrentWindowClipBounds(runWindowPosition, runWindowSize);
         var isLoading = detailTask is { IsCompleted: false };
-        DrawPartyActionsSection(detail?.CanModerate == true);
-        if (!compactMode)
-        {
-            DrawSectionSeparator();
-            DrawRosterControls(isLoading);
-        }
 
-        DrawSectionSeparator();
+        DrawRunStatusStrip();
+        ImGui.Spacing();
+
+        DrawPartyActionsSection(detail?.CanModerate == true, true);
+        ImGui.Spacing();
+        DrawRosterControls(isLoading);
+
+        ImGui.Spacing();
+
         DrawLiveRoom();
         DrawReadyCheckConfirmationPopup();
-        if (!compactMode)
-            DrawRosterCompanion(runWindowPosition, runWindowSize, isLoading);
+        DrawRosterCompanion(runWindowPosition, runWindowSize, isLoading);
     }
 
-    private void SetCompactMode(bool value)
+    internal void DrawMiniContent()
     {
-        if (compactMode == value)
-            return;
+        using var palette = ModernWindowStyle.PushContentPalette();
+        EnsureDetailLoaded();
+        ObserveCheckInTask();
 
-        compactMode = value;
-        ApplySizeConstraints();
+        var position = ImGui.GetWindowPos();
+        var size = ImGui.GetWindowSize();
+        UpdateCurrentWindowClipBounds(position, size);
 
-        if (compactMode)
+        DrawMiniPartyActions(detail?.CanModerate == true);
+        ImGui.Spacing();
+        DrawMiniLiveMembersSection();
+        DrawReadyCheckConfirmationPopup();
+    }
+
+    private void DrawMiniPartyActions(bool canModerate)
+    {
+        BeginRunPanel("mini_party_actions", FontAwesomeIcon.Users, "Party Actions", 148f);
+
+        var width = ImGui.GetContentRegionAvail().X;
+        var gap = ImGui.GetStyle().ItemSpacing.X;
+        var buttonWidth = (width - gap) * 0.5f;
+        var canSendLiveCommand = canModerate && liveRoom.State == RealtimeRunRoomState.Connected && !liveRoom.IsIssuingCommand;
+        if (!canSendLiveCommand)
+            ImGui.BeginDisabled();
+
+        if (DrawRunActionButton(FontAwesomeIcon.Search, "Leads", buttonWidth, true))
+            liveRoom.SendReadyCheckLeads();
+
+        ImGui.SameLine();
+        if (DrawRunActionButton(FontAwesomeIcon.Users, "Parties", buttonWidth, true))
+            liveRoom.SendReadyCheckParty();
+
+        ImGui.Spacing();
+        if (DrawRunActionButton(FontAwesomeIcon.HourglassHalf, "Countdown", buttonWidth, true))
+            liveRoom.SendCountdown(20);
+
+        if (!canSendLiveCommand)
+            ImGui.EndDisabled();
+
+        EndRunPanel();
+    }
+
+    private void DrawMiniLiveMembersSection()
+    {
+        var members = liveRoom.Members;
+        var panelHeight = MathF.Max(142f, 76f + (members.Count * 42f));
+        BeginRunPanel("mini_live_members", FontAwesomeIcon.Users, $"Members ({members.Count})", panelHeight);
+
+        if (members.Count == 0)
         {
-            ImGui.SetWindowSize(new Vector2(CompactRunWindowDefaultWidth, CompactRunWindowDefaultHeight), ImGuiCond.Always);
+            ImGui.TextDisabled(liveRoom.State == RealtimeRunRoomState.Connected
+                ? "No members yet."
+                : "Disconnected.");
+            EndRunPanel();
             return;
         }
 
-        ImGui.SetWindowSize(new Vector2(RunWindowDefaultWidth, RunWindowDefaultHeight), ImGuiCond.Always);
+        ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, new Vector2(4f, 6f));
+        ImGui.PushStyleColor(ImGuiCol.TableHeaderBg, FullPartyModernPalette.BrandSoft with { W = 0.96f });
+        ImGui.PushStyleColor(ImGuiCol.TableRowBg, FullPartyModernPalette.Elevated with { W = 0.30f });
+        ImGui.PushStyleColor(ImGuiCol.TableRowBgAlt, FullPartyModernPalette.BrandSoft with { W = 0.18f });
+        ImGui.PushStyleColor(ImGuiCol.TableBorderStrong, FullPartyModernPalette.BorderSoft);
+        ImGui.PushStyleColor(ImGuiCol.TableBorderLight, FullPartyModernPalette.Border);
+
+        var flags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp;
+        if (!ImGui.BeginTable("##fullparty_mini_live_members", 3, flags))
+        {
+            ImGui.PopStyleColor(5);
+            ImGui.PopStyleVar();
+            EndRunPanel();
+            return;
+        }
+
+        ImGui.TableSetupColumn("Profile", ImGuiTableColumnFlags.WidthStretch, 1.6f);
+        ImGui.TableSetupColumn("Party", ImGuiTableColumnFlags.WidthStretch, 0.65f);
+        ImGui.TableSetupColumn("Command", ImGuiTableColumnFlags.WidthStretch, 1f);
+
+        ImGui.TableNextRow(ImGuiTableRowFlags.Headers, 30f);
+        foreach (var label in new[] { "PROFILE", "PTY", "CMD" })
+        {
+            ImGui.TableNextColumn();
+            ImGui.TextColored(FullPartyModernPalette.Brand with { X = 0.76f, Y = 0.58f, Z = 0.96f }, label);
+        }
+
+        foreach (var member in members)
+        {
+            ImGui.TableNextRow(ImGuiTableRowFlags.None, 36f);
+
+            ImGui.TableNextColumn();
+            DrawMiniLiveMemberProfile(member);
+
+            ImGui.TableNextColumn();
+            ImGui.TextUnformatted(TrimToWidth(liveRoom.GetSyncedPartyLabel(member), ImGui.GetContentRegionAvail().X));
+
+            ImGui.TableNextColumn();
+            var commandText = liveRoom.TryGetReadyCheckSummary(member, out var summary)
+                ? $"{summary.Ready}/{summary.Total}"
+                : liveRoom.GetCommandStatus(member);
+            ImGui.TextColored(
+                GetLiveCommandStatusColor(commandText),
+                TrimToWidth(commandText, ImGui.GetContentRegionAvail().X));
+        }
+
+        ImGui.EndTable();
+        ImGui.PopStyleColor(5);
+        ImGui.PopStyleVar();
+        EndRunPanel();
+    }
+
+    private void DrawMiniLiveMemberProfile(FullPartyLiveMember member)
+    {
+        const float avatarSize = 20f;
+        var avatarPosition = ImGui.GetCursorScreenPos();
+        var avatarDrawn = false;
+        var path = plugin.ImageCache.GetImagePath(member.AvatarUrl, $"live-member-{member.UserId}");
+        if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+        {
+            var texture = Plugin.TextureProvider.GetFromFile(path).GetWrapOrDefault();
+            if (texture != null)
+            {
+                ImGui.Dummy(new Vector2(avatarSize, avatarSize));
+                ImGui.GetWindowDrawList().AddImageRounded(
+                    texture.Handle,
+                    avatarPosition,
+                    avatarPosition + new Vector2(avatarSize, avatarSize),
+                    Vector2.Zero,
+                    Vector2.One,
+                    ImGui.GetColorU32(ImGuiCol.Text),
+                    avatarSize * 0.5f);
+                avatarDrawn = true;
+            }
+        }
+
+        if (!avatarDrawn)
+        {
+            ImGui.Dummy(new Vector2(avatarSize, avatarSize));
+            ImGui.GetWindowDrawList().AddCircleFilled(
+                avatarPosition + new Vector2(avatarSize * 0.5f),
+                avatarSize * 0.5f,
+                FullPartyModernPalette.Color(FullPartyModernPalette.Elevated));
+        }
+
+        ImGui.SameLine(0f, 4f);
+        ImGui.TextUnformatted(TrimToWidth(member.DisplayName, MathF.Max(20f, ImGui.GetContentRegionAvail().X)));
+    }
+
+    private void UpdateCurrentWindowClipBounds(Vector2 windowPosition, Vector2 windowSize)
+    {
+        runContentClipMin = new Vector2(
+            windowPosition.X,
+            windowPosition.Y + ImGui.GetFrameHeight());
+        runContentClipMax = windowPosition + windowSize;
+    }
+
+    private void DrawRunStatusStrip()
+    {
+        const float height = 82f;
+        var start = ImGui.GetCursorScreenPos();
+        var width = ImGui.GetContentRegionAvail().X;
+        var end = start + new Vector2(width, height);
+        var drawList = ImGui.GetWindowDrawList();
+
+        drawList.AddRectFilled(start, end, FullPartyModernPalette.Color(FullPartyModernPalette.Surface with { W = 0.94f }), 7f);
+        drawList.AddRect(start, end, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft), 7f);
+        DrawPanelDecoration(drawList, start, end);
+
+        var statusColor = GetLiveRoomStatusColor();
+        var statusCenter = start + new Vector2(34f, height * 0.5f);
+        drawList.AddCircleFilled(statusCenter, 8f, FullPartyModernPalette.Color(statusColor));
+        drawList.AddCircle(statusCenter, 17f, FullPartyModernPalette.Color(statusColor with { W = 0.20f }), 24, 2f);
+
+        var connected = liveRoom.State == RealtimeRunRoomState.Connected;
+        drawList.AddText(start + new Vector2(58f, 22f), FullPartyModernPalette.Color(FullPartyModernPalette.Text), connected ? "Connected" : liveRoom.StatusMessage);
+        drawList.AddText(start + new Vector2(58f, 45f), FullPartyModernPalette.Color(FullPartyModernPalette.Muted), "Live Room");
+
+        var firstDividerX = start.X + (width * 0.31f);
+        var secondDividerX = start.X + (width * 0.52f);
+        DrawVerticalPanelDivider(drawList, firstDividerX, start.Y + 18f, end.Y - 18f);
+        DrawVerticalPanelDivider(drawList, secondDividerX, start.Y + 18f, end.Y - 18f);
+
+        drawList.AddText(new Vector2(firstDividerX + 28f, start.Y + 22f), FullPartyModernPalette.Color(FullPartyModernPalette.Text), DateTime.Now.ToString("HH:mm"));
+        drawList.AddText(new Vector2(firstDividerX + 28f, start.Y + 45f), FullPartyModernPalette.Color(FullPartyModernPalette.Muted), "Local Time");
+
+        var user = plugin.AuthService.User;
+        var avatarPosition = new Vector2(secondDividerX + 24f, start.Y + 18f);
+        DrawStatusAvatar(drawList, user?.AvatarUrl, user?.Id ?? 0, avatarPosition, 46f);
+        drawList.AddText(avatarPosition + new Vector2(58f, 6f), FullPartyModernPalette.Color(FullPartyModernPalette.Text), user?.Name ?? "FullParty user");
+        drawList.AddText(avatarPosition + new Vector2(58f, 28f), FullPartyModernPalette.Color(statusColor), connected ? "Connected" : "Offline");
+
+        ImGui.SetCursorScreenPos(start);
+        ImGui.InvisibleButton("##fullparty_run_status_strip", new Vector2(width, height));
     }
 
     private void ApplySizeConstraints()
     {
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = compactMode
-                ? new Vector2(CompactRunWindowMinWidth, CompactRunWindowMinHeight)
-                : new Vector2(RunWindowMinWidth, RunWindowMinHeight),
+            MinimumSize = new Vector2(RunWindowMinWidth, RunWindowMinHeight),
             MaximumSize = new Vector2(float.MaxValue, float.MaxValue),
         };
     }
 
-    private void DrawPartyActionsSection(bool canModerate)
+    private void DrawPartyActionsSection(bool canModerate, bool showMiniWindowButton)
     {
-        FullPartyModernPalette.SectionHeader(FontAwesomeIcon.Users, "Party Actions");
-        ImGui.Spacing();
+        var panelHeight = showMiniWindowButton ? 212f : 158f;
+        if (!string.IsNullOrWhiteSpace(checkInStatusMessage))
+            panelHeight += 28f;
+        if (liveRoom.ReadyCheckConfirmationPrompt != null)
+            panelHeight += 112f;
+
+        BeginRunPanel("party_actions", FontAwesomeIcon.Users, "Party Actions", panelHeight);
 
         var canSendLiveCommand = canModerate && liveRoom.State == RealtimeRunRoomState.Connected && !liveRoom.IsIssuingCommand;
         if (!canSendLiveCommand)
@@ -213,19 +417,24 @@ public sealed class RunWindow : Window, IDisposable
 
         var readyLeadsLabel = "1. Check Leads";
         var readyPartyLabel = "2. Check Parties";
-        var countdownLabel = compactMode ? "Countdown" : "Start Countdown";
+        const string countdownLabel = "Start Countdown";
 
-        if (ImGui.Button(readyLeadsLabel))
+        var availableWidth = ImGui.GetContentRegionAvail().X;
+        var gap = ImGui.GetStyle().ItemSpacing.X;
+        var primaryWidth = (availableWidth - gap) * 0.5f;
+
+        if (DrawRunActionButton(FontAwesomeIcon.Search, readyLeadsLabel, primaryWidth, true))
             liveRoom.SendReadyCheckLeads();
 
-        SameLineIfButtonFits(readyPartyLabel);
+        ImGui.SameLine();
 
-        if (ImGui.Button(readyPartyLabel))
+        if (DrawRunActionButton(FontAwesomeIcon.Users, readyPartyLabel, primaryWidth, true))
             liveRoom.SendReadyCheckParty();
 
         ImGui.Spacing();
 
-        if (ImGui.Button(countdownLabel))
+        var secondaryWidth = (availableWidth - gap) * 0.5f;
+        if (DrawRunActionButton(FontAwesomeIcon.HourglassHalf, countdownLabel, secondaryWidth, true))
             liveRoom.SendCountdown(20);
 
         if (!canSendLiveCommand)
@@ -235,42 +444,37 @@ public sealed class RunWindow : Window, IDisposable
         var waitingForAdventurerList = OccultCrescentTerritory.IsCurrent() && plugin.AdventurerList.IsRefreshing;
         var canCheckIn = detail != null && !isCheckingIn && !waitingForAdventurerList;
         var checkInLabel = isCheckingIn
-            ? compactMode ? "Checking..." : "Checking In..."
-            : compactMode ? "Check-In" : "Run Check-In";
+            ? "Checking In..."
+            : "Run Check-In";
 
-        SameLineIfButtonFits(checkInLabel);
+        ImGui.SameLine();
 
         if (!canCheckIn)
             ImGui.BeginDisabled();
 
-        if (ImGui.Button(checkInLabel))
+        if (DrawRunActionButton(FontAwesomeIcon.ClipboardCheck, checkInLabel, secondaryWidth, true))
             StartRunCheckIn();
 
         if (!canCheckIn)
             ImGui.EndDisabled();
 
-        var compactLabel = compactMode ? "Uncompact" : "Compact";
-        SameLineIfButtonFits(compactLabel);
-        if (ImGui.Button(compactLabel))
-            SetCompactMode(!compactMode);
+        if (showMiniWindowButton)
+        {
+            ImGui.Spacing();
+
+            if (DrawRunActionButton(FontAwesomeIcon.ExternalLinkAlt, "Open Mini Window", availableWidth, true))
+                miniWindow.IsOpen = true;
+        }
 
         DrawReadyCheckConfirmationInline();
 
         if (!string.IsNullOrWhiteSpace(checkInStatusMessage))
         {
             ImGui.Spacing();
-            ImGui.TextWrapped(checkInStatusMessage);
+            ImGui.TextColored(FullPartyModernPalette.Muted, checkInStatusMessage);
         }
-    }
 
-    private static void SameLineIfButtonFits(string nextButtonLabel)
-    {
-        var style = ImGui.GetStyle();
-        var nextWidth = ImGui.CalcTextSize(nextButtonLabel).X + (style.FramePadding.X * 2f);
-        var nextRight = ImGui.GetItemRectMax().X + style.ItemSpacing.X + nextWidth;
-        var contentRight = ImGui.GetWindowPos().X + ImGui.GetWindowContentRegionMax().X;
-        if (nextRight <= contentRight)
-            ImGui.SameLine();
+        EndRunPanel();
     }
 
     private void DrawReadyCheckConfirmationInline()
@@ -345,26 +549,35 @@ public sealed class RunWindow : Window, IDisposable
 
     private void DrawRosterControls(bool isLoading)
     {
-        FullPartyModernPalette.SectionHeader(FontAwesomeIcon.InfoCircle, "Roster");
-        ImGui.Spacing();
+        var panelHeight = isLoading || !string.IsNullOrWhiteSpace(detailError) || detail == null ? 136f : 112f;
+        BeginRunPanel("roster_controls", FontAwesomeIcon.User, "Roster", panelHeight);
+
+        var availableWidth = ImGui.GetContentRegionAvail().X;
+        var gap = ImGui.GetStyle().ItemSpacing.X;
+        var buttonWidth = (availableWidth - gap) * 0.5f;
 
         if (isLoading)
             ImGui.BeginDisabled();
 
-        if (ImGui.Button("Refresh Data"))
+        if (DrawRunActionButton(FontAwesomeIcon.SyncAlt, "Refresh Data", buttonWidth, true, true))
             RefreshRosterData();
 
         if (isLoading)
             ImGui.EndDisabled();
 
-        ImGui.Spacing();
-        DrawRosterModeButton("Show Roster", RunRosterViewMode.Roster);
         ImGui.SameLine();
-        DrawRosterModeButton("Show Party View", RunRosterViewMode.Party);
-        ImGui.Spacing();
-        DrawRosterModeButton("Show Validation View", RunRosterViewMode.Validate);
-        ImGui.SameLine();
-        DrawRosterModeButton("Show None", RunRosterViewMode.None);
+        var rosterVisible = rosterViewMode != RunRosterViewMode.None;
+        if (DrawRunActionButton(
+                rosterVisible ? FontAwesomeIcon.EyeSlash : FontAwesomeIcon.List,
+                rosterVisible ? "Hide Roster" : "Show Roster",
+                buttonWidth,
+                true,
+                rosterVisible))
+        {
+            rosterViewMode = rosterVisible ? RunRosterViewMode.None : RunRosterViewMode.Roster;
+            if (!rosterVisible)
+                applyRosterCompanionSizeNextDraw = true;
+        }
 
         if (isLoading)
             ImGui.TextDisabled("Loading roster...");
@@ -372,6 +585,8 @@ public sealed class RunWindow : Window, IDisposable
             ImGui.TextWrapped(detailError);
         else if (detail == null)
             ImGui.TextDisabled("No roster loaded.");
+
+        EndRunPanel();
     }
 
     private void DrawRosterCompanion(Vector2 runWindowPosition, Vector2 runWindowSize, bool isLoading)
@@ -419,95 +634,102 @@ public sealed class RunWindow : Window, IDisposable
 
     private void DrawLiveRoom()
     {
-        if (!compactMode)
+        BeginRunPanel("live_room", FontAwesomeIcon.Cloud, "Live Room", 128f);
+
+        var isBusy = liveRoom.IsBusy;
+        var statusColor = GetLiveRoomStatusColor();
+        var rowStart = ImGui.GetCursorScreenPos();
+        var statusCenter = rowStart + new Vector2(28f, 31f);
+        var drawList = ImGui.GetWindowDrawList();
+        drawList.AddCircleFilled(statusCenter, 23f, FullPartyModernPalette.Color(statusColor with { W = 0.16f }));
+        drawList.AddCircle(statusCenter, 23f, FullPartyModernPalette.Color(statusColor with { W = 0.45f }), 28, 1.5f);
+        drawList.AddCircleFilled(statusCenter, 7f, FullPartyModernPalette.Color(statusColor));
+
+        var statusTitle = liveRoom.State == RealtimeRunRoomState.Connected
+            ? "Connected to live room"
+            : liveRoom.StatusMessage;
+        drawList.AddText(rowStart + new Vector2(66f, 11f), FullPartyModernPalette.Color(statusColor), statusTitle);
+        var statusDetail = liveRoom.PartySnapshotStatusMessage ?? liveRoom.CommandStatusMessage ?? "Party sync waits for Occult Crescent.";
+        drawList.AddText(rowStart + new Vector2(66f, 36f), FullPartyModernPalette.Color(FullPartyModernPalette.Muted), TrimToWidth(statusDetail, MathF.Max(80f, ImGui.GetContentRegionAvail().X - 270f)));
+
+        var actionWidth = liveRoom.IsActive ? 150f : 178f;
+        ImGui.SetCursorScreenPos(new Vector2(rowStart.X + ImGui.GetContentRegionAvail().X - actionWidth, rowStart.Y + 11f));
+        if (liveRoom.IsActive)
         {
-            FullPartyModernPalette.SectionHeader(FontAwesomeIcon.Cloud, "Live Room");
-            ImGui.Spacing();
+            if (DrawRunActionButton(FontAwesomeIcon.SignOutAlt, "Disconnect", actionWidth, true))
+                liveRoom.Disconnect();
+        }
+        else
+        {
+            if (isBusy)
+                ImGui.BeginDisabled();
 
-            var isBusy = liveRoom.IsBusy;
-            if (liveRoom.IsActive)
-            {
-                if (ImGui.Button("Disconnect Live Room"))
-                    liveRoom.Disconnect();
-            }
-            else
-            {
-                if (isBusy)
-                    ImGui.BeginDisabled();
+            if (DrawRunActionButton(FontAwesomeIcon.Cloud, "Connect to Live Room", actionWidth, true, true))
+                liveRoom.Connect();
 
-                if (ImGui.Button("Connect To Live Room"))
-                    liveRoom.Connect();
-
-                if (isBusy)
-                    ImGui.EndDisabled();
-            }
-
-            var statusColor = liveRoom.State switch
-            {
-                RealtimeRunRoomState.Connected => new Vector4(0.35f, 0.92f, 0.55f, 1f),
-                RealtimeRunRoomState.Error => new Vector4(1f, 0.42f, 0.42f, 1f),
-                RealtimeRunRoomState.Disconnected => new Vector4(0.65f, 0.65f, 0.70f, 1f),
-                _ => new Vector4(0.90f, 0.82f, 0.50f, 1f),
-            };
-
-            ImGui.SameLine();
-            ImGui.TextColored(statusColor, liveRoom.StatusMessage);
-
-            if (!string.IsNullOrWhiteSpace(liveRoom.CommandStatusMessage))
-            {
-                ImGui.TextDisabled(liveRoom.CommandStatusMessage);
-            }
-
-            if (!string.IsNullOrWhiteSpace(liveRoom.PartySnapshotStatusMessage))
-            {
-                ImGui.TextDisabled(liveRoom.PartySnapshotStatusMessage);
-            }
-
-            if (plugin.Configuration.ShowLiveRoomData)
-            {
-                DrawLiveRoomDebugData();
-            }
+            if (isBusy)
+                ImGui.EndDisabled();
         }
 
+        ImGui.SetCursorScreenPos(rowStart + new Vector2(0, 63f));
+        ImGui.Dummy(new Vector2(1f, 1f));
+        EndRunPanel();
+
+        if (plugin.Configuration.ShowLiveRoomData)
+            DrawLiveRoomDebugData();
+
+        DrawLiveMembersSection(false);
+    }
+
+    private void DrawLiveMembersSection(bool alwaysShow)
+    {
         var members = liveRoom.Members;
-        if (!liveRoom.IsActive && members.Count == 0 && liveRoom.State != RealtimeRunRoomState.Error)
+        if (!alwaysShow && !liveRoom.IsActive && members.Count == 0 && liveRoom.State != RealtimeRunRoomState.Error)
             return;
 
-        if (!compactMode)
-        {
-            ImGui.Spacing();
-            ImGui.Separator();
-            ImGui.Spacing();
-        }
+        ImGui.Spacing();
+        var memberPanelHeight = MathF.Max(160f, 78f + (members.Count * 54f));
+        BeginRunPanel("live_members", FontAwesomeIcon.Users, "Members", memberPanelHeight, $"{members.Count} {(members.Count == 1 ? "Member" : "Members")}");
 
         if (members.Count == 0)
         {
             ImGui.TextDisabled(liveRoom.State == RealtimeRunRoomState.Connected
                 ? "No connected characters yet."
                 : "Connect to see live characters.");
+            EndRunPanel();
             return;
         }
 
-        var flags = ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp;
-        var columnCount = compactMode ? 3 : 4;
-        if (!ImGui.BeginTable($"##fullparty_live_room_members_{(compactMode ? "compact" : "full")}", columnCount, flags))
+        var flags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp;
+        const int columnCount = 4;
+        ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, new Vector2(10f, 9f));
+        ImGui.PushStyleColor(ImGuiCol.TableHeaderBg, FullPartyModernPalette.BrandSoft with { W = 0.96f });
+        ImGui.PushStyleColor(ImGuiCol.TableRowBg, FullPartyModernPalette.Elevated with { W = 0.30f });
+        ImGui.PushStyleColor(ImGuiCol.TableRowBgAlt, FullPartyModernPalette.BrandSoft with { W = 0.18f });
+        ImGui.PushStyleColor(ImGuiCol.TableBorderStrong, FullPartyModernPalette.BorderSoft);
+        ImGui.PushStyleColor(ImGuiCol.TableBorderLight, FullPartyModernPalette.Border);
+
+        if (!ImGui.BeginTable("##fullparty_live_room_members", columnCount, flags))
+        {
+            ImGui.PopStyleColor(5);
+            ImGui.PopStyleVar();
+            EndRunPanel();
             return;
+        }
 
         ImGui.TableSetupColumn("Profile", ImGuiTableColumnFlags.WidthStretch, 1.4f);
-        ImGui.TableSetupColumn("Party", ImGuiTableColumnFlags.WidthStretch, compactMode ? 0.7f : 1f);
-
+        ImGui.TableSetupColumn("Party", ImGuiTableColumnFlags.WidthStretch, 1f);
         ImGui.TableSetupColumn("Command", ImGuiTableColumnFlags.WidthStretch, 1.2f);
-        if (!compactMode)
-            ImGui.TableSetupColumn("Role", ImGuiTableColumnFlags.WidthFixed, 96f);
+        ImGui.TableSetupColumn("Role / Connection", ImGuiTableColumnFlags.WidthFixed, 132f);
 
-        ImGui.TableHeadersRow();
+        DrawLiveMembersTableHeader();
 
         foreach (var member in members)
         {
-            ImGui.TableNextRow();
+            ImGui.TableNextRow(ImGuiTableRowFlags.None, 48f);
 
             ImGui.TableNextColumn();
-            DrawLiveMemberCharacter(member, compactMode);
+            DrawLiveMemberCharacter(member);
 
             ImGui.TableNextColumn();
             ImGui.TextUnformatted(liveRoom.GetSyncedPartyLabel(member));
@@ -515,14 +737,39 @@ public sealed class RunWindow : Window, IDisposable
             ImGui.TableNextColumn();
             DrawLiveCommandStatus(member);
 
-            if (!compactMode)
-            {
-                ImGui.TableNextColumn();
-                ImGui.TextUnformatted(GetLiveMemberRole(member));
-            }
+            ImGui.TableNextColumn();
+            DrawLiveMemberConnection(member);
         }
 
         ImGui.EndTable();
+        ImGui.PopStyleColor(5);
+        ImGui.PopStyleVar();
+        EndRunPanel();
+    }
+
+    private static void DrawLiveMembersTableHeader()
+    {
+        var labels = new[] { "PROFILE", "PARTY", "COMMAND", "ROLE / CONNECTION" };
+
+        ImGui.TableNextRow(ImGuiTableRowFlags.Headers, 34f);
+        foreach (var label in labels)
+        {
+            ImGui.TableNextColumn();
+            ImGui.TextColored(FullPartyModernPalette.Brand with { X = 0.76f, Y = 0.58f, Z = 0.96f }, label);
+        }
+    }
+
+    private void DrawLiveMemberConnection(FullPartyLiveMember member)
+    {
+        var connected = liveRoom.State == RealtimeRunRoomState.Connected;
+        var color = connected
+            ? new Vector4(0.32f, 0.92f, 0.54f, 1f)
+            : FullPartyModernPalette.Muted;
+        var cursor = ImGui.GetCursorScreenPos();
+        var center = cursor + new Vector2(5f, ImGui.GetTextLineHeight() * 0.5f);
+        ImGui.GetWindowDrawList().AddCircleFilled(center, 4f, FullPartyModernPalette.Color(color));
+        ImGui.SetCursorScreenPos(cursor + new Vector2(15f, 0f));
+        ImGui.TextColored(color, GetLiveMemberRole(member));
     }
 
     private void DrawLiveRoomDebugData()
@@ -756,21 +1003,164 @@ public sealed class RunWindow : Window, IDisposable
         }
     }
 
-    private void DrawRosterModeButton(string label, RunRosterViewMode mode)
+    private static bool DrawRunActionButton(
+        FontAwesomeIcon icon,
+        string label,
+        float? width = null,
+        bool tall = false,
+        bool emphasized = false)
     {
-        var selected = rosterViewMode == mode;
-        if (selected)
-            ImGui.BeginDisabled();
+        ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(12f, tall ? 11f : 6f));
+        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 6f);
+        ImGui.PushStyleColor(
+            ImGuiCol.Button,
+            emphasized
+                ? FullPartyModernPalette.BrandSoft with { W = 0.98f }
+                : FullPartyModernPalette.Elevated with { W = 0.82f });
+        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, FullPartyModernPalette.BrandSoft);
+        ImGui.PushStyleColor(ImGuiCol.ButtonActive, FullPartyModernPalette.BrandHover);
+        ImGui.PushStyleColor(
+            ImGuiCol.Border,
+            emphasized
+                ? FullPartyModernPalette.Brand with { W = 0.90f }
+                : FullPartyModernPalette.BorderSoft);
 
-        if (ImGui.Button(label))
+        var clicked = FullPartyModernPalette.IconButton(icon, label, width);
+
+        ImGui.PopStyleColor(4);
+        ImGui.PopStyleVar(2);
+        return clicked;
+    }
+
+    private void BeginRunPanel(
+        string id,
+        FontAwesomeIcon icon,
+        string title,
+        float height,
+        string? badge = null)
+    {
+        ImGui.PushStyleColor(ImGuiCol.ChildBg, FullPartyModernPalette.Surface with { W = 0.88f });
+        ImGui.PushStyleColor(ImGuiCol.Border, FullPartyModernPalette.BorderSoft);
+        ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 0f);
+        ImGui.PushStyleVar(ImGuiStyleVar.ChildBorderSize, 1f);
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(14f, 12f));
+        ImGui.BeginChild($"##fullparty_run_panel_{id}", new Vector2(0f, height), true, ImGuiWindowFlags.NoScrollbar);
+        ImGui.PopStyleVar(3);
+        ImGui.PopStyleColor(2);
+
+        DrawRunPanelHeader(icon, title, badge);
+    }
+
+    private static void EndRunPanel()
+    {
+        ImGui.EndChild();
+    }
+
+    private void DrawRunPanelHeader(FontAwesomeIcon icon, string title, string? badge)
+    {
+        var drawList = ImGui.GetWindowDrawList();
+        var windowPosition = ImGui.GetWindowPos();
+        var windowSize = ImGui.GetWindowSize();
+        var start = windowPosition + new Vector2(1f, 1f);
+        var width = windowSize.X - 2f;
+        const float height = 42f;
+        var end = start + new Vector2(width, height);
+
+        var visibleClipMin = new Vector2(
+            windowPosition.X,
+            MathF.Max(windowPosition.Y, runContentClipMin.Y));
+        var visibleClipMax = new Vector2(
+            windowPosition.X + windowSize.X,
+            MathF.Min(windowPosition.Y + windowSize.Y, runContentClipMax.Y));
+        if (visibleClipMax.X > visibleClipMin.X && visibleClipMax.Y > visibleClipMin.Y)
         {
-            rosterViewMode = mode;
-            if (mode != RunRosterViewMode.None)
-                applyRosterCompanionSizeNextDraw = true;
+            drawList.PushClipRect(visibleClipMin, visibleClipMax, false);
+            drawList.AddRectFilled(start, end, FullPartyModernPalette.Color(FullPartyModernPalette.BrandSoft));
+            drawList.AddLine(
+                new Vector2(start.X, end.Y),
+                end,
+                FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft));
+            DrawPanelDecoration(drawList, start, end);
+            drawList.PopClipRect();
         }
 
-        if (selected)
-            ImGui.EndDisabled();
+        ImGui.SetCursorScreenPos(start + new Vector2(12f, 11f));
+        ImGui.PushStyleColor(ImGuiCol.Text, FullPartyModernPalette.Brand with { X = 0.72f, Y = 0.50f, Z = 0.95f });
+        ElezenImgui.ShowIcon(icon);
+        ImGui.SameLine(0f, 9f);
+        ImGui.TextUnformatted(title.ToUpperInvariant());
+        ImGui.PopStyleColor();
+
+        if (!string.IsNullOrWhiteSpace(badge))
+        {
+            var badgeSize = ImGui.CalcTextSize(badge);
+            var badgeWidth = badgeSize.X + 24f;
+            var badgeMin = new Vector2(end.X - badgeWidth - 12f, start.Y + 9f);
+            var badgeMax = badgeMin + new Vector2(badgeWidth, badgeSize.Y + 8f);
+            drawList.AddRectFilled(badgeMin, badgeMax, FullPartyModernPalette.Color(FullPartyModernPalette.BrandSoft with { W = 0.80f }), 12f);
+            drawList.AddText(badgeMin + new Vector2(12f, 4f), FullPartyModernPalette.Color(FullPartyModernPalette.Text), badge);
+        }
+
+        ImGui.SetCursorScreenPos(start + new Vector2(13f, height + 12f));
+    }
+
+    private static void DrawPanelDecoration(ImDrawListPtr drawList, Vector2 start, Vector2 end)
+    {
+        var color = FullPartyModernPalette.Color(FullPartyModernPalette.Brand with { W = 0.10f });
+        var right = end.X - 18f;
+        drawList.AddLine(new Vector2(right - 52f, start.Y), new Vector2(right - 24f, end.Y), color, 1.5f);
+        drawList.AddLine(new Vector2(right - 30f, start.Y), new Vector2(right - 2f, end.Y), color, 1.5f);
+        drawList.AddCircle(new Vector2(right, (start.Y + end.Y) * 0.5f), 6f, color, 4, 1.5f);
+    }
+
+    private static void DrawVerticalPanelDivider(ImDrawListPtr drawList, float x, float top, float bottom)
+    {
+        drawList.AddLine(
+            new Vector2(x, top),
+            new Vector2(x, bottom),
+            FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft));
+    }
+
+    private Vector4 GetLiveRoomStatusColor()
+    {
+        return liveRoom.State switch
+        {
+            RealtimeRunRoomState.Connected => new Vector4(0.32f, 0.92f, 0.54f, 1f),
+            RealtimeRunRoomState.Error => FullPartyModernPalette.Danger,
+            RealtimeRunRoomState.Disconnected => FullPartyModernPalette.Muted,
+            _ => new Vector4(0.94f, 0.78f, 0.32f, 1f),
+        };
+    }
+
+    private void DrawStatusAvatar(ImDrawListPtr drawList, string? avatarUrl, long userId, Vector2 position, float size)
+    {
+        var path = plugin.ImageCache.GetImagePath(avatarUrl, $"run-status-user-{userId}");
+        if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+        {
+            var texture = Plugin.TextureProvider.GetFromFile(path).GetWrapOrDefault();
+            if (texture != null)
+            {
+                drawList.AddImageRounded(
+                    texture.Handle,
+                    position,
+                    position + new Vector2(size, size),
+                    Vector2.Zero,
+                    Vector2.One,
+                    ImGui.GetColorU32(ImGuiCol.Text),
+                    size * 0.5f);
+                drawList.AddCircle(
+                    position + new Vector2(size * 0.5f),
+                    size * 0.5f,
+                    FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft),
+                    32,
+                    1.5f);
+                return;
+            }
+        }
+
+        var center = position + new Vector2(size * 0.5f);
+        drawList.AddCircleFilled(center, size * 0.5f, FullPartyModernPalette.Color(FullPartyModernPalette.Elevated));
+        drawList.AddCircle(center, size * 0.5f, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft), 32, 1.5f);
     }
 
     private void RememberRosterCompanionSize(Vector2 size)
@@ -792,8 +1182,8 @@ public sealed class RunWindow : Window, IDisposable
     {
         return mode switch
         {
-            RunRosterViewMode.Party => "Party View",
-            RunRosterViewMode.Validate => "Validation View",
+            RunRosterViewMode.Party => "Party",
+            RunRosterViewMode.Validate => "Validation",
             _ => "Roster",
         };
     }
@@ -809,71 +1199,529 @@ public sealed class RunWindow : Window, IDisposable
             return;
         }
 
-        if (parties.Count > 0)
-        {
-            DrawPartyRosterTable(parties, runDetail.CanModerate);
-        }
+        DrawModernRosterSummary(parties, benchSlots);
+        ImGui.Spacing();
+        DrawModernRosterToolbar();
+        ImGui.Spacing();
+
+        DrawModernPartyRoster(parties, runDetail);
 
         if (benchSlots.Count > 0)
         {
             ImGui.Spacing();
-            ImGui.Separator();
-            ImGui.Spacing();
-            ImGui.Text("Bench");
-            ImGui.Spacing();
-            DrawBenchTable(benchSlots, runDetail.CanModerate);
+            DrawModernBench(runDetail, benchSlots, runDetail.CanModerate);
         }
     }
 
-    private void DrawPartyRosterTable(IReadOnlyList<IReadOnlyList<FullPartyRosterSlot>> parties, bool canModerate)
+    private void DrawModernRosterSummary(
+        IReadOnlyList<IReadOnlyList<FullPartyRosterSlot>> parties,
+        IReadOnlyList<FullPartyRosterSlot> benchSlots)
     {
-        var flags = ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame;
-        if (!ImGui.BeginTable("##fullparty_roster", parties.Count, flags))
+        var partySlots = parties.SelectMany(party => party).ToList();
+        var assignedPlayers = partySlots.Count(slot => slot.AssignedCharacter != null);
+        var assignedParties = parties.Count(party => party.Any(slot => slot.AssignedCharacter != null));
+        var assignedBench = benchSlots.Count(slot => slot.AssignedCharacter != null);
+        var missing = partySlots.Count - assignedPlayers;
+
+        if (!ImGui.BeginTable("##fullparty_roster_summary", 2, ImGuiTableFlags.SizingStretchProp))
             return;
 
-        foreach (var party in parties)
+        ImGui.TableSetupColumn("Title", ImGuiTableColumnFlags.WidthStretch, 1f);
+        ImGui.TableSetupColumn("Stats", ImGuiTableColumnFlags.WidthFixed, 470f);
+        ImGui.TableNextRow(ImGuiTableRowFlags.None, 40f);
+        ImGui.TableNextColumn();
+        ImGui.SetWindowFontScale(1.28f);
+        ImGui.TextUnformatted("Roster");
+        ImGui.SetWindowFontScale(1f);
+
+        ImGui.TableNextColumn();
+        DrawRosterStatPill("Players", $"{assignedPlayers} / {partySlots.Count}", 112f);
+        ImGui.SameLine();
+        DrawRosterStatPill("Parties", $"{assignedParties} / {parties.Count}", 104f);
+        ImGui.SameLine();
+        DrawRosterStatPill("Bench", $"{assignedBench} / {benchSlots.Count}", 96f);
+        ImGui.SameLine();
+        DrawRosterReadinessPill(missing);
+        ImGui.EndTable();
+
+        ImGui.Separator();
+    }
+
+    private static void DrawRosterStatPill(string label, string value, float width)
+    {
+        var start = ImGui.GetCursorScreenPos();
+        var size = new Vector2(width, 30f);
+        var drawList = ImGui.GetWindowDrawList();
+        drawList.AddRectFilled(start, start + size, FullPartyModernPalette.Color(FullPartyModernPalette.Surface with { W = 0.90f }), 5f);
+        drawList.AddRect(start, start + size, FullPartyModernPalette.Color(FullPartyModernPalette.Border), 5f);
+        drawList.AddText(start + new Vector2(9f, 7f), FullPartyModernPalette.Color(FullPartyModernPalette.Brand with { X = 0.76f, Y = 0.58f, Z = 0.96f }), label);
+        var valueWidth = ImGui.CalcTextSize(value).X;
+        drawList.AddText(start + new Vector2(width - valueWidth - 9f, 7f), FullPartyModernPalette.Color(FullPartyModernPalette.Text), value);
+        ImGui.Dummy(size);
+    }
+
+    private static void DrawRosterReadinessPill(int missing)
+    {
+        var ready = missing == 0;
+        var label = ready ? "Ready" : $"{missing} Open";
+        var color = ready ? FullPartyModernPalette.Success : new Vector4(0.94f, 0.62f, 0.22f, 1f);
+        var start = ImGui.GetCursorScreenPos();
+        var size = new Vector2(104f, 30f);
+        var drawList = ImGui.GetWindowDrawList();
+        drawList.AddRectFilled(start, start + size, FullPartyModernPalette.Color(color with { W = 0.14f }), 5f);
+        drawList.AddRect(start, start + size, FullPartyModernPalette.Color(color with { W = 0.68f }), 5f);
+        drawList.AddCircleFilled(start + new Vector2(13f, 15f), 4f, FullPartyModernPalette.Color(color));
+        drawList.AddText(start + new Vector2(23f, 7f), FullPartyModernPalette.Color(color), label);
+        ImGui.Dummy(size);
+    }
+
+    private void DrawModernRosterToolbar()
+    {
+        ImGui.SetNextItemWidth(230f);
+        ImGui.InputTextWithHint("##fullparty_roster_search", "Search name, class, or phantom job...", ref rosterSearch, 80);
+
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(145f);
+        if (ImGui.BeginCombo("##fullparty_roster_layout", GetRosterLayoutLabel(rosterLayoutMode)))
         {
-            ImGui.TableSetupColumn(party[0].GroupLabel);
+            foreach (var layout in Enum.GetValues<RosterLayoutMode>())
+            {
+                if (ImGui.Selectable(GetRosterLayoutLabel(layout), rosterLayoutMode == layout))
+                    rosterLayoutMode = layout;
+            }
+
+            ImGui.EndCombo();
         }
 
-        ImGui.TableHeadersRow();
-
-        var maxRows = parties.Max(party => party.Count);
-        for (var row = 0; row < maxRows; row++)
+        ImGui.SameLine();
+        if (DrawRunActionButton(
+                FontAwesomeIcon.User,
+                $"Roster: {GetRosterDataModeLabel(rosterDataMode)}",
+                138f,
+                false,
+                rosterDataMode != RosterDataMode.Off))
         {
-            ImGui.TableNextRow();
-            for (var column = 0; column < parties.Count; column++)
+            rosterDataMode = rosterDataMode switch
             {
-                ImGui.TableNextColumn();
-                if (row < parties[column].Count)
+                RosterDataMode.Off => RosterDataMode.Validate,
+                RosterDataMode.Validate => RosterDataMode.Only,
+                _ => RosterDataMode.Off,
+            };
+        }
+
+        ImGui.SameLine();
+        if (DrawRunActionButton(
+                FontAwesomeIcon.List,
+                rosterShowEmptySlots ? "Empty: On" : "Empty: Off",
+                112f,
+                false,
+                rosterShowEmptySlots))
+        {
+            rosterShowEmptySlots = !rosterShowEmptySlots;
+        }
+
+        ImGui.SameLine();
+        if (DrawRunActionButton(FontAwesomeIcon.SyncAlt, "Reset", 82f))
+        {
+            rosterSearch = string.Empty;
+            rosterLayoutMode = RosterLayoutMode.Normal;
+            rosterDataMode = RosterDataMode.Off;
+            rosterShowEmptySlots = true;
+        }
+    }
+
+    private static string GetRosterLayoutLabel(RosterLayoutMode mode)
+    {
+        return mode == RosterLayoutMode.SplitThreeByThree ? "3/3 Split" : "Normal";
+    }
+
+    private static string GetRosterDataModeLabel(RosterDataMode mode)
+    {
+        return mode switch
+        {
+            RosterDataMode.Off => "Off",
+            RosterDataMode.Validate => "Validate",
+            _ => "Only",
+        };
+    }
+
+    private void DrawModernPartyRoster(
+        IReadOnlyList<IReadOnlyList<FullPartyRosterSlot>> parties,
+        FullPartyRunDetail runDetail)
+    {
+        if (parties.Count == 0)
+        {
+            ImGui.TextDisabled("No parties match the selected filter.");
+            return;
+        }
+
+        var computedSnapshots = rosterDataMode == RosterDataMode.Only
+            ? null
+            : BuildComputedPartySnapshots(runDetail, parties, true);
+        var observedById = computedSnapshots == null
+            ? new Dictionary<long, ObservedSnapshotMember>()
+            : BuildObservedByCharacterId(computedSnapshots.Snapshots);
+        var observedByName = computedSnapshots == null
+            ? new Dictionary<string, ObservedSnapshotMember>(StringComparer.OrdinalIgnoreCase)
+            : BuildObservedByName(runDetail, computedSnapshots.Snapshots);
+
+        if (rosterLayoutMode == RosterLayoutMode.SplitThreeByThree && parties.Count > 3)
+        {
+            DrawModernPartyRosterRow(parties.Take(3).ToList(), runDetail, computedSnapshots, observedById, observedByName, "abc");
+            ImGui.Spacing();
+            DrawModernPartyRosterRow(parties.Skip(3).Take(3).ToList(), runDetail, computedSnapshots, observedById, observedByName, "def");
+            return;
+        }
+
+        DrawModernPartyRosterRow(parties, runDetail, computedSnapshots, observedById, observedByName, "normal");
+    }
+
+    private void DrawModernPartyRosterRow(
+        IReadOnlyList<IReadOnlyList<FullPartyRosterSlot>> parties,
+        FullPartyRunDetail runDetail,
+        ComputedPartySnapshots? computedSnapshots,
+        IReadOnlyDictionary<long, ObservedSnapshotMember> observedById,
+        IReadOnlyDictionary<string, ObservedSnapshotMember> observedByName,
+        string id)
+    {
+
+        ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, new Vector2(8f, 8f));
+        ImGui.PushStyleColor(ImGuiCol.TableBorderStrong, FullPartyModernPalette.BorderSoft);
+        ImGui.PushStyleColor(ImGuiCol.TableBorderLight, FullPartyModernPalette.Border);
+        var flags = ImGuiTableFlags.Borders | ImGuiTableFlags.SizingStretchSame;
+        if (!ImGui.BeginTable($"##fullparty_modern_roster_{id}", parties.Count, flags))
+        {
+            ImGui.PopStyleColor(2);
+            ImGui.PopStyleVar();
+            return;
+        }
+
+        foreach (var party in parties)
+            ImGui.TableSetupColumn(party[0].GroupLabel);
+
+        ImGui.TableNextRow();
+        foreach (var party in parties)
+        {
+            ImGui.TableNextColumn();
+            FullPartyPartySnapshot? snapshot = null;
+            if (computedSnapshots != null)
+                computedSnapshots.ByParty.TryGetValue(party[0].GroupKey, out snapshot);
+            var filledCount = rosterDataMode == RosterDataMode.Only
+                ? party.Count(slot => slot.AssignedCharacter != null)
+                : snapshot?.Members.Count ?? 0;
+            DrawModernPartyHeader(party, filledCount);
+
+            var renderedAny = false;
+            for (var row = 0; row < party.Count; row++)
+            {
+                var slot = party[row];
+                var expectedPosition = slot.PositionInGroup ?? row + 1;
+                var actualMember = snapshot?.Members.FirstOrDefault(member => member.Position == expectedPosition);
+
+                if (!rosterShowEmptySlots &&
+                    ((rosterDataMode == RosterDataMode.Only && slot.AssignedCharacter == null) ||
+                     (rosterDataMode == RosterDataMode.Off && actualMember == null)))
                 {
-                    DrawRosterSlot(parties[column][row], canModerate);
+                    continue;
                 }
+
+                ImGui.Spacing();
+                renderedAny = true;
+
+                if (rosterDataMode == RosterDataMode.Only)
+                {
+                    DrawModernRosterSlot(runDetail, slot, runDetail.CanModerate);
+                    continue;
+                }
+
+                if (rosterDataMode == RosterDataMode.Off)
+                {
+                    DrawModernDetectedRosterSlot(runDetail, slot, actualMember);
+                    continue;
+                }
+
+                var expectedObserved = FindObservedForSlot(slot, observedById, observedByName);
+                var validationMember = FindExpectedMemberInParty(runDetail, slot, snapshot);
+                var result = BuildValidationSlotResult(
+                    runDetail,
+                    slot,
+                    validationMember,
+                    expectedObserved,
+                    computedSnapshots?.OccultPresence ?? GamePresenceList.Empty,
+                    computedSnapshots?.InOccult == true,
+                    snapshot != null);
+
+                if (result == null && !rosterShowEmptySlots)
+                    continue;
+
+                DrawModernValidationRosterSlot(runDetail, slot, result);
             }
+
+            if (!renderedAny)
+                ImGui.TextDisabled("No players");
         }
 
         ImGui.EndTable();
+        ImGui.PopStyleColor(2);
+        ImGui.PopStyleVar();
     }
 
-    private void DrawBenchTable(IReadOnlyList<FullPartyRosterSlot> benchSlots, bool canModerate)
+    private static void DrawModernPartyHeader(IReadOnlyList<FullPartyRosterSlot> party, int filledCount)
     {
-        var columnCount = Math.Clamp((int)(ImGui.GetContentRegionAvail().X / 260f), 1, 3);
-        var flags = ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame;
-        if (!ImGui.BeginTable("##fullparty_bench", columnCount, flags))
+        var start = ImGui.GetCursorScreenPos();
+        var width = ImGui.GetContentRegionAvail().X;
+        const float height = 36f;
+        var drawList = ImGui.GetWindowDrawList();
+        drawList.AddRectFilled(start, start + new Vector2(width, height), FullPartyModernPalette.Color(FullPartyModernPalette.Elevated with { W = 0.72f }), 4f);
+
+        var letter = FormatPartyLetter(party[0].GroupKey);
+        drawList.AddText(start + new Vector2(10f, 9f), FullPartyModernPalette.Color(FullPartyModernPalette.Brand with { X = 0.78f, Y = 0.58f, Z = 0.98f }), letter);
+        var count = $"{filledCount}/{party.Count}";
+        var countWidth = ImGui.CalcTextSize(count).X;
+        drawList.AddText(start + new Vector2(width - countWidth - 10f, 9f), FullPartyModernPalette.Color(FullPartyModernPalette.Muted), count);
+        ImGui.Dummy(new Vector2(width, height));
+    }
+
+    private bool IsRosterSearchMatch(
+        string? displayName,
+        string? classJob,
+        string? phantomJob,
+        FullPartyRosterSlot? rosterSlot)
+    {
+        if (string.IsNullOrWhiteSpace(rosterSearch))
+            return false;
+
+        var query = rosterSearch.Trim();
+        var normalizedClass = NormalizeClassJob(classJob ?? rosterSlot?.CharacterClass);
+        var normalizedPhantomJob = NormalizePhantomJob(phantomJob ?? rosterSlot?.PhantomJob);
+        return (displayName?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) ||
+               (classJob?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) ||
+               (rosterSlot?.CharacterClass?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) ||
+               (normalizedClass?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) ||
+               (phantomJob?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) ||
+               (rosterSlot?.PhantomJob?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) ||
+               (normalizedPhantomJob?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false);
+    }
+
+    private void DrawModernRosterSlot(
+        FullPartyRunDetail runDetail,
+        FullPartyRosterSlot slot,
+        bool canModerate)
+    {
+        DrawModernResolvedRosterSlot(
+            runDetail,
+            slot,
+            slot.AssignedCharacter,
+            slot,
+            slot.AssignedCharacter?.Name,
+            slot.CharacterClass,
+            slot.PhantomJob,
+            slot.CharacterClassRole,
+            null,
+            [],
+            canModerate);
+    }
+
+    private void DrawModernDetectedRosterSlot(
+        FullPartyRunDetail runDetail,
+        FullPartyRosterSlot plannedSlot,
+        FullPartyPartySnapshotMember? member)
+    {
+        if (member == null)
+        {
+            DrawModernResolvedRosterSlot(runDetail, plannedSlot, null, null, null, null, null, null, null, [], runDetail.CanModerate);
+            return;
+        }
+
+        var resolvedSlot = ResolveRosterSlot(runDetail, member);
+        var character = ResolveCharacter(runDetail, member);
+        var classJob = NormalizeClassJob(member.ClassJob);
+        DrawModernResolvedRosterSlot(
+            runDetail,
+            plannedSlot,
+            character,
+            resolvedSlot,
+            character?.Name ?? member.DisplayName,
+            classJob,
+            member.PhantomJob,
+            GetRoleForClassJob(runDetail, classJob) ?? resolvedSlot?.CharacterClassRole,
+            null,
+            [],
+            runDetail.CanModerate);
+    }
+
+    private void DrawModernValidationRosterSlot(
+        FullPartyRunDetail runDetail,
+        FullPartyRosterSlot plannedSlot,
+        ValidationSlotResult? result)
+    {
+        if (result == null)
+        {
+            DrawModernResolvedRosterSlot(runDetail, plannedSlot, null, null, null, null, null, null, null, [], runDetail.CanModerate);
+            return;
+        }
+
+        DrawModernResolvedRosterSlot(
+            runDetail,
+            plannedSlot,
+            result.Character,
+            result.RosterSlot,
+            result.DisplayName,
+            result.ClassJob,
+            result.PhantomJob,
+            GetRoleForClassJob(runDetail, result.ClassJob) ?? result.RosterSlot?.CharacterClassRole,
+            result.State,
+            result.Messages,
+            runDetail.CanModerate);
+    }
+
+    private void DrawModernResolvedRosterSlot(
+        FullPartyRunDetail runDetail,
+        FullPartyRosterSlot plannedSlot,
+        FullPartyRosterCharacter? character,
+        FullPartyRosterSlot? rosterSlot,
+        string? displayName,
+        string? classJob,
+        string? phantomJob,
+        string? role,
+        ValidationState? validationState,
+        IReadOnlyList<string> validationMessages,
+        bool canModerate)
+    {
+        const float height = 44f;
+        var canOpenApplication = canModerate && rosterSlot?.ApplicationId != null;
+        if (ImGui.InvisibleButton($"##modern_roster_slot_{plannedSlot.Id}_{rosterDataMode}", new Vector2(-1f, height)) && canOpenApplication)
+            plugin.OpenApplicationWindow(Run, rosterSlot!);
+
+        var min = ImGui.GetItemRectMin();
+        var max = ImGui.GetItemRectMax();
+        var drawList = ImGui.GetWindowDrawList();
+        var hovered = ImGui.IsItemHovered();
+        var searchMatch = IsRosterSearchMatch(displayName, classJob, phantomJob, rosterSlot);
+        var positionWidth = 24f;
+        var cardMin = min + new Vector2(positionWidth + 4f, 0f);
+        var number = (plannedSlot.PositionInGroup ?? 0).ToString();
+
+        drawList.AddRectFilled(min, new Vector2(min.X + positionWidth, max.Y), FullPartyModernPalette.Color(FullPartyModernPalette.Elevated with { W = 0.72f }), 4f);
+        var numberWidth = ImGui.CalcTextSize(number).X;
+        drawList.AddText(new Vector2(min.X + ((positionWidth - numberWidth) * 0.5f), min.Y + 13f), FullPartyModernPalette.Color(FullPartyModernPalette.Muted), number);
+
+        if (character == null && string.IsNullOrWhiteSpace(displayName))
+        {
+            drawList.AddRectFilled(cardMin, max, FullPartyModernPalette.Color(FullPartyModernPalette.Surface with { W = 0.54f }), 4f);
+            drawList.AddRect(cardMin, max, FullPartyModernPalette.Color(FullPartyModernPalette.Border), 4f);
+            const string empty = "Empty";
+            var emptyWidth = ImGui.CalcTextSize(empty).X;
+            drawList.AddText(new Vector2(cardMin.X + MathF.Max(8f, ((max.X - cardMin.X) - emptyWidth) * 0.5f), min.Y + 13f), FullPartyModernPalette.Color(FullPartyModernPalette.Muted), empty);
+            return;
+        }
+
+        var background = validationState != null
+            ? GetValidationSlotBackground(validationState.Value, hovered)
+            : GetFilledSlotBackground(role, hovered && canOpenApplication) with { W = hovered ? 0.70f : 0.52f };
+        drawList.AddRectFilled(cardMin, max, FullPartyModernPalette.Color(background), 4f);
+        drawList.AddRect(cardMin, max, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft with { W = hovered ? 0.90f : 0.56f }), 4f);
+
+        var cursor = cardMin + new Vector2(6f, 8f);
+        if (character != null)
+            DrawCharacterIcon(drawList, character, cursor);
+        else
+            drawList.AddRectFilled(cursor, cursor + new Vector2(24f, 24f), FullPartyModernPalette.Color(FullPartyModernPalette.Elevated), 3f);
+        cursor.X += 29f;
+
+        if (IsValidationPartyLead(rosterSlot ?? plannedSlot))
+            DrawPartyLeadCrown(drawList, ref cursor);
+
+        var iconRight = max.X - 6f;
+        Vector2? phantomIconPosition = null;
+        Vector2? classIconPosition = null;
+        if (!string.IsNullOrWhiteSpace(phantomJob) || (rosterSlot != null && HasPhantomJob(rosterSlot)))
+        {
+            iconRight -= 20f;
+            phantomIconPosition = new Vector2(iconRight, min.Y + 12f);
+            iconRight -= 4f;
+        }
+
+        if (!string.IsNullOrWhiteSpace(classJob) || !string.IsNullOrWhiteSpace(rosterSlot?.CharacterClass))
+        {
+            iconRight -= 20f;
+            classIconPosition = new Vector2(iconRight, min.Y + 12f);
+            iconRight -= 4f;
+        }
+
+        drawList.AddText(
+            cursor + new Vector2(0f, 5f),
+            FullPartyModernPalette.Color(FullPartyModernPalette.Text),
+            TrimToWidth(displayName ?? character?.Name ?? "Unknown", MathF.Max(20f, iconRight - cursor.X)));
+
+        if (classIconPosition != null)
+        {
+            if (!DrawJobIcon(drawList, classJob, classIconPosition.Value))
+                DrawJobIcon(drawList, rosterSlot?.CharacterClass, classIconPosition.Value);
+        }
+
+        if (phantomIconPosition != null)
+        {
+            var drawn = rosterSlot != null && DrawPhantomJobIcon(drawList, rosterSlot, phantomIconPosition.Value);
+            if (!drawn && !string.IsNullOrWhiteSpace(phantomJob))
+                DrawPhantomJobIconByName(drawList, runDetail, phantomJob, phantomIconPosition.Value);
+        }
+
+        if (searchMatch)
+        {
+            drawList.AddRect(
+                cardMin,
+                max,
+                ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, 0.96f)),
+                4f,
+                ImDrawFlags.None,
+                2f);
+        }
+
+        if (hovered && validationMessages.Count > 0)
+        {
+            const float TooltipWidth = 320f;
+            ImGui.SetNextWindowSizeConstraints(new Vector2(TooltipWidth, 0f), new Vector2(TooltipWidth, float.MaxValue));
+            ImGui.BeginTooltip();
+            ImGui.PushTextWrapPos(ImGui.GetCursorPosX() + TooltipWidth);
+            ImGui.TextUnformatted(plannedSlot.SlotLabel);
+            ImGui.Separator();
+            foreach (var message in validationMessages)
+                ImGui.TextUnformatted(message);
+            ImGui.PopTextWrapPos();
+            ImGui.EndTooltip();
+        }
+    }
+
+    private void DrawModernBench(
+        FullPartyRunDetail runDetail,
+        IReadOnlyList<FullPartyRosterSlot> benchSlots,
+        bool canModerate)
+    {
+        ImGui.Separator();
+        ImGui.Spacing();
+        ImGui.TextColored(FullPartyModernPalette.Brand with { X = 0.76f, Y = 0.58f, Z = 0.96f }, "BENCH");
+        ImGui.SameLine();
+        ImGui.TextDisabled($"{benchSlots.Count(slot => slot.AssignedCharacter != null)} / {benchSlots.Count}");
+        ImGui.Spacing();
+
+        var columnCount = Math.Clamp((int)(ImGui.GetContentRegionAvail().X / 250f), 1, 4);
+        if (!ImGui.BeginTable("##fullparty_modern_bench", columnCount, ImGuiTableFlags.SizingStretchSame))
             return;
 
         for (var column = 0; column < columnCount; column++)
-        {
-            ImGui.TableSetupColumn($"##bench_column_{column}");
-        }
+            ImGui.TableSetupColumn($"##modern_bench_{column}");
 
-        for (var index = 0; index < benchSlots.Count; index++)
+        var visibleBench = benchSlots
+            .Where(slot => rosterShowEmptySlots || slot.AssignedCharacter != null)
+            .ToList();
+        for (var index = 0; index < visibleBench.Count; index++)
         {
             if (index % columnCount == 0)
                 ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
-            DrawRosterSlot(benchSlots[index], canModerate);
+            DrawModernRosterSlot(runDetail, visibleBench[index], canModerate);
         }
 
         ImGui.EndTable();
@@ -1595,8 +2443,10 @@ public sealed class RunWindow : Window, IDisposable
         drawList.AddRectFilled(position, position + new Vector2(24, 24), ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, 0.10f)), 3f);
     }
 
-    private void DrawLiveMemberCharacter(FullPartyLiveMember member, bool compact = false)
+    private void DrawLiveMemberCharacter(FullPartyLiveMember member)
     {
+        const float avatarSize = 32f;
+        var avatarPosition = ImGui.GetCursorScreenPos();
         var avatarDrawn = false;
         var path = plugin.ImageCache.GetImagePath(member.AvatarUrl, $"live-member-{member.UserId}");
         if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
@@ -1604,22 +2454,32 @@ public sealed class RunWindow : Window, IDisposable
             var texture = Plugin.TextureProvider.GetFromFile(path).GetWrapOrDefault();
             if (texture != null)
             {
-                ImGui.Image(texture.Handle, new Vector2(24f, 24f));
+                ImGui.Dummy(new Vector2(avatarSize, avatarSize));
+                ImGui.GetWindowDrawList().AddImageRounded(
+                    texture.Handle,
+                    avatarPosition,
+                    avatarPosition + new Vector2(avatarSize, avatarSize),
+                    Vector2.Zero,
+                    Vector2.One,
+                    ImGui.GetColorU32(ImGuiCol.Text),
+                    avatarSize * 0.5f);
                 avatarDrawn = true;
             }
         }
 
         if (!avatarDrawn)
         {
-            var cursor = ImGui.GetCursorScreenPos();
-            ImGui.Dummy(new Vector2(24f, 24f));
-            ImGui.GetWindowDrawList().AddRectFilled(cursor, cursor + new Vector2(24f, 24f), ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, 0.10f)), 3f);
+            ImGui.Dummy(new Vector2(avatarSize, avatarSize));
+            ImGui.GetWindowDrawList().AddCircleFilled(
+                avatarPosition + new Vector2(avatarSize * 0.5f),
+                avatarSize * 0.5f,
+                FullPartyModernPalette.Color(FullPartyModernPalette.Elevated));
         }
 
         ImGui.SameLine();
         ImGui.BeginGroup();
         ImGui.TextUnformatted(member.DisplayName);
-        if (!compact && !string.IsNullOrWhiteSpace(member.Location))
+        if (!string.IsNullOrWhiteSpace(member.Location))
             ImGui.TextDisabled(member.Location);
         ImGui.EndGroup();
     }
@@ -2396,7 +3256,7 @@ public sealed class RunWindow : Window, IDisposable
     {
         if (detail == null)
         {
-            checkInStatusMessage = "Run check-in unavailable: roster is not loaded yet.";
+            SetCheckInStatus("Run check-in unavailable: roster is not loaded yet.", true);
             return;
         }
 
@@ -2406,7 +3266,7 @@ public sealed class RunWindow : Window, IDisposable
             if (RunValidationSources.HasMissingActiveRosterPresence(detail, nearbyPresence))
             {
                 plugin.AdventurerList.RequestRefresh();
-                checkInStatusMessage = "Nearby check still has missing roster players, so Adventurer List is refreshing. Press Run Check-In again once it finishes.";
+                SetCheckInStatus("Nearby check still has missing roster players, so Adventurer List is refreshing. Press Run Check-In again once it finishes.");
                 return;
             }
         }
@@ -2414,15 +3274,11 @@ public sealed class RunWindow : Window, IDisposable
         var selection = BuildRunCheckInSelection(detail);
         if (selection.PresentCount == 0)
         {
-            checkInStatusMessage = $"Run check-in skipped: no present roster players found, {selection.MissingCount} missing.";
-            Plugin.Log.Information(
-                "FullParty run {RunId} check-in skipped: no present roster players found, {MissingCount} missing.",
-                Run.Id,
-                selection.MissingCount);
+            SetCheckInStatus($"Run check-in skipped: no present roster players found, {selection.MissingCount} missing.", true);
             return;
         }
 
-        checkInStatusMessage = $"Submitting check-in for {selection.PresentCount} present roster players...";
+        SetCheckInStatus($"Submitting check-in for {selection.PresentCount} present roster players...");
         checkInTask = SubmitRunCheckInAsync(selection, cancellation.Token);
     }
 
@@ -2441,7 +3297,7 @@ public sealed class RunWindow : Window, IDisposable
         checkInTask = null;
         if (task.IsCanceled)
         {
-            checkInStatusMessage = "Run check-in cancelled.";
+            SetCheckInStatus("Run check-in cancelled.");
             return;
         }
 
@@ -2449,18 +3305,29 @@ public sealed class RunWindow : Window, IDisposable
         {
             var exception = task.Exception.GetBaseException();
             Plugin.Log.Warning(exception, "FullParty run {RunId} check-in failed.", Run.Id);
-            checkInStatusMessage = $"Run check-in failed: {exception.Message}";
+            SetCheckInStatus($"Run check-in failed: {exception.Message}", true);
             return;
         }
 
         var summary = task.Result;
-        checkInStatusMessage = $"Run check-in complete: {summary.CheckedInCount} checked in, {summary.MissingCount} missing.";
-        Plugin.Log.Information(
-            "FullParty run {RunId} check-in complete: {CheckedInCount} checked in, {MissingCount} missing.",
-            Run.Id,
-            summary.CheckedInCount,
-            summary.MissingCount);
+        SetCheckInStatus($"Run check-in complete: {summary.CheckedInCount} checked in, {summary.MissingCount} missing.");
         RefreshRun();
+    }
+
+    private void SetCheckInStatus(string message, bool isError = false)
+    {
+        if (!isError && string.Equals(checkInStatusMessage, message, StringComparison.Ordinal))
+            return;
+
+        checkInStatusMessage = message;
+        if (isError)
+        {
+            Plugin.Log.Warning("FullParty run {RunId} check-in: {Status}", Run.Id, message);
+            Plugin.ShowErrorToast(message);
+            return;
+        }
+
+        Plugin.Log.Information("FullParty run {RunId} check-in: {Status}", Run.Id, message);
     }
 
     private RunCheckInSelection BuildRunCheckInSelection(FullPartyRunDetail runDetail)

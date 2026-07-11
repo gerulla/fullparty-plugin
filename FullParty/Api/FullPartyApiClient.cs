@@ -40,6 +40,12 @@ public sealed class FullPartyApiClient
         return response?.Data.Select(run => MapRun(run, canModerate)).ToList() ?? [];
     }
 
+    public async Task<IReadOnlyList<FullPartyUserCharacter>> GetCharactersAsync(CancellationToken cancellationToken)
+    {
+        var response = await authService.GetJsonAsync<CharactersResponse>("/api/xivplugin/characters", cancellationToken);
+        return response?.Data.Select(MapUserCharacter).ToList() ?? [];
+    }
+
     public async Task<FullPartyRunDetail?> GetRunDetailAsync(int runId, CancellationToken cancellationToken)
     {
         var response = await authService.GetJsonAsync<RunDetailResponse>($"/api/xivplugin/runs/{runId}", cancellationToken);
@@ -214,6 +220,7 @@ public sealed class FullPartyApiClient
             run.Status,
             run.Name,
             string.IsNullOrWhiteSpace(run.Title) ? run.Name : run.Title,
+            run.Notes,
             run.StartsAt,
             run.EndsAt,
             run.DurationMinutes,
@@ -230,6 +237,64 @@ public sealed class FullPartyApiClient
                     run.ActivityType.SmallImageUrl,
                     run.ActivityType.BannerImageUrl),
             canModerate);
+    }
+
+    private static FullPartyUserCharacter MapUserCharacter(CharacterDto character)
+    {
+        return new FullPartyUserCharacter(
+            character.Id,
+            character.IsPrimary,
+            character.Name,
+            character.World,
+            character.Datacenter,
+            character.LodestoneId,
+            character.AvatarUrl,
+            character.IsVerified,
+            character.VerifiedAt,
+            character.LodestoneRefreshedAt,
+            character.AddMethod,
+            character.Fields.Select(field => new FullPartyCharacterField(
+                field.Key,
+                field.Name,
+                field.Description,
+                field.Type,
+                field.Group,
+                field.Source,
+                field.IsEditable,
+                field.Value)).ToList(),
+            character.Classes.Select(characterClass => new FullPartyCharacterClass(
+                characterClass.Id,
+                characterClass.Name,
+                characterClass.Shorthand,
+                characterClass.Role,
+                characterClass.IconUrl,
+                characterClass.FlatIconUrl,
+                characterClass.Level,
+                characterClass.IsPreferred)).ToList(),
+            character.Occult == null
+                ? null
+                : new FullPartyCharacterOccult(
+                    character.Occult.KnowledgeLevel,
+                    character.Occult.BloodProgress == null
+                        ? null
+                        : new FullPartyBloodProgress(
+                            character.Occult.BloodProgress.Clears,
+                            character.Occult.BloodProgress.DataSource,
+                            character.Occult.BloodProgress.Bosses.Select(boss => new FullPartyBloodBossProgress(
+                                boss.Key,
+                                boss.Kills,
+                                boss.Progress)).ToList()),
+                    character.Occult.PhantomJobs.Select(job => new FullPartyCharacterPhantomJob(
+                        job.Id,
+                        job.Name,
+                        job.IconUrl,
+                        job.BlackIconUrl,
+                        job.TransparentIconUrl,
+                        job.SpriteUrl,
+                        job.CurrentLevel,
+                        job.MaxLevel,
+                        job.IsPreferred,
+                        job.IsMaxed)).ToList()));
     }
 
     private static FullPartyRosterSlot MapRosterSlot(RosterSlotDto slot)
@@ -706,6 +771,12 @@ public sealed class FullPartyApiClient
         public ApplicationDto? Data { get; set; }
     }
 
+    private sealed class CharactersResponse
+    {
+        [JsonPropertyName("data")]
+        public List<CharacterDto> Data { get; set; } = [];
+    }
+
     private sealed class GroupDto
     {
         [JsonPropertyName("id")]
@@ -756,6 +827,9 @@ public sealed class FullPartyApiClient
         [JsonPropertyName("title")]
         public string Title { get; set; } = string.Empty;
 
+        [JsonPropertyName("notes")]
+        public string? Notes { get; set; }
+
         [JsonPropertyName("starts_at")]
         public DateTimeOffset StartsAt { get; set; }
 
@@ -797,6 +871,174 @@ public sealed class FullPartyApiClient
 
         [JsonPropertyName("banner_image_url")]
         public string? BannerImageUrl { get; set; }
+    }
+
+    private sealed class CharacterDto
+    {
+        [JsonPropertyName("id")]
+        public long Id { get; set; }
+
+        [JsonPropertyName("is_primary")]
+        public bool IsPrimary { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+
+        [JsonPropertyName("world")]
+        public string World { get; set; } = string.Empty;
+
+        [JsonPropertyName("datacenter")]
+        public string Datacenter { get; set; } = string.Empty;
+
+        [JsonPropertyName("lodestone_id")]
+        public string? LodestoneId { get; set; }
+
+        [JsonPropertyName("avatar_url")]
+        public string? AvatarUrl { get; set; }
+
+        [JsonPropertyName("is_verified")]
+        public bool IsVerified { get; set; }
+
+        [JsonPropertyName("verified_at")]
+        public DateTimeOffset? VerifiedAt { get; set; }
+
+        [JsonPropertyName("lodestone_refreshed_at")]
+        public DateTimeOffset? LodestoneRefreshedAt { get; set; }
+
+        [JsonPropertyName("add_method")]
+        public string? AddMethod { get; set; }
+
+        [JsonPropertyName("fields")]
+        public List<CharacterFieldDto> Fields { get; set; } = [];
+
+        [JsonPropertyName("classes")]
+        public List<CharacterClassDto> Classes { get; set; } = [];
+
+        [JsonPropertyName("occult")]
+        public CharacterOccultDto? Occult { get; set; }
+    }
+
+    private sealed class CharacterFieldDto
+    {
+        [JsonPropertyName("key")]
+        public string Key { get; set; } = string.Empty;
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
+
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = string.Empty;
+
+        [JsonPropertyName("group")]
+        public string Group { get; set; } = string.Empty;
+
+        [JsonPropertyName("source")]
+        public string Source { get; set; } = string.Empty;
+
+        [JsonPropertyName("is_editable")]
+        public bool IsEditable { get; set; }
+
+        [JsonPropertyName("value")]
+        public string? Value { get; set; }
+    }
+
+    private sealed class CharacterClassDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+
+        [JsonPropertyName("shorthand")]
+        public string Shorthand { get; set; } = string.Empty;
+
+        [JsonPropertyName("role")]
+        public string Role { get; set; } = string.Empty;
+
+        [JsonPropertyName("icon_url")]
+        public string? IconUrl { get; set; }
+
+        [JsonPropertyName("flat_icon_url")]
+        public string? FlatIconUrl { get; set; }
+
+        [JsonPropertyName("level")]
+        public int? Level { get; set; }
+
+        [JsonPropertyName("is_preferred")]
+        public bool IsPreferred { get; set; }
+    }
+
+    private sealed class CharacterOccultDto
+    {
+        [JsonPropertyName("knowledge_level")]
+        public int? KnowledgeLevel { get; set; }
+
+        [JsonPropertyName("blood_progress")]
+        public CharacterBloodProgressDto? BloodProgress { get; set; }
+
+        [JsonPropertyName("phantom_jobs")]
+        public List<CharacterPhantomJobDto> PhantomJobs { get; set; } = [];
+    }
+
+    private sealed class CharacterBloodProgressDto
+    {
+        [JsonPropertyName("clears")]
+        public int? Clears { get; set; }
+
+        [JsonPropertyName("data_source")]
+        public string? DataSource { get; set; }
+
+        [JsonPropertyName("bosses")]
+        public List<CharacterBloodBossDto> Bosses { get; set; } = [];
+    }
+
+    private sealed class CharacterBloodBossDto
+    {
+        [JsonPropertyName("key")]
+        public string Key { get; set; } = string.Empty;
+
+        [JsonPropertyName("kills")]
+        public int? Kills { get; set; }
+
+        [JsonPropertyName("progress")]
+        public int? Progress { get; set; }
+    }
+
+    private sealed class CharacterPhantomJobDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+
+        [JsonPropertyName("icon_url")]
+        public string? IconUrl { get; set; }
+
+        [JsonPropertyName("black_icon_url")]
+        public string? BlackIconUrl { get; set; }
+
+        [JsonPropertyName("transparent_icon_url")]
+        public string? TransparentIconUrl { get; set; }
+
+        [JsonPropertyName("sprite_url")]
+        public string? SpriteUrl { get; set; }
+
+        [JsonPropertyName("current_level")]
+        public int? CurrentLevel { get; set; }
+
+        [JsonPropertyName("max_level")]
+        public int? MaxLevel { get; set; }
+
+        [JsonPropertyName("is_preferred")]
+        public bool IsPreferred { get; set; }
+
+        [JsonPropertyName("is_maxed")]
+        public bool IsMaxed { get; set; }
     }
 
     private sealed class RunDetailDto

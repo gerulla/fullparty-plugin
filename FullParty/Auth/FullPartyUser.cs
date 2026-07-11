@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Collections.Generic;
 
 namespace FullParty.Auth;
 
@@ -15,6 +16,9 @@ public sealed class FullPartyUser
 
     [JsonPropertyName("primary_character")]
     public FullPartyCharacter? PrimaryCharacter { get; set; }
+
+    [JsonPropertyName("characters")]
+    public List<FullPartyCharacter> Characters { get; set; } = [];
 }
 
 public sealed class FullPartyCharacter
@@ -33,4 +37,16 @@ public sealed class FullPartyCharacter
 
     [JsonPropertyName("avatar_url")]
     public string? AvatarUrl { get; set; }
+
+    [JsonPropertyName("lodestone_id")]
+    public string? LodestoneId { get; set; }
+
+    [JsonPropertyName("source")]
+    public string? Source { get; set; }
+
+    [JsonPropertyName("is_primary")]
+    public bool? IsPrimary { get; set; }
+
+    [JsonPropertyName("is_verified")]
+    public bool? IsVerified { get; set; }
 }

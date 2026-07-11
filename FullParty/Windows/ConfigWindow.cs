@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Game;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
 using ElezenTools.UI;
 using FullParty.Models;
 using FullParty.Services;
+using Lumina.Excel.Sheets;
 
 namespace FullParty.Windows;
 
@@ -82,9 +84,17 @@ public class ConfigWindow : Window, IDisposable
             configuration.Save();
         }
 
-        ImGui.Spacing();
-        ImGui.Separator();
-        ImGui.Spacing();
+        var bypassLiveCommandRequirements = configuration.BypassLiveCommandRequirements;
+        if (ImGui.Checkbox("Bypass live command requirements", ref bypassLiveCommandRequirements))
+        {
+            configuration.BypassLiveCommandRequirements = bypassLiveCommandRequirements;
+            configuration.Save();
+        }
+
+        if (configuration.BypassLiveCommandRequirements)
+        {
+            ImGui.TextWrapped("Debug only: while connected to a live room, Check Leads, Check Parties, and Countdown ignore local Occult/party/target detection checks.");
+        }
 
         var auth = plugin.AuthService;
         var environment = plugin.Environment;
@@ -191,6 +201,38 @@ public class ConfigWindow : Window, IDisposable
         ImGui.Text($"Detected as Occult Crescent: {(territory.IsOccultCrescent ? "Yes" : "No")}");
         ImGui.TextWrapped($"Match source: {territory.MatchSource}");
         ImGui.Text($"PlaceName row ID: {territory.PlaceNameRowId}");
+
+        ImGui.Spacing();
+        ImGui.TextUnformatted("Current duty / instance:");
+        var contentFinderCondition = Plugin.DutyState.ContentFinderCondition;
+        var contentFinderConditionId = contentFinderCondition.RowId;
+        ImGui.Text($"ContentFinderCondition row ID: {contentFinderConditionId}");
+        ImGui.SameLine();
+        if (ImGui.SmallButton("Copy ID##copy_content_finder_condition"))
+            ImGui.SetClipboardText(contentFinderConditionId.ToString());
+
+        ImGui.Text($"Duty started: {(Plugin.DutyState.IsDutyStarted ? "Yes" : "No")}");
+        ImGui.TextDisabled("Use the numeric ContentFinderCondition row ID for language-independent detection.");
+
+        if (contentFinderConditionId != 0)
+        {
+            try
+            {
+                var englishSheet = Plugin.DataManager.GetExcelSheet<ContentFinderCondition>(ClientLanguage.English);
+                var englishName = englishSheet.TryGetRow(contentFinderConditionId, out var row)
+                    ? row.Name.ToString()
+                    : "(row not found)";
+                ImGui.TextWrapped($"English duty name: {englishName}");
+            }
+            catch (Exception ex)
+            {
+                ImGui.TextWrapped($"Could not read ContentFinderCondition: {ex.Message}");
+            }
+        }
+        else
+        {
+            ImGui.TextDisabled("English duty name: (no active ContentFinderCondition)");
+        }
 
         if (!string.IsNullOrWhiteSpace(territory.DirectPlaceName))
         {

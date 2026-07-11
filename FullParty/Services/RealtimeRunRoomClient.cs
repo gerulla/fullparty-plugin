@@ -636,6 +636,13 @@ public sealed class RealtimeRunRoomClient : IDisposable
         CancellationToken token;
         lock (stateLock)
         {
+            var requirementFailure = GetLiveCommandRequirementFailure(command);
+            if (requirementFailure != null)
+            {
+                SetCommandStatusNoLock(requirementFailure);
+                return;
+            }
+
             if (State != RealtimeRunRoomState.Connected)
             {
                 SetCommandStatusNoLock("Connect to the live room first.");
@@ -701,6 +708,15 @@ public sealed class RealtimeRunRoomClient : IDisposable
         {
             UpdateCurrentUserCommandStatus(command.Id, "expired");
             QueueAck(command.Id, "expired");
+            return;
+        }
+
+        var requirementFailure = GetLiveCommandRequirementFailure(command.Command);
+        if (requirementFailure != null)
+        {
+            UpdateCurrentUserCommandStatus(command.Id, "ignored_not_targeted");
+            QueueAck(command.Id, "ignored_not_targeted");
+            SetCommandStatus($"Ignored {FormatCommandName(command.Command)}: {requirementFailure}");
             return;
         }
 
@@ -1082,7 +1098,33 @@ public sealed class RealtimeRunRoomClient : IDisposable
             members.TryGetValue(currentUserId, out currentMember);
         }
 
+        if (plugin.Configuration.BypassLiveCommandRequirements && IsBypassableLiveCommand(command.Command))
+        {
+            return true;
+        }
+
         return IsMemberTargeted(command, currentUserId, currentMember);
+    }
+
+    private static bool IsBypassableLiveCommand(string command)
+    {
+        return command.Equals("ready_check_confirm", StringComparison.OrdinalIgnoreCase) ||
+               command.Equals("ready_check", StringComparison.OrdinalIgnoreCase) ||
+               command.Equals("countdown", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private string? GetLiveCommandRequirementFailure(string command)
+    {
+        if (!IsBypassableLiveCommand(command) || plugin.Configuration.BypassLiveCommandRequirements)
+            return null;
+
+        if (!OccultCrescentTerritory.IsCurrent())
+            return "Live commands require Occult Crescent. Enable the debug bypass to test elsewhere.";
+
+        if (Plugin.PartyList.Length <= 0)
+            return "Live commands require a detected party. Enable the debug bypass to test without one.";
+
+        return null;
     }
 
     private static bool IsMemberTargeted(FullPartyRunCommand command, string userId, FullPartyLiveMember? member)
@@ -2174,9 +2216,22 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     private void SetStateNoLock(RealtimeRunRoomState state, string statusMessage)
     {
+        var changed = State != state || !string.Equals(StatusMessage, statusMessage, StringComparison.Ordinal);
         State = state;
         StatusMessage = statusMessage;
         StateUpdatedAt = GetServerTimeNow();
+
+        if (!changed)
+            return;
+
+        if (state == RealtimeRunRoomState.Error)
+        {
+            Plugin.Log.Warning("FullParty run {RunId} live room: {Status}", runId, statusMessage);
+            Plugin.ShowErrorToast($"Live room error: {statusMessage}");
+            return;
+        }
+
+        Plugin.Log.Information("FullParty run {RunId} live room: {State} - {Status}", runId, state, statusMessage);
     }
 
     private void SetCommandStatus(string statusMessage)
@@ -2189,8 +2244,34 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     private void SetCommandStatusNoLock(string statusMessage)
     {
+        var changed = !string.Equals(CommandStatusMessage, statusMessage, StringComparison.Ordinal);
         CommandStatusMessage = statusMessage;
         commandStatusUpdatedAt = GetServerTimeNow();
+
+        if (IsCommandErrorStatus(statusMessage))
+        {
+            Plugin.Log.Warning("FullParty run {RunId} live command: {Status}", runId, statusMessage);
+            Plugin.ShowErrorToast(statusMessage);
+            return;
+        }
+
+        if (!changed)
+            return;
+
+        Plugin.Log.Information("FullParty run {RunId} live command: {Status}", runId, statusMessage);
+    }
+
+    private static bool IsCommandErrorStatus(string statusMessage)
+    {
+        return statusMessage.Contains("failed", StringComparison.OrdinalIgnoreCase) ||
+               statusMessage.Contains("could not", StringComparison.OrdinalIgnoreCase) ||
+               statusMessage.Contains("unavailable", StringComparison.OrdinalIgnoreCase) ||
+               statusMessage.Contains("require", StringComparison.OrdinalIgnoreCase) ||
+               statusMessage.Contains("not connected", StringComparison.OrdinalIgnoreCase) ||
+               statusMessage.Contains("connect to the live room", StringComparison.OrdinalIgnoreCase) ||
+               statusMessage.Contains("not logged in", StringComparison.OrdinalIgnoreCase) ||
+               statusMessage.Contains("unsupported", StringComparison.OrdinalIgnoreCase) ||
+               statusMessage.Contains("expired", StringComparison.OrdinalIgnoreCase);
     }
 
     private void ShowOverlayFeedback(string text, LiveRoomFeedbackKind kind)

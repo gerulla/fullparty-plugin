@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using FullParty.Api;
 using FullParty.Auth;
 using Dalamud.Interface.Windowing;
+using Dalamud.Interface.ImGuiNotification;
 using Dalamud.Plugin.Services;
 using ElezenTools;
 using ElezenTools.UI;
@@ -22,12 +23,14 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
     [PluginService] internal static IClientState ClientState { get; private set; } = null!;
     [PluginService] internal static IPlayerState PlayerState { get; private set; } = null!;
+    [PluginService] internal static IDutyState DutyState { get; private set; } = null!;
     [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
     [PluginService] internal static IPartyList PartyList { get; private set; } = null!;
     [PluginService] internal static IObjectTable ObjectTable { get; private set; } = null!;
     [PluginService] internal static IFramework Framework { get; private set; } = null!;
     [PluginService] internal static IChatGui ChatGui { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
+    [PluginService] internal static INotificationManager NotificationManager { get; private set; } = null!;
 
     private const string CommandName = "/fullparty";
 
@@ -43,6 +46,7 @@ public sealed class Plugin : IDalamudPlugin
 
     public readonly WindowSystem WindowSystem = new("FullParty");
     private ConfigWindow ConfigWindow { get; init; }
+    private SettingsWindow SettingsWindow { get; init; }
     private MainWindow MainWindow { get; init; }
     private LiveRoomStatusOverlay LiveRoomStatusOverlay { get; init; }
     private readonly List<RunWindow> runWindows = [];
@@ -66,10 +70,12 @@ public sealed class Plugin : IDalamudPlugin
         PhantomJobResolver.WarmUp();
 
         ConfigWindow = new ConfigWindow(this);
+        SettingsWindow = new SettingsWindow(this);
         MainWindow = new MainWindow(this);
         LiveRoomStatusOverlay = new LiveRoomStatusOverlay(this);
 
         WindowSystem.AddWindow(ConfigWindow);
+        WindowSystem.AddWindow(SettingsWindow);
         WindowSystem.AddWindow(MainWindow);
         WindowSystem.AddWindow(LiveRoomStatusOverlay);
 
@@ -83,7 +89,7 @@ public sealed class Plugin : IDalamudPlugin
 
         // This adds a button to the plugin installer entry of this plugin which allows
         // toggling the display status of the configuration ui
-        PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUi;
+        PluginInterface.UiBuilder.OpenConfigUi += ToggleSettingsUi;
 
         // Adds another button doing the same but for the main ui of the plugin
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUi;
@@ -100,7 +106,7 @@ public sealed class Plugin : IDalamudPlugin
 
         // Unregister all actions to not leak anything during disposal of plugin
         PluginInterface.UiBuilder.Draw -= DrawUi;
-        PluginInterface.UiBuilder.OpenConfigUi -= ToggleConfigUi;
+        PluginInterface.UiBuilder.OpenConfigUi -= ToggleSettingsUi;
         PluginInterface.UiBuilder.OpenMainUi -= ToggleMainUi;
         
         WindowSystem.RemoveAllWindows();
@@ -150,9 +156,20 @@ public sealed class Plugin : IDalamudPlugin
 
         ToggleMainUi();
     }
-    
+
     public void ToggleConfigUi() => ConfigWindow.Toggle();
+    public void ToggleSettingsUi() => SettingsWindow.Toggle();
     public void ToggleMainUi() => MainWindow.Toggle();
+
+    internal static void ShowErrorToast(string message)
+    {
+        NotificationManager.AddNotification(new Notification
+        {
+            Title = "FullParty",
+            Content = message,
+            Type = NotificationType.Error,
+        });
+    }
 
     public void OpenRunWindow(FullPartyRun run)
     {
