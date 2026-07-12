@@ -91,7 +91,8 @@ public sealed record FullPartyPartySnapshotMember(
     string? PhantomJob,
     uint? PhantomJobStatusId = null,
     string? PhantomJobStatusName = null,
-    IReadOnlyList<FullPartyStatusDebug>? StatusDebug = null)
+    IReadOnlyList<FullPartyStatusDebug>? StatusDebug = null,
+    int? ResurrectionCharges = null)
 {
     public string DisplayName => string.IsNullOrWhiteSpace(Name) ? $"Slot {Position}" : Name;
 }

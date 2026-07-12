@@ -160,7 +160,8 @@ internal static class PartySnapshotBuilder
             phantomJob?.SnapshotName,
             phantomJob?.StatusId,
             phantomJob?.StatusName,
-            statusDebug);
+            statusDebug,
+            GetResurrectionCharges(member.Statuses));
     }
 
     private static FullPartyPartySnapshotMember? TryMapLocalPlayerFallback(
@@ -243,7 +244,8 @@ internal static class PartySnapshotBuilder
             phantomJob?.SnapshotName,
             phantomJob?.StatusId,
             phantomJob?.StatusName,
-            statusDebug);
+            statusDebug,
+            GetResurrectionCharges(localPlayer?.StatusList));
     }
 
     internal static int? GetCombatClassJobId(uint rowId)
@@ -277,6 +279,45 @@ internal static class PartySnapshotBuilder
         return detection == null
             ? null
             : new PhantomJobDetection(detection.SnapshotName, detection.StatusId, detection.StatusName);
+    }
+
+    internal static bool HasStatus(IEnumerable? statuses, uint statusId)
+    {
+        if (statuses == null)
+            return false;
+
+        foreach (var statusObject in statuses)
+        {
+            if (TryGetStatusId(statusObject, out var detectedId) && detectedId == statusId)
+                return true;
+        }
+
+        return false;
+    }
+
+    internal static int? GetResurrectionCharges(IEnumerable? statuses)
+    {
+        if (statuses == null)
+            return null;
+
+        int? restrictedCharges = null;
+        foreach (var statusObject in statuses)
+        {
+            if (!TryGetStatusId(statusObject, out var statusId))
+                continue;
+
+            if (statusId == OccultCrescentStatusIds.ResurrectionDenied)
+                return 0;
+
+            if (statusId == OccultCrescentStatusIds.ResurrectionRestricted && statusObject is IStatus status)
+            {
+                var stacks = (int)status.Param;
+                if (stacks is >= 1 and <= 3)
+                    restrictedCharges = stacks;
+            }
+        }
+
+        return restrictedCharges;
     }
 
     internal sealed record PhantomJobDetection(string SnapshotName, uint StatusId, string StatusName);

@@ -8,6 +8,10 @@ namespace FullParty.Services;
 
 internal static class OccultCrescentTerritory
 {
+    internal const uint SouthHornTerritoryId = 1252;
+    internal const uint SouthHornDefaultMapId = 967;
+    internal const uint ForkedTowerMapId = 986;
+
     private static readonly string[] TerritoryNameMatches = ["Occult Crescent", "South Horn"];
     private static readonly ClientLanguage[] DebugLanguages =
     [
@@ -20,6 +24,12 @@ internal static class OccultCrescentTerritory
     public static bool IsCurrent()
     {
         return IsOccultCrescentTerritory(Plugin.ClientState.TerritoryType);
+    }
+
+    public static bool IsInForkedTower()
+    {
+        return Plugin.ClientState.TerritoryType == SouthHornTerritoryId &&
+               Plugin.ClientState.MapId == ForkedTowerMapId;
     }
 
     public static bool IsOccultCrescentTerritory(uint territoryId)
@@ -37,6 +47,7 @@ internal static class OccultCrescentTerritory
         var info = new TerritoryDebugInfo
         {
             TerritoryId = territoryId,
+            IsForkedTower = territoryId == SouthHornTerritoryId && Plugin.ClientState.MapId == ForkedTowerMapId,
         };
 
         if (territoryId == 0)
@@ -64,10 +75,12 @@ internal static class OccultCrescentTerritory
                 .Append(info.DirectPlaceName)
                 .FirstOrDefault(IsOccultCrescentName);
 
-            info.IsOccultCrescent = matchedName != null;
-            info.MatchSource = matchedName == null
-                ? "none"
-                : $"place name \"{matchedName}\"";
+            info.IsOccultCrescent = territoryId == SouthHornTerritoryId || matchedName != null;
+            info.MatchSource = territoryId == SouthHornTerritoryId
+                ? $"territory ID {SouthHornTerritoryId}"
+                : matchedName == null
+                    ? "none"
+                    : $"place name \"{matchedName}\"";
         }
         catch (Exception ex)
         {
@@ -102,6 +115,7 @@ internal sealed class TerritoryDebugInfo
     public string DirectPlaceName { get; set; } = string.Empty;
     public Dictionary<string, string> PlaceNames { get; } = [];
     public bool IsOccultCrescent { get; set; }
+    public bool IsForkedTower { get; set; }
     public string MatchSource { get; set; } = "none";
     public string? Error { get; set; }
 }

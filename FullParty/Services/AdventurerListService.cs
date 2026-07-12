@@ -158,6 +158,7 @@ internal sealed unsafe class AdventurerListService : IDisposable
                 name,
                 world,
                 PartySnapshotBuilder.GetCombatClassJobShorthand(characterData.Job),
+                null,
                 null);
         }
 

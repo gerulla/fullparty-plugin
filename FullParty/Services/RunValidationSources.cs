@@ -14,7 +14,8 @@ internal sealed record GamePresenceMember(
     string Name,
     string? World,
     string? ClassJob,
-    string? PhantomJob);
+    string? PhantomJob,
+    int? ResurrectionCharges);
 
 internal sealed record ObservedGameMember(
     string Name,
@@ -72,7 +73,7 @@ internal static class RunValidationSources
         var members = new Dictionary<string, GamePresenceMember>(StringComparer.OrdinalIgnoreCase);
         foreach (var bucket in BuildObservedPartyBuckets(GetActivePartyCount(runDetail)))
             foreach (var member in bucket.Members)
-                AddPresence(members, member.Name, member.World, member.ClassJob, member.PhantomJob);
+                AddPresence(members, member.Name, member.World, member.ClassJob, member.PhantomJob, null);
 
         return new GamePresenceList([.. members.Values]);
     }
@@ -106,7 +107,7 @@ internal static class RunValidationSources
         {
             foreach (var member in source.Members)
             {
-                AddPresenceReplacingName(members, member.Name, member.World, member.ClassJob, member.PhantomJob);
+                AddPresenceReplacingName(members, member.Name, member.World, member.ClassJob, member.PhantomJob, member.ResurrectionCharges);
             }
         }
 
@@ -439,7 +440,8 @@ internal static class RunValidationSources
             phantomJob?.SnapshotName,
             phantomJob?.StatusId,
             phantomJob?.StatusName,
-            statusDebug);
+            statusDebug,
+            PartySnapshotBuilder.GetResurrectionCharges(member.Statuses));
     }
 
     private static FullPartyPartySnapshotMember MapObservedMember(
@@ -458,7 +460,8 @@ internal static class RunValidationSources
             characterId == null ? member.Name : null,
             characterId == null ? member.World : null,
             member.ClassJob,
-            member.PhantomJob);
+            member.PhantomJob,
+            ResurrectionCharges: null);
     }
 
     private static void AddPresence(
@@ -466,12 +469,13 @@ internal static class RunValidationSources
         string? name,
         string? world,
         string? classJob,
-        string? phantomJob)
+        string? phantomJob,
+        int? resurrectionCharges)
     {
         if (string.IsNullOrWhiteSpace(name))
             return;
 
-        members[GetCharacterKey(name, world)] = new GamePresenceMember(name, world, classJob, phantomJob);
+        members[GetCharacterKey(name, world)] = new GamePresenceMember(name, world, classJob, phantomJob, resurrectionCharges);
     }
 
     private static void AddPresenceReplacingName(
@@ -479,7 +483,8 @@ internal static class RunValidationSources
         string? name,
         string? world,
         string? classJob,
-        string? phantomJob)
+        string? phantomJob,
+        int? resurrectionCharges)
     {
         if (string.IsNullOrWhiteSpace(name))
             return;
@@ -500,7 +505,8 @@ internal static class RunValidationSources
             name,
             world ?? existing.Value?.World,
             classJob ?? existing.Value?.ClassJob,
-            phantomJob ?? existing.Value?.PhantomJob);
+            phantomJob ?? existing.Value?.PhantomJob,
+            resurrectionCharges ?? existing.Value?.ResurrectionCharges);
     }
 
     private static void AddNearbyPlayerPresence(
@@ -520,7 +526,8 @@ internal static class RunValidationSources
                 name,
                 world,
                 PartySnapshotBuilder.GetCombatClassJobShorthand(player.ClassJob.RowId),
-                PartySnapshotBuilder.GetPhantomJobFromStatuses(player.StatusList, runDetail));
+                PartySnapshotBuilder.GetPhantomJobFromStatuses(player.StatusList, runDetail),
+                PartySnapshotBuilder.GetResurrectionCharges(player.StatusList));
         }
         catch (Exception ex)
         {
@@ -544,7 +551,8 @@ internal static class RunValidationSources
                 name,
                 null,
                 PartySnapshotBuilder.GetCombatClassJobShorthand(player.ClassJob.RowId),
-                PartySnapshotBuilder.GetPhantomJobFromStatuses(player.StatusList, runDetail));
+                PartySnapshotBuilder.GetPhantomJobFromStatuses(player.StatusList, runDetail),
+                PartySnapshotBuilder.GetResurrectionCharges(player.StatusList));
         }
         catch (Exception ex)
         {

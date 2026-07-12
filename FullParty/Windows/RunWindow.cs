@@ -918,6 +918,7 @@ public sealed class RunWindow : Window, IDisposable
             DrawDebugKeyValue("w", member.World);
             DrawDebugKeyValue("cj", member.ClassJob);
             DrawDebugKeyValue("pj", member.PhantomJob);
+            DrawDebugKeyValue("r", member.ResurrectionCharges?.ToString());
             ImGui.EndTable();
         }
 
@@ -1517,6 +1518,7 @@ public sealed class RunWindow : Window, IDisposable
             slot.AssignedCharacter?.Name,
             slot.CharacterClass,
             slot.PhantomJob,
+            null,
             slot.CharacterClassRole,
             null,
             [],
@@ -1530,7 +1532,7 @@ public sealed class RunWindow : Window, IDisposable
     {
         if (member == null)
         {
-            DrawModernResolvedRosterSlot(runDetail, plannedSlot, null, null, null, null, null, null, null, [], runDetail.CanModerate);
+            DrawModernResolvedRosterSlot(runDetail, plannedSlot, null, null, null, null, null, null, null, null, [], runDetail.CanModerate);
             return;
         }
 
@@ -1545,6 +1547,7 @@ public sealed class RunWindow : Window, IDisposable
             character?.Name ?? member.DisplayName,
             classJob,
             member.PhantomJob,
+            member.ResurrectionCharges,
             GetRoleForClassJob(runDetail, classJob),
             null,
             [],
@@ -1558,7 +1561,7 @@ public sealed class RunWindow : Window, IDisposable
     {
         if (result == null)
         {
-            DrawModernResolvedRosterSlot(runDetail, plannedSlot, null, null, null, null, null, null, null, [], runDetail.CanModerate);
+            DrawModernResolvedRosterSlot(runDetail, plannedSlot, null, null, null, null, null, null, null, null, [], runDetail.CanModerate);
             return;
         }
 
@@ -1570,6 +1573,7 @@ public sealed class RunWindow : Window, IDisposable
             result.DisplayName,
             result.ClassJob,
             result.PhantomJob,
+            null,
             GetRoleForClassJob(runDetail, result.ClassJob),
             result.State,
             result.Messages,
@@ -1584,6 +1588,7 @@ public sealed class RunWindow : Window, IDisposable
         string? displayName,
         string? classJob,
         string? phantomJob,
+        int? resurrectionCharges,
         string? role,
         ValidationState? validationState,
         IReadOnlyList<string> validationMessages,
@@ -1634,8 +1639,16 @@ public sealed class RunWindow : Window, IDisposable
             DrawPartyLeadCrown(drawList, ref cursor);
 
         var iconRight = max.X - 6f;
+        Vector2? resurrectionIconPosition = null;
         Vector2? phantomIconPosition = null;
         Vector2? classIconPosition = null;
+        if (rosterDataMode == RosterDataMode.Off && OccultCrescentStatusIds.IsForkedTowerContext())
+        {
+            iconRight -= 20f;
+            resurrectionIconPosition = new Vector2(iconRight, min.Y + 12f);
+            iconRight -= 4f;
+        }
+
         var expectsPhantomJob = rosterSlot != null && HasPhantomJob(rosterSlot);
         if (!string.IsNullOrWhiteSpace(phantomJob) || expectsPhantomJob)
         {
@@ -1669,6 +1682,15 @@ public sealed class RunWindow : Window, IDisposable
                 !DrawPhantomJobIconByName(drawList, runDetail, phantomJob, phantomIconPosition.Value))
             {
                 DrawUnknownDetectionIcon(drawList, phantomIconPosition.Value);
+            }
+        }
+
+        if (resurrectionIconPosition != null)
+        {
+            if (resurrectionCharges == null ||
+                !DrawResurrectionStatusIcon(drawList, resurrectionCharges.Value, resurrectionIconPosition.Value))
+            {
+                DrawUnknownDetectionIcon(drawList, resurrectionIconPosition.Value);
             }
         }
 
@@ -2687,6 +2709,44 @@ public sealed class RunWindow : Window, IDisposable
         return true;
     }
 
+    private static bool DrawResurrectionStatusIcon(ImDrawListPtr drawList, int charges, Vector2 position)
+    {
+        if (charges is < 0 or > 3)
+            return false;
+
+        var statusId = charges == 0
+            ? OccultCrescentStatusIds.ResurrectionDenied
+            : OccultCrescentStatusIds.ResurrectionRestricted;
+        if (!Plugin.DataManager.GetExcelSheet<Lumina.Excel.Sheets.Status>().TryGetRow(statusId, out var status) || status.Icon == 0)
+            return false;
+
+        var texture = Plugin.TextureProvider
+            .GetFromGameIcon(new GameIconLookup(status.Icon))
+            .GetWrapOrDefault();
+        if (texture == null)
+            return false;
+
+        drawList.AddImage(texture.Handle, position, position + new Vector2(20f, 20f));
+        if (charges == 0)
+            return true;
+
+        var label = charges.ToString();
+        var textSize = ImGui.CalcTextSize(label);
+        var textPosition = position + new Vector2(19f - textSize.X, 18f - textSize.Y);
+        var outline = ImGui.ColorConvertFloat4ToU32(new Vector4(0f, 0f, 0f, 1f));
+        foreach (var offset in new[]
+                 {
+                     new Vector2(-1f, 0f), new Vector2(1f, 0f),
+                     new Vector2(0f, -1f), new Vector2(0f, 1f),
+                 })
+        {
+            drawList.AddText(textPosition + offset, outline, label);
+        }
+
+        drawList.AddText(textPosition, ImGui.ColorConvertFloat4ToU32(new Vector4(1f, 1f, 1f, 1f)), label);
+        return true;
+    }
+
     private static void DrawUnknownDetectionIcon(ImDrawListPtr drawList, Vector2 position)
     {
         const float size = 20f;
@@ -3043,6 +3103,7 @@ public sealed class RunWindow : Window, IDisposable
                 {
                     ClassJob = detection.ClassJob ?? member.ClassJob,
                     PhantomJob = detection.PhantomJob ?? member.PhantomJob,
+                    ResurrectionCharges = detection.ResurrectionCharges ?? member.ResurrectionCharges,
                 };
             })
             .ToList();

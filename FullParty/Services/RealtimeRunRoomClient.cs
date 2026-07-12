@@ -1942,7 +1942,16 @@ public sealed class RealtimeRunRoomClient : IDisposable
             GetClassJob(member),
             GetPhantomJob(member),
             GetUInt(member, "sid") ?? GetUInt(member, "status_id") ?? GetUInt(member, "statusId") ?? GetUInt(member, "phantom_job_status_id") ?? GetUInt(member, "phantomJobStatusId"),
-            GetString(member, "sn") ?? GetString(member, "status_name") ?? GetString(member, "statusName") ?? GetString(member, "phantom_job_status_name") ?? GetString(member, "phantomJobStatusName"));
+            GetString(member, "sn") ?? GetString(member, "status_name") ?? GetString(member, "statusName") ?? GetString(member, "phantom_job_status_name") ?? GetString(member, "phantomJobStatusName"),
+            ResurrectionCharges: GetResurrectionCharges(member));
+    }
+
+    private static int? GetResurrectionCharges(JsonElement member)
+    {
+        var charges = GetInt(member, "r") ??
+                      GetInt(member, "resurrection_charges") ??
+                      GetInt(member, "resurrectionCharges");
+        return charges is >= 0 and <= 3 ? charges : null;
     }
 
     private static string? GetClassJob(JsonElement root)

@@ -196,7 +196,8 @@ public sealed class FullPartyApiClient
                     string.IsNullOrWhiteSpace(member.Name) ? null : member.Name,
                     string.IsNullOrWhiteSpace(member.World) ? null : member.World,
                     string.IsNullOrWhiteSpace(member.ClassJob) ? null : member.ClassJob,
-                    string.IsNullOrWhiteSpace(member.PhantomJob) ? null : member.PhantomJob)).ToList()),
+                    string.IsNullOrWhiteSpace(member.PhantomJob) ? null : member.PhantomJob,
+                    member.ResurrectionCharges)).ToList()),
             cancellationToken);
     }
 
@@ -738,7 +739,8 @@ public sealed class FullPartyApiClient
         [property: JsonPropertyName("n")] string? Name,
         [property: JsonPropertyName("w")] string? World,
         [property: JsonPropertyName("cj")] string? ClassJob,
-        [property: JsonPropertyName("pj")] string? PhantomJob);
+        [property: JsonPropertyName("pj")] string? PhantomJob,
+        [property: JsonPropertyName("r")] int? ResurrectionCharges);
 
     private sealed record RunCheckInsRequest(
         [property: JsonPropertyName("slot_ids")] IReadOnlyList<int> SlotIds,

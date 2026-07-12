@@ -200,10 +200,12 @@ public class ConfigWindow : Window, IDisposable
         var territory = OccultCrescentTerritory.GetCurrentDebugInfo();
         ImGui.Text($"Current territory ID: {territory.TerritoryId}");
         ImGui.Text($"Detected as Occult Crescent: {(territory.IsOccultCrescent ? "Yes" : "No")}");
+        ImGui.Text($"Detected as Forked Tower: {(territory.IsForkedTower ? "Yes" : "No")}");
         ImGui.TextWrapped($"Match source: {territory.MatchSource}");
         ImGui.Text($"PlaceName row ID: {territory.PlaceNameRowId}");
         ImGui.Text($"Runtime map ID: {Plugin.ClientState.MapId}");
         ImGui.Text($"Territory default map row ID: {territory.DefaultMapId}");
+        ImGui.TextDisabled($"Forked Tower detection: territory {OccultCrescentTerritory.SouthHornTerritoryId}, runtime map {OccultCrescentTerritory.ForkedTowerMapId}.");
 
         var localPlayer = Plugin.ObjectTable.LocalPlayer;
         if (localPlayer != null)
