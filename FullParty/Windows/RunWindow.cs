@@ -115,6 +115,7 @@ public sealed class RunWindow : Window, IDisposable
     private bool hasRosterCompanionSize;
     private bool applyRosterCompanionSizeNextDraw = true;
     private bool? lastOccultState;
+    private GamePresenceList nearbyDetectionCache = GamePresenceList.Empty;
     private string? readyCheckPromptPopupRequestId;
     private bool windowStylePushed;
     private Vector2 runContentClipMin;
@@ -1544,7 +1545,7 @@ public sealed class RunWindow : Window, IDisposable
             character?.Name ?? member.DisplayName,
             classJob,
             member.PhantomJob,
-            GetRoleForClassJob(runDetail, classJob) ?? resolvedSlot?.CharacterClassRole,
+            GetRoleForClassJob(runDetail, classJob),
             null,
             [],
             runDetail.CanModerate);
@@ -1569,7 +1570,7 @@ public sealed class RunWindow : Window, IDisposable
             result.DisplayName,
             result.ClassJob,
             result.PhantomJob,
-            GetRoleForClassJob(runDetail, result.ClassJob) ?? result.RosterSlot?.CharacterClassRole,
+            GetRoleForClassJob(runDetail, result.ClassJob),
             result.State,
             result.Messages,
             runDetail.CanModerate);
@@ -1635,14 +1636,16 @@ public sealed class RunWindow : Window, IDisposable
         var iconRight = max.X - 6f;
         Vector2? phantomIconPosition = null;
         Vector2? classIconPosition = null;
-        if (!string.IsNullOrWhiteSpace(phantomJob) || (rosterSlot != null && HasPhantomJob(rosterSlot)))
+        var expectsPhantomJob = rosterSlot != null && HasPhantomJob(rosterSlot);
+        if (!string.IsNullOrWhiteSpace(phantomJob) || expectsPhantomJob)
         {
             iconRight -= 20f;
             phantomIconPosition = new Vector2(iconRight, min.Y + 12f);
             iconRight -= 4f;
         }
 
-        if (!string.IsNullOrWhiteSpace(classJob) || !string.IsNullOrWhiteSpace(rosterSlot?.CharacterClass))
+        var expectsClassJob = !string.IsNullOrWhiteSpace(rosterSlot?.CharacterClass);
+        if (!string.IsNullOrWhiteSpace(classJob) || expectsClassJob)
         {
             iconRight -= 20f;
             classIconPosition = new Vector2(iconRight, min.Y + 12f);
@@ -1656,15 +1659,17 @@ public sealed class RunWindow : Window, IDisposable
 
         if (classIconPosition != null)
         {
-            if (!DrawJobIcon(drawList, classJob, classIconPosition.Value))
-                DrawJobIcon(drawList, rosterSlot?.CharacterClass, classIconPosition.Value);
+            if (string.IsNullOrWhiteSpace(classJob) || !DrawJobIcon(drawList, classJob, classIconPosition.Value))
+                DrawUnknownDetectionIcon(drawList, classIconPosition.Value);
         }
 
         if (phantomIconPosition != null)
         {
-            var drawn = rosterSlot != null && DrawPhantomJobIcon(drawList, rosterSlot, phantomIconPosition.Value);
-            if (!drawn && !string.IsNullOrWhiteSpace(phantomJob))
-                DrawPhantomJobIconByName(drawList, runDetail, phantomJob, phantomIconPosition.Value);
+            if (string.IsNullOrWhiteSpace(phantomJob) ||
+                !DrawPhantomJobIconByName(drawList, runDetail, phantomJob, phantomIconPosition.Value))
+            {
+                DrawUnknownDetectionIcon(drawList, phantomIconPosition.Value);
+            }
         }
 
         if (searchMatch)
@@ -2084,7 +2089,7 @@ public sealed class RunWindow : Window, IDisposable
             var missingMessages = new List<string>();
             var state = ValidationState.Error;
             string? classJob = null;
-            string? phantomJob = plannedSlot.PhantomJob;
+            string? phantomJob = null;
             if (expectedObserved != null)
             {
                 state = ValidationState.Warning;
@@ -2092,13 +2097,13 @@ public sealed class RunWindow : Window, IDisposable
                     ? $"Wrong place: currently in {FormatObservedLocation(runDetail, expectedObserved, false)}."
                     : $"Wrong party: currently in {FormatObservedLocation(runDetail, expectedObserved, true)}.");
                 classJob = NormalizeClassJob(expectedObserved.Member.ClassJob);
-                phantomJob = expectedObserved.Member.PhantomJob ?? plannedSlot.PhantomJob;
+                phantomJob = expectedObserved.Member.PhantomJob;
             }
             else if (expectedPresence != null)
             {
                 state = ValidationState.Warning;
                 classJob = NormalizeClassJob(expectedPresence.ClassJob);
-                phantomJob = expectedPresence.PhantomJob ?? plannedSlot.PhantomJob;
+                phantomJob = expectedPresence.PhantomJob;
                 missingMessages.Add("Present in nearby players or Adventurer List; party position has not been synced yet.");
                 AddClassValidationMessage(plannedSlot, classJob, missingMessages);
                 AddPresencePhantomJobValidationMessage(runDetail, plannedSlot, expectedPresence.PhantomJob, missingMessages);
@@ -2189,7 +2194,7 @@ public sealed class RunWindow : Window, IDisposable
             plannedSlot,
             expectedCharacter.Name,
             actualClassJob,
-            actualMember.PhantomJob ?? plannedSlot.PhantomJob,
+            actualMember.PhantomJob,
             messages.Count == 0 ? ValidationState.Ok : ValidationState.Warning,
             messages);
     }
@@ -2682,6 +2687,21 @@ public sealed class RunWindow : Window, IDisposable
         return true;
     }
 
+    private static void DrawUnknownDetectionIcon(ImDrawListPtr drawList, Vector2 position)
+    {
+        const float size = 20f;
+        var max = position + new Vector2(size, size);
+        drawList.AddRectFilled(position, max, FullPartyModernPalette.Color(FullPartyModernPalette.Elevated), 3f);
+        drawList.AddRect(position, max, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft), 3f);
+
+        const string label = "?";
+        var textSize = ImGui.CalcTextSize(label);
+        drawList.AddText(
+            position + ((new Vector2(size, size) - textSize) * 0.5f),
+            FullPartyModernPalette.Color(FullPartyModernPalette.Muted),
+            label);
+    }
+
     private static string? GetPhantomJobIconFilePath(string? phantomJob)
     {
         var token = NormalizePhantomJob(phantomJob);
@@ -2917,8 +2937,11 @@ public sealed class RunWindow : Window, IDisposable
     {
         var inOccult = OccultCrescentTerritory.IsCurrent();
         ObserveOccultState(inOccult);
+        if (inOccult)
+            UpdateNearbyDetectionCache(runDetail);
+
         var occultPresence = inOccult
-            ? BuildOccultPresence(runDetail, requestOccultRefresh)
+            ? BuildOccultPresence(runDetail, requestOccultRefresh, nearbyDetectionCache)
             : GamePresenceList.Empty;
         var sourceSnapshots = inOccult
             ? BuildOccultSourceSnapshots(runDetail)
@@ -2929,6 +2952,13 @@ public sealed class RunWindow : Window, IDisposable
         var snapshotsByParty = inOccult
             ? occultPartyAssignments.ToDictionary(pair => pair.Key, pair => pair.Value.Snapshot, StringComparer.OrdinalIgnoreCase)
             : sourceSnapshots.ToDictionary(snapshot => snapshot.PartyKey, StringComparer.OrdinalIgnoreCase);
+        if (inOccult)
+        {
+            snapshotsByParty = snapshotsByParty.ToDictionary(
+                pair => pair.Key,
+                pair => ApplyNearbyDetection(runDetail, pair.Value, nearbyDetectionCache),
+                StringComparer.OrdinalIgnoreCase);
+        }
         var computedSnapshots = snapshotsByParty.Values
             .GroupBy(snapshot => $"{snapshot.SenderUserId}:{snapshot.PartyKey}:{snapshot.Sequence}", StringComparer.OrdinalIgnoreCase)
             .Select(group => group.First())
@@ -2953,6 +2983,8 @@ public sealed class RunWindow : Window, IDisposable
             plugin.AdventurerList.ResetForOccultVisit();
         }
 
+        nearbyDetectionCache = GamePresenceList.Empty;
+
         lastOccultState = inOccult;
     }
 
@@ -2966,9 +2998,11 @@ public sealed class RunWindow : Window, IDisposable
         return snapshots;
     }
 
-    private GamePresenceList BuildOccultPresence(FullPartyRunDetail runDetail, bool requestOccultRefresh)
+    private GamePresenceList BuildOccultPresence(
+        FullPartyRunDetail runDetail,
+        bool requestOccultRefresh,
+        GamePresenceList nearbyPresence)
     {
-        var nearbyPresence = RunValidationSources.BuildNearbyPlayerPresence(runDetail);
         if (requestOccultRefresh &&
             !plugin.AdventurerList.HasRequestedRefresh &&
             !plugin.AdventurerList.IsRefreshing &&
@@ -2980,6 +3014,40 @@ public sealed class RunWindow : Window, IDisposable
         return RunValidationSources.MergePresence(
             plugin.AdventurerList.GetPresence(runDetail),
             nearbyPresence);
+    }
+
+    private GamePresenceList UpdateNearbyDetectionCache(FullPartyRunDetail runDetail)
+    {
+        nearbyDetectionCache = RunValidationSources.MergePresence(
+            nearbyDetectionCache,
+            RunValidationSources.BuildNearbyPlayerPresence(runDetail));
+        return nearbyDetectionCache;
+    }
+
+    private static FullPartyPartySnapshot ApplyNearbyDetection(
+        FullPartyRunDetail runDetail,
+        FullPartyPartySnapshot snapshot,
+        GamePresenceList nearbyPresence)
+    {
+        var members = snapshot.Members
+            .Select(member =>
+            {
+                var character = ResolveCharacter(runDetail, member);
+                var found = character != null
+                    ? nearbyPresence.TryFind(character, out var detection)
+                    : nearbyPresence.TryFind(member.Name, member.World, out detection);
+                if (!found)
+                    return member;
+
+                return member with
+                {
+                    ClassJob = detection.ClassJob ?? member.ClassJob,
+                    PhantomJob = detection.PhantomJob ?? member.PhantomJob,
+                };
+            })
+            .ToList();
+
+        return snapshot with { Members = members };
     }
 
     private static IReadOnlyDictionary<string, OccultPartyAssignment> BuildOccultPartyAssignments(
@@ -3333,7 +3401,7 @@ public sealed class RunWindow : Window, IDisposable
     private RunCheckInSelection BuildRunCheckInSelection(FullPartyRunDetail runDetail)
     {
         var presence = OccultCrescentTerritory.IsCurrent()
-            ? BuildOccultPresence(runDetail, false)
+            ? BuildOccultPresence(runDetail, false, UpdateNearbyDetectionCache(runDetail))
             : RunValidationSources.BuildLocalPartyPresence(runDetail);
         var assignedSlots = runDetail.Slots
             .Where(slot => slot.AssignedCharacter != null)

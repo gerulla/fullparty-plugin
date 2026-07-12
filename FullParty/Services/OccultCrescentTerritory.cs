@@ -51,6 +51,7 @@ internal static class OccultCrescentTerritory
             }
 
             info.PlaceNameRowId = territory.PlaceName.RowId;
+            info.DefaultMapId = territory.Map.RowId;
             info.DirectPlaceName = territory.PlaceName.Value.Name.ToString();
 
             foreach (var language in DebugLanguages)
@@ -97,6 +98,7 @@ internal sealed class TerritoryDebugInfo
 {
     public uint TerritoryId { get; init; }
     public uint PlaceNameRowId { get; set; }
+    public uint DefaultMapId { get; set; }
     public string DirectPlaceName { get; set; } = string.Empty;
     public Dictionary<string, string> PlaceNames { get; } = [];
     public bool IsOccultCrescent { get; set; }

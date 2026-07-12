@@ -161,8 +161,16 @@ public sealed class RealtimeRunRoomClient : IDisposable
             lock (stateLock)
             {
                 return members.Values
-                    .OrderBy(member => member.DisplayName, StringComparer.OrdinalIgnoreCase)
-                    .ThenBy(member => member.UserName, StringComparer.OrdinalIgnoreCase)
+                    .Select(member => new
+                    {
+                        Member = member,
+                        PartyKey = GetSyncedPartyKeyNoLock(member),
+                    })
+                    .OrderBy(item => string.IsNullOrWhiteSpace(item.PartyKey) ? 1 : 0)
+                    .ThenBy(item => GetPartySortKey(item.PartyKey), StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(item => item.Member.DisplayName, StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(item => item.Member.UserName, StringComparer.OrdinalIgnoreCase)
+                    .Select(item => item.Member)
                     .ToList();
             }
         }
@@ -205,15 +213,38 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     public string GetSyncedPartyLabel(FullPartyLiveMember member)
     {
-        if (!long.TryParse(member.UserId, NumberStyles.Integer, CultureInfo.InvariantCulture, out var userId))
-            return "-";
-
         lock (stateLock)
         {
-            return syncedPartyKeyByUserId.TryGetValue(userId, out var partyKey)
+            var partyKey = GetSyncedPartyKeyNoLock(member);
+            return partyKey != null
                 ? FormatPartyKey(partyKey)
                 : "-";
         }
+    }
+
+    private string? GetSyncedPartyKeyNoLock(FullPartyLiveMember member)
+    {
+        if (!long.TryParse(member.UserId, NumberStyles.Integer, CultureInfo.InvariantCulture, out var userId))
+            return null;
+
+        return syncedPartyKeyByUserId.TryGetValue(userId, out var partyKey) && !string.IsNullOrWhiteSpace(partyKey)
+            ? partyKey
+            : null;
+    }
+
+    private static string GetPartySortKey(string? partyKey)
+    {
+        if (string.IsNullOrWhiteSpace(partyKey))
+            return string.Empty;
+
+        var normalized = partyKey.Trim().Replace('_', '-');
+        if (normalized.StartsWith("party-", StringComparison.OrdinalIgnoreCase))
+            return normalized["party-".Length..].Trim();
+
+        if (normalized.StartsWith("Party ", StringComparison.OrdinalIgnoreCase))
+            return normalized["Party ".Length..].Trim();
+
+        return normalized;
     }
 
     internal bool TryGetReadyCheckSummary(FullPartyLiveMember member, out ReadyCheckSummary summary)

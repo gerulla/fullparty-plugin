@@ -50,10 +50,15 @@ internal sealed class GamePresenceList
 
     public bool TryFind(FullPartyRosterCharacter character, out GamePresenceMember member)
     {
-        if (byCharacterKey.TryGetValue(RunValidationSources.GetCharacterKey(character.Name, character.World), out member!))
+        return TryFind(character.Name, character.World, out member);
+    }
+
+    public bool TryFind(string? name, string? world, out GamePresenceMember member)
+    {
+        if (byCharacterKey.TryGetValue(RunValidationSources.GetCharacterKey(name, world), out member!))
             return true;
 
-        return byName.TryGetValue(RunValidationSources.NormalizeKeyPart(character.Name), out member!);
+        return byName.TryGetValue(RunValidationSources.NormalizeKeyPart(name), out member!);
     }
 }
 
@@ -480,6 +485,8 @@ internal static class RunValidationSources
             return;
 
         var normalizedName = NormalizeKeyPart(name);
+        var existing = members
+            .FirstOrDefault(pair => NormalizeKeyPart(pair.Value.Name).Equals(normalizedName, StringComparison.OrdinalIgnoreCase));
         foreach (var key in members
                      .Where(pair => NormalizeKeyPart(pair.Value.Name).Equals(normalizedName, StringComparison.OrdinalIgnoreCase))
                      .Select(pair => pair.Key)
@@ -488,7 +495,12 @@ internal static class RunValidationSources
             members.Remove(key);
         }
 
-        AddPresence(members, name, world, classJob, phantomJob);
+        AddPresence(
+            members,
+            name,
+            world ?? existing.Value?.World,
+            classJob ?? existing.Value?.ClassJob,
+            phantomJob ?? existing.Value?.PhantomJob);
     }
 
     private static void AddNearbyPlayerPresence(

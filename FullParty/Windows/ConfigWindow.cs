@@ -7,6 +7,7 @@ using Dalamud.Game;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
 using ElezenTools.UI;
+using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FullParty.Models;
 using FullParty.Services;
 using Lumina.Excel.Sheets;
@@ -191,7 +192,7 @@ public class ConfigWindow : Window, IDisposable
         DrawStatusDebug();
     }
 
-    private static void DrawTerritoryDebug()
+    private static unsafe void DrawTerritoryDebug()
     {
         if (!ImGui.CollapsingHeader("Territory / Instance Debug", ImGuiTreeNodeFlags.DefaultOpen))
             return;
@@ -201,6 +202,19 @@ public class ConfigWindow : Window, IDisposable
         ImGui.Text($"Detected as Occult Crescent: {(territory.IsOccultCrescent ? "Yes" : "No")}");
         ImGui.TextWrapped($"Match source: {territory.MatchSource}");
         ImGui.Text($"PlaceName row ID: {territory.PlaceNameRowId}");
+        ImGui.Text($"Runtime map ID: {Plugin.ClientState.MapId}");
+        ImGui.Text($"Territory default map row ID: {territory.DefaultMapId}");
+
+        var localPlayer = Plugin.ObjectTable.LocalPlayer;
+        if (localPlayer != null)
+        {
+            var position = localPlayer.Position;
+            ImGui.Text($"Player position: X={position.X:F2}, Y={position.Y:F2}, Z={position.Z:F2}");
+        }
+        else
+        {
+            ImGui.TextDisabled("Player position: unavailable");
+        }
 
         ImGui.Spacing();
         ImGui.TextUnformatted("Current duty / instance:");
@@ -212,7 +226,34 @@ public class ConfigWindow : Window, IDisposable
             ImGui.SetClipboardText(contentFinderConditionId.ToString());
 
         ImGui.Text($"Duty started: {(Plugin.DutyState.IsDutyStarted ? "Yes" : "No")}");
-        ImGui.TextDisabled("Use the numeric ContentFinderCondition row ID for language-independent detection.");
+        ImGui.TextDisabled("Territory and duty IDs may remain South Horn inside nested content; compare runtime map ID and position too.");
+
+        ImGui.Spacing();
+        ImGui.TextUnformatted("Runtime content director:");
+        try
+        {
+            var currentContentId = EventFramework.GetCurrentContentId();
+            var currentContentType = EventFramework.GetCurrentContentType();
+            ImGui.Text($"Current content ID: {currentContentId}");
+            ImGui.Text($"Current content type: {(int)currentContentType} ({currentContentType})");
+
+            var eventFramework = EventFramework.Instance();
+            var massiveDirector = eventFramework == null ? null : eventFramework->GetMassivePcContentDirector();
+            if (massiveDirector == null)
+            {
+                ImGui.TextDisabled("Massive PC Content director: unavailable");
+            }
+            else
+            {
+                ImGui.Text($"Massive PC director content ID: {massiveDirector->ContentId}");
+                ImGui.Text($"Massive PC director sequence: {massiveDirector->Sequence}");
+                ImGui.Text($"Massive PC director flags: {massiveDirector->ContentFlags}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ImGui.TextWrapped($"Could not read runtime content director: {ex.Message}");
+        }
 
         if (contentFinderConditionId != 0)
         {
