@@ -42,6 +42,7 @@ internal enum RosterDataMode
 {
     Off,
     Validate,
+    Lives,
     Only,
 }
 
@@ -1309,7 +1310,8 @@ public sealed class RunWindow : Window, IDisposable
             rosterDataMode = rosterDataMode switch
             {
                 RosterDataMode.Off => RosterDataMode.Validate,
-                RosterDataMode.Validate => RosterDataMode.Only,
+                RosterDataMode.Validate => RosterDataMode.Lives,
+                RosterDataMode.Lives => RosterDataMode.Only,
                 _ => RosterDataMode.Off,
             };
         }
@@ -1346,6 +1348,7 @@ public sealed class RunWindow : Window, IDisposable
         {
             RosterDataMode.Off => "Off",
             RosterDataMode.Validate => "Validate",
+            RosterDataMode.Lives => "Lives",
             _ => "Only",
         };
     }
@@ -1426,7 +1429,7 @@ public sealed class RunWindow : Window, IDisposable
 
                 if (!rosterShowEmptySlots &&
                     ((rosterDataMode == RosterDataMode.Only && slot.AssignedCharacter == null) ||
-                     (rosterDataMode == RosterDataMode.Off && actualMember == null)))
+                     (rosterDataMode is RosterDataMode.Off or RosterDataMode.Lives && actualMember == null)))
                 {
                     continue;
                 }
@@ -1440,7 +1443,7 @@ public sealed class RunWindow : Window, IDisposable
                     continue;
                 }
 
-                if (rosterDataMode == RosterDataMode.Off)
+                if (rosterDataMode is RosterDataMode.Off or RosterDataMode.Lives)
                 {
                     DrawModernDetectedRosterSlot(runDetail, slot, actualMember);
                     continue;
@@ -1637,7 +1640,9 @@ public sealed class RunWindow : Window, IDisposable
 
         var background = validationState != null
             ? GetValidationSlotBackground(validationState.Value, hovered)
-            : GetFilledSlotBackground(role, hovered && canOpenApplication) with { W = hovered ? 0.70f : 0.52f };
+            : rosterDataMode == RosterDataMode.Lives
+                ? GetLivesSlotBackground(resurrectionCharges, hovered)
+                : GetFilledSlotBackground(role, hovered && canOpenApplication) with { W = hovered ? 0.70f : 0.52f };
         drawList.AddRectFilled(cardMin, max, FullPartyModernPalette.Color(background), 4f);
         drawList.AddRect(cardMin, max, FullPartyModernPalette.Color(FullPartyModernPalette.BorderSoft with { W = hovered ? 0.90f : 0.56f }), 4f);
 
@@ -1655,7 +1660,7 @@ public sealed class RunWindow : Window, IDisposable
         Vector2? resurrectionIconPosition = null;
         Vector2? phantomIconPosition = null;
         Vector2? classIconPosition = null;
-        if (rosterDataMode == RosterDataMode.Off && OccultCrescentStatusIds.IsForkedTowerContext())
+        if (rosterDataMode is RosterDataMode.Off or RosterDataMode.Lives && OccultCrescentStatusIds.IsForkedTowerContext())
         {
             iconRight -= 20f;
             resurrectionIconPosition = new Vector2(iconRight, min.Y + 12f);
@@ -3370,6 +3375,21 @@ public sealed class RunWindow : Window, IDisposable
         return hovered
             ? new Vector4(0.25f, 0.30f, 0.36f, 0.38f)
             : new Vector4(0.10f, 0.12f, 0.15f, 0.28f);
+    }
+
+    private static Vector4 GetLivesSlotBackground(int? resurrectionCharges, bool hovered)
+    {
+        var alpha = hovered ? 0.70f : 0.52f;
+        return resurrectionCharges switch
+        {
+            3 => new Vector4(0.08f, 0.38f, 0.18f, alpha),
+            2 => new Vector4(0.58f, 0.43f, 0.06f, alpha),
+            1 => new Vector4(0.66f, 0.27f, 0.04f, alpha),
+            0 => new Vector4(0.55f, 0.08f, 0.10f, alpha),
+            _ => hovered
+                ? new Vector4(0.25f, 0.30f, 0.36f, 0.38f)
+                : new Vector4(0.10f, 0.12f, 0.15f, 0.28f),
+        };
     }
 
     private static string TrimToWidth(string value, float maxWidth)
