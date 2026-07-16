@@ -1201,12 +1201,13 @@ public sealed class RunWindow : Window, IDisposable
             return;
         }
 
-        DrawModernRosterSummary(parties, benchSlots);
+        var computedSnapshots = BuildComputedPartySnapshots(runDetail, parties, true);
+        DrawModernRosterSummary(parties, benchSlots, computedSnapshots);
         ImGui.Spacing();
         DrawModernRosterToolbar();
         ImGui.Spacing();
 
-        DrawModernPartyRoster(parties, runDetail);
+        DrawModernPartyRoster(parties, runDetail, computedSnapshots);
 
         if (benchSlots.Count > 0)
         {
@@ -1217,10 +1218,12 @@ public sealed class RunWindow : Window, IDisposable
 
     private void DrawModernRosterSummary(
         IReadOnlyList<IReadOnlyList<FullPartyRosterSlot>> parties,
-        IReadOnlyList<FullPartyRosterSlot> benchSlots)
+        IReadOnlyList<FullPartyRosterSlot> benchSlots,
+        ComputedPartySnapshots computedSnapshots)
     {
         var partySlots = parties.SelectMany(party => party).ToList();
         var assignedPlayers = partySlots.Count(slot => slot.AssignedCharacter != null);
+        var livePartyPlayers = computedSnapshots.ByParty.Values.Sum(snapshot => snapshot.Members.Count);
         var assignedParties = parties.Count(party => party.Any(slot => slot.AssignedCharacter != null));
         var assignedBench = benchSlots.Count(slot => slot.AssignedCharacter != null);
         var missing = partySlots.Count - assignedPlayers;
@@ -1237,7 +1240,7 @@ public sealed class RunWindow : Window, IDisposable
         ImGui.SetWindowFontScale(1f);
 
         ImGui.TableNextColumn();
-        DrawRosterStatPill("Players", $"{assignedPlayers} / {partySlots.Count}", 112f);
+        DrawRosterStatPill("Players", $"{livePartyPlayers} / {partySlots.Count}", 112f);
         ImGui.SameLine();
         DrawRosterStatPill("Parties", $"{assignedParties} / {parties.Count}", 104f);
         ImGui.SameLine();
@@ -1280,7 +1283,7 @@ public sealed class RunWindow : Window, IDisposable
     private void DrawModernRosterToolbar()
     {
         ImGui.SetNextItemWidth(230f);
-        ImGui.InputTextWithHint("##fullparty_roster_search", "Search name, class, or phantom job...", ref rosterSearch, 80);
+        ImGui.InputTextWithHint("##fullparty_roster_search", "Search... or :death X", ref rosterSearch, 80);
 
         ImGui.SameLine();
         ImGui.SetNextItemWidth(145f);
@@ -1349,7 +1352,8 @@ public sealed class RunWindow : Window, IDisposable
 
     private void DrawModernPartyRoster(
         IReadOnlyList<IReadOnlyList<FullPartyRosterSlot>> parties,
-        FullPartyRunDetail runDetail)
+        FullPartyRunDetail runDetail,
+        ComputedPartySnapshots liveSnapshots)
     {
         if (parties.Count == 0)
         {
@@ -1359,7 +1363,7 @@ public sealed class RunWindow : Window, IDisposable
 
         var computedSnapshots = rosterDataMode == RosterDataMode.Only
             ? null
-            : BuildComputedPartySnapshots(runDetail, parties, true);
+            : liveSnapshots;
         var observedById = computedSnapshots == null
             ? new Dictionary<long, ObservedSnapshotMember>()
             : BuildObservedByCharacterId(computedSnapshots.Snapshots);
@@ -1488,12 +1492,21 @@ public sealed class RunWindow : Window, IDisposable
         string? displayName,
         string? classJob,
         string? phantomJob,
-        FullPartyRosterSlot? rosterSlot)
+        FullPartyRosterSlot? rosterSlot,
+        int? resurrectionCharges)
     {
         if (string.IsNullOrWhiteSpace(rosterSearch))
             return false;
 
         var query = rosterSearch.Trim();
+        if (query.StartsWith(":death", StringComparison.OrdinalIgnoreCase))
+        {
+            var value = query[":death".Length..].Trim();
+            return int.TryParse(value, out var requestedLives) &&
+                   requestedLives is >= 0 and <= 3 &&
+                   resurrectionCharges == requestedLives;
+        }
+
         var normalizedClass = NormalizeClassJob(classJob ?? rosterSlot?.CharacterClass);
         var normalizedPhantomJob = NormalizePhantomJob(phantomJob ?? rosterSlot?.PhantomJob);
         return (displayName?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) ||
@@ -1603,7 +1616,7 @@ public sealed class RunWindow : Window, IDisposable
         var max = ImGui.GetItemRectMax();
         var drawList = ImGui.GetWindowDrawList();
         var hovered = ImGui.IsItemHovered();
-        var searchMatch = IsRosterSearchMatch(displayName, classJob, phantomJob, rosterSlot);
+        var searchMatch = IsRosterSearchMatch(displayName, classJob, phantomJob, rosterSlot, resurrectionCharges);
         var positionWidth = 24f;
         var cardMin = min + new Vector2(positionWidth + 4f, 0f);
         var number = (plannedSlot.PositionInGroup ?? 0).ToString();
