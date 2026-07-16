@@ -10,7 +10,7 @@ internal static class OccultCrescentTerritory
 {
     internal const uint SouthHornTerritoryId = 1252;
     internal const uint SouthHornDefaultMapId = 967;
-    internal const uint ForkedTowerMapId = 986;
+    internal static readonly uint[] ForkedTowerMapIds = [968, 986];
 
     private static readonly string[] TerritoryNameMatches = ["Occult Crescent", "South Horn"];
     private static readonly ClientLanguage[] DebugLanguages =
@@ -29,7 +29,12 @@ internal static class OccultCrescentTerritory
     public static bool IsInForkedTower()
     {
         return Plugin.ClientState.TerritoryType == SouthHornTerritoryId &&
-               Plugin.ClientState.MapId == ForkedTowerMapId;
+               IsForkedTowerMap(Plugin.ClientState.MapId);
+    }
+
+    internal static bool IsForkedTowerMap(uint mapId)
+    {
+        return ForkedTowerMapIds.Contains(mapId);
     }
 
     public static bool IsOccultCrescentTerritory(uint territoryId)
@@ -47,7 +52,7 @@ internal static class OccultCrescentTerritory
         var info = new TerritoryDebugInfo
         {
             TerritoryId = territoryId,
-            IsForkedTower = territoryId == SouthHornTerritoryId && Plugin.ClientState.MapId == ForkedTowerMapId,
+            IsForkedTower = territoryId == SouthHornTerritoryId && IsForkedTowerMap(Plugin.ClientState.MapId),
         };
 
         if (territoryId == 0)

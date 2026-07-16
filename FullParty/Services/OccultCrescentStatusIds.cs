@@ -8,9 +8,13 @@ internal static class OccultCrescentStatusIds
 
     internal static bool IsForkedTowerContext()
     {
-        return OccultCrescentTerritory.IsInForkedTower() ||
-               PartySnapshotBuilder.HasStatus(
-                   Plugin.ObjectTable.LocalPlayer?.StatusList,
-                   DutiesAsAssigned);
+        return OccultCrescentTerritory.IsInForkedTower() || HasDutiesAsAssigned();
+    }
+
+    internal static bool HasDutiesAsAssigned()
+    {
+        return PartySnapshotBuilder.HasStatus(
+            Plugin.ObjectTable.LocalPlayer?.StatusList,
+            DutiesAsAssigned);
     }
 }

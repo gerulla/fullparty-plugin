@@ -198,14 +198,22 @@ public class ConfigWindow : Window, IDisposable
             return;
 
         var territory = OccultCrescentTerritory.GetCurrentDebugInfo();
+        var isForkedTower = OccultCrescentStatusIds.IsForkedTowerContext();
+        var forkedTowerSource = territory.IsForkedTower
+            ? $"runtime map ID {Plugin.ClientState.MapId}"
+            : OccultCrescentStatusIds.HasDutiesAsAssigned()
+                ? $"Duties as Assigned status {OccultCrescentStatusIds.DutiesAsAssigned}"
+                : "none";
         ImGui.Text($"Current territory ID: {territory.TerritoryId}");
         ImGui.Text($"Detected as Occult Crescent: {(territory.IsOccultCrescent ? "Yes" : "No")}");
-        ImGui.Text($"Detected as Forked Tower: {(territory.IsForkedTower ? "Yes" : "No")}");
+        ImGui.Text($"Detected as Forked Tower: {(isForkedTower ? "Yes" : "No")}");
+        ImGui.TextWrapped($"Forked Tower source: {forkedTowerSource}");
         ImGui.TextWrapped($"Match source: {territory.MatchSource}");
         ImGui.Text($"PlaceName row ID: {territory.PlaceNameRowId}");
         ImGui.Text($"Runtime map ID: {Plugin.ClientState.MapId}");
         ImGui.Text($"Territory default map row ID: {territory.DefaultMapId}");
-        ImGui.TextDisabled($"Forked Tower detection: territory {OccultCrescentTerritory.SouthHornTerritoryId}, runtime map {OccultCrescentTerritory.ForkedTowerMapId}.");
+        ImGui.TextDisabled(
+            $"Forked Tower detection: territory {OccultCrescentTerritory.SouthHornTerritoryId}, runtime maps {string.Join(", ", OccultCrescentTerritory.ForkedTowerMapIds)}.");
 
         var localPlayer = Plugin.ObjectTable.LocalPlayer;
         if (localPlayer != null)
