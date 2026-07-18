@@ -16,7 +16,7 @@ public sealed class SettingsWindow : Window
     {
         configuration = plugin.Configuration;
         Flags = ImGuiWindowFlags.NoCollapse;
-        Size = new Vector2(440f, 180f);
+        Size = new Vector2(440f, 220f);
         SizeCondition = ImGuiCond.FirstUseEver;
         SizeConstraints = new WindowSizeConstraints
         {
@@ -51,6 +51,15 @@ public sealed class SettingsWindow : Window
         if (ImGui.Checkbox("Movable Live Room Status", ref movableStatus))
         {
             configuration.MovableLiveRoomStatus = movableStatus;
+            configuration.Save();
+        }
+
+        ImGui.Spacing();
+
+        var obviousReadyCheck = configuration.ObviousReadyCheck;
+        if (ImGui.Checkbox("OBVIOUS READYCHECK (For Giki)", ref obviousReadyCheck))
+        {
+            configuration.ObviousReadyCheck = obviousReadyCheck;
             configuration.Save();
         }
 

@@ -1420,12 +1420,18 @@ public sealed class RunWindow : Window, IDisposable
                 : snapshot?.Members.Count ?? 0;
             DrawModernPartyHeader(party, filledCount);
 
+            var orderedMembers = SortPartyMembersByThmr(snapshot?.Members);
+            var displaySlots = rosterDataMode == RosterDataMode.Validate
+                ? SortValidationSlotsByThmr(runDetail, party, snapshot)
+                : party;
             var renderedAny = false;
-            for (var row = 0; row < party.Count; row++)
+            for (var row = 0; row < displaySlots.Count; row++)
             {
-                var slot = party[row];
+                var slot = displaySlots[row];
                 var expectedPosition = slot.PositionInGroup ?? row + 1;
-                var actualMember = snapshot?.Members.FirstOrDefault(member => member.Position == expectedPosition);
+                var actualMember = rosterDataMode is RosterDataMode.Off or RosterDataMode.Lives
+                    ? orderedMembers.ElementAtOrDefault(row)
+                    : snapshot?.Members.FirstOrDefault(member => member.Position == expectedPosition);
 
                 if (!rosterShowEmptySlots &&
                     ((rosterDataMode == RosterDataMode.Only && slot.AssignedCharacter == null) ||
@@ -1803,8 +1809,7 @@ public sealed class RunWindow : Window, IDisposable
 
                 var slot = parties[column][row];
                 computedSnapshots.ByParty.TryGetValue(slot.GroupKey, out var snapshot);
-                var expectedPosition = slot.PositionInGroup ?? row + 1;
-                var member = snapshot?.Members.FirstOrDefault(item => item.Position == expectedPosition);
+                var member = SortPartyMembersByThmr(snapshot?.Members).ElementAtOrDefault(row);
                 DrawPartySnapshotSlot(runDetail, slot, member);
             }
         }
@@ -1863,8 +1868,9 @@ public sealed class RunWindow : Window, IDisposable
                 if (row >= parties[column].Count)
                     continue;
 
-                var slot = parties[column][row];
-                computedSnapshots.ByParty.TryGetValue(slot.GroupKey, out var snapshot);
+                computedSnapshots.ByParty.TryGetValue(parties[column][0].GroupKey, out var snapshot);
+                var displaySlots = SortValidationSlotsByThmr(runDetail, parties[column], snapshot);
+                var slot = displaySlots[row];
                 var actualMember = FindExpectedMemberInParty(runDetail, slot, snapshot);
                 var expectedObserved = FindObservedForSlot(slot, observedById, observedByName);
                 DrawValidationRosterSlot(runDetail, slot, actualMember, expectedObserved, computedSnapshots.OccultPresence, computedSnapshots.InOccult, snapshot != null);
@@ -3006,6 +3012,48 @@ public sealed class RunWindow : Window, IDisposable
         return runDetail.Slots
             .FirstOrDefault(slot => NormalizeClassJob(slot.CharacterClass) == classJob && !string.IsNullOrWhiteSpace(slot.CharacterClassRole))
             ?.CharacterClassRole;
+    }
+
+    private static IReadOnlyList<FullPartyPartySnapshotMember> SortPartyMembersByThmr(
+        IReadOnlyList<FullPartyPartySnapshotMember>? members)
+    {
+        return members == null
+            ? []
+            : members
+                .OrderBy(member => GetThmrPriority(member.ClassJob))
+                .ThenBy(member => member.Position)
+                .ThenBy(member => member.DisplayName, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+    }
+
+    private static IReadOnlyList<FullPartyRosterSlot> SortValidationSlotsByThmr(
+        FullPartyRunDetail runDetail,
+        IReadOnlyList<FullPartyRosterSlot> party,
+        FullPartyPartySnapshot? snapshot)
+    {
+        return party
+            .Select((slot, index) => new
+            {
+                Slot = slot,
+                OriginalIndex = index,
+                Member = FindExpectedMemberInParty(runDetail, slot, snapshot),
+            })
+            .OrderBy(item => GetThmrPriority(item.Member?.ClassJob))
+            .ThenBy(item => item.OriginalIndex)
+            .Select(item => item.Slot)
+            .ToList();
+    }
+
+    private static int GetThmrPriority(string? classJob)
+    {
+        return NormalizeClassJob(classJob) switch
+        {
+            "GLA" or "MRD" or "PLD" or "WAR" or "DRK" or "GNB" => 0,
+            "CNJ" or "WHM" or "SCH" or "AST" or "SGE" => 1,
+            "PGL" or "LNC" or "ROG" or "MNK" or "DRG" or "NIN" or "SAM" or "RPR" or "VPR" => 2,
+            "ARC" or "THM" or "ACN" or "BRD" or "MCH" or "BLM" or "SMN" or "RDM" or "BLU" or "DNC" or "PCT" => 3,
+            _ => 4,
+        };
     }
 
     private ComputedPartySnapshots BuildComputedPartySnapshots(
