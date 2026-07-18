@@ -1194,9 +1194,10 @@ public sealed class RunWindow : Window, IDisposable
     private void DrawRosterTable(FullPartyRunDetail runDetail)
     {
         var parties = GetRosterParties(runDetail);
+        var fillInSlots = GetFillInSlots(runDetail);
         var benchSlots = GetBenchSlots(runDetail);
 
-        if (parties.Count == 0 && benchSlots.Count == 0)
+        if (parties.Count == 0 && fillInSlots.Count == 0 && benchSlots.Count == 0)
         {
             ImGui.TextDisabled("No roster slots.");
             return;
@@ -1210,10 +1211,16 @@ public sealed class RunWindow : Window, IDisposable
 
         DrawModernPartyRoster(parties, runDetail, computedSnapshots);
 
+        if (fillInSlots.Count > 0)
+        {
+            ImGui.Spacing();
+            DrawModernAuxiliaryRosterSection(runDetail, fillInSlots, "FILL-IN PARTY", "fill_in", runDetail.CanModerate);
+        }
+
         if (benchSlots.Count > 0)
         {
             ImGui.Spacing();
-            DrawModernBench(runDetail, benchSlots, runDetail.CanModerate);
+            DrawModernAuxiliaryRosterSection(runDetail, benchSlots, "BENCH", "bench", runDetail.CanModerate);
         }
     }
 
@@ -1744,35 +1751,37 @@ public sealed class RunWindow : Window, IDisposable
         }
     }
 
-    private void DrawModernBench(
+    private void DrawModernAuxiliaryRosterSection(
         FullPartyRunDetail runDetail,
-        IReadOnlyList<FullPartyRosterSlot> benchSlots,
+        IReadOnlyList<FullPartyRosterSlot> slots,
+        string title,
+        string id,
         bool canModerate)
     {
         ImGui.Separator();
         ImGui.Spacing();
-        ImGui.TextColored(FullPartyModernPalette.Brand with { X = 0.76f, Y = 0.58f, Z = 0.96f }, "BENCH");
+        ImGui.TextColored(FullPartyModernPalette.Brand with { X = 0.76f, Y = 0.58f, Z = 0.96f }, title);
         ImGui.SameLine();
-        ImGui.TextDisabled($"{benchSlots.Count(slot => slot.AssignedCharacter != null)} / {benchSlots.Count}");
+        ImGui.TextDisabled($"{slots.Count(slot => slot.AssignedCharacter != null)} / {slots.Count}");
         ImGui.Spacing();
 
         var columnCount = Math.Clamp((int)(ImGui.GetContentRegionAvail().X / 250f), 1, 4);
-        if (!ImGui.BeginTable("##fullparty_modern_bench", columnCount, ImGuiTableFlags.SizingStretchSame))
+        if (!ImGui.BeginTable($"##fullparty_modern_{id}", columnCount, ImGuiTableFlags.SizingStretchSame))
             return;
 
         for (var column = 0; column < columnCount; column++)
-            ImGui.TableSetupColumn($"##modern_bench_{column}");
+            ImGui.TableSetupColumn($"##modern_{id}_{column}");
 
-        var visibleBench = benchSlots
+        var visibleSlots = slots
             .Where(slot => rosterShowEmptySlots || slot.AssignedCharacter != null)
             .ToList();
-        for (var index = 0; index < visibleBench.Count; index++)
+        for (var index = 0; index < visibleSlots.Count; index++)
         {
             if (index % columnCount == 0)
                 ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
-            DrawModernRosterSlot(runDetail, visibleBench[index], canModerate);
+            DrawModernRosterSlot(runDetail, visibleSlots[index], canModerate);
         }
 
         ImGui.EndTable();
@@ -2965,7 +2974,7 @@ public sealed class RunWindow : Window, IDisposable
     private static IReadOnlyList<IReadOnlyList<FullPartyRosterSlot>> GetRosterParties(FullPartyRunDetail runDetail)
     {
         return runDetail.Slots
-            .Where(slot => !IsBenchSlot(slot))
+            .Where(slot => !IsBenchSlot(slot) && !IsFillInSlot(slot))
             .GroupBy(slot => slot.GroupKey)
             .OrderBy(group => group.Min(slot => slot.SortOrder ?? int.MaxValue))
             .ThenBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
@@ -2980,7 +2989,17 @@ public sealed class RunWindow : Window, IDisposable
     private static IReadOnlyList<FullPartyRosterSlot> GetBenchSlots(FullPartyRunDetail runDetail)
     {
         return runDetail.Slots
-            .Where(IsBenchSlot)
+            .Where(slot => IsBenchSlot(slot) && !IsFillInSlot(slot))
+            .OrderBy(slot => slot.PositionInGroup ?? int.MaxValue)
+            .ThenBy(slot => slot.SortOrder ?? int.MaxValue)
+            .ThenBy(slot => slot.SlotKey, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private static IReadOnlyList<FullPartyRosterSlot> GetFillInSlots(FullPartyRunDetail runDetail)
+    {
+        return runDetail.Slots
+            .Where(IsFillInSlot)
             .OrderBy(slot => slot.PositionInGroup ?? int.MaxValue)
             .ThenBy(slot => slot.SortOrder ?? int.MaxValue)
             .ThenBy(slot => slot.SlotKey, StringComparer.OrdinalIgnoreCase)
@@ -3362,6 +3381,23 @@ public sealed class RunWindow : Window, IDisposable
     {
         return slot.GroupKey.Contains("bench", StringComparison.OrdinalIgnoreCase) ||
                slot.GroupLabel.Contains("bench", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsFillInSlot(FullPartyRosterSlot slot)
+    {
+        return IsFillInGroupName(slot.GroupKey) || IsFillInGroupName(slot.GroupLabel);
+    }
+
+    private static bool IsFillInGroupName(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        var normalized = new string(value
+            .Where(char.IsLetterOrDigit)
+            .Select(char.ToLowerInvariant)
+            .ToArray());
+        return normalized.Contains("fillin", StringComparison.Ordinal);
     }
 
     private static bool IsValidationPartyLead(FullPartyRosterSlot slot)
