@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 2587,
+    "title": "Soul Reaver",
+    "description": "Able to execute Gibbet, Gallows, and Guillotine.",
+    "effects": [
+      "Able to execute Gibbet, Gallows, and Guillotine."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217097,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 2,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "RPR",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2587,
+    "title": "Nichtssense",
+    "description": "Richtpfahl, Galgen und Guillotine können ausgeführt werden.",
+    "effects": [
+      "Richtpfahl, Galgen und Guillotine können ausgeführt werden."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217097,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 2,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "SNT",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2587,
+    "title": "Moissonneur d'âmes",
+    "description": "Gibet, Potence ou Guillotine peuvent être lancés.",
+    "effects": [
+      "Gibet, Potence ou Guillotine peuvent être lancés."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217097,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 2,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "FCH",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2587,
+    "title": "妖異の鎌",
+    "description": "ジビトゥ、ギャロウズ、ギロティンを実行できる状態。",
+    "effects": [
+      "ジビトゥ、ギャロウズ、ギロティンを実行できる状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217097,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 2,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "リーパー",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

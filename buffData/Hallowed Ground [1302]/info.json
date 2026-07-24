@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 1302,
+    "title": "Hallowed Ground",
+    "description": "Impervious to most attacks.",
+    "effects": [
+      "Impervious to most attacks."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212504,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 20,
+      "name": "PLD",
+      "allowed_jobs": [
+        "PLD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 435,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1302,
+    "title": "Heiliger Boden",
+    "description": "Immun gegen fast alle Attacken.",
+    "effects": [
+      "Immun gegen fast alle Attacken."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212504,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 20,
+      "name": "PLD",
+      "allowed_jobs": [
+        "PLD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 435,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1302,
+    "title": "Invincible",
+    "description": "Insensible à la plupart des attaques.",
+    "effects": [
+      "Insensible à la plupart des attaques."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212504,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 20,
+      "name": "PLD",
+      "allowed_jobs": [
+        "PLD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 435,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1302,
+    "title": "インビンシブル",
+    "description": "一部を除くすべてのダメージを無効化する状態。",
+    "effects": [
+      "一部を除くすべてのダメージを無効化する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212504,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 20,
+      "name": "ナイト",
+      "allowed_jobs": [
+        "PLD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 435,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

@@ -1,0 +1,383 @@
+{
+  "en": {
+    "id": 2891,
+    "title": "Spearfisher's Intuition",
+    "description": "Heightened senses are improving chances of discovering rare fish only obtainable under special conditions.",
+    "effects": [
+      "Heightened senses are improving chances of discovering rare fish only obtainable under special conditions."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 211101,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "All Classes",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2891,
+    "title": "Speergespür",
+    "description": "Seltene Fischarten, die nur unter bestimmten Bedingungen erscheinen, werden wahrgenommen und können harpuniert werden.",
+    "effects": [
+      "Seltene Fischarten, die nur unter bestimmten Bedingungen erscheinen, werden wahrgenommen und können harpuniert werden."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 211101,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "Alle Klassen",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2891,
+    "title": "Instinct du harponneur",
+    "description": "La présence d'une créature aquatique rare, n'apparaissant que dans des conditions particulières, a été détectée, rendant sa capture par harponnage possible.",
+    "effects": [
+      "La présence d'une créature aquatique rare, n'apparaissant que dans des conditions particulières, a été détectée, rendant sa capture par harponnage possible."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 211101,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "Toutes les classes",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2891,
+    "title": "銛師の直感",
+    "description": "刺突漁で採れる稀少な魚類の気配を察知した状態。\n特殊な条件下でのみ出現する魚類が、出現する可能性がある。",
+    "effects": [
+      "刺突漁で採れる稀少な魚類の気配を察知した状態。",
+      "特殊な条件下でのみ出現する魚類が、出現する可能性がある。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 211101,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "全クラス",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

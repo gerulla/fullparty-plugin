@@ -1,0 +1,382 @@
+{
+  "en": {
+    "id": 359,
+    "title": "Fey Fire",
+    "description": "A fey fire envelops you, nullifying all damage received.",
+    "effects": [
+      "A fey fire envelops you, nullifying all damage received."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215508,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "All Classes",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 359,
+    "title": "Feenfeuer",
+    "description": "Ist eingehüllt von einem schützenden Feuer, das erlittenen Schaden neutralisiert.",
+    "effects": [
+      "Ist eingehüllt von einem schützenden Feuer, das erlittenen Schaden neutralisiert."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215508,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "Alle Klassen",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 359,
+    "title": "Feu follet",
+    "description": "Un feu illusoire enveloppe le corps, protégeant des attaques.",
+    "effects": [
+      "Un feu illusoire enveloppe le corps, protégeant des attaques."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215508,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "Toutes les classes",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 359,
+    "title": "妖炎",
+    "description": "妖炎により、被ダメージを無効化する状態。",
+    "effects": [
+      "妖炎により、被ダメージを無効化する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215508,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "全クラス",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

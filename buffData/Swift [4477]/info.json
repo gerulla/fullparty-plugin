@@ -1,0 +1,234 @@
+{
+  "en": {
+    "id": 4477,
+    "title": "Swift",
+    "description": "All Stun, Heavy, Bind, Silence, Half-asleep, Sleep, Deep Freeze, knockback, and draw-in effects are nullified. Movement speed is also greatly increased.",
+    "effects": [
+      "All Stun, Heavy, Bind, Silence, Half-asleep, Sleep, Deep Freeze, knockback, and draw-in effects are nullified. Movement speed is also greatly increased."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216678,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "MNK DRG NIN SAM RPR VPR",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 43,
+      "flag_2": 50
+    }
+  },
+  "de": {
+    "id": 4477,
+    "title": "Eile",
+    "description": "Bewegungsgeschwindigkeit ist enorm erhöht. Außerdem immun gegen Rückstoß- und Heranzieheffekte sowie gegen alle Statuseffekte, die von Purifikation aufgehoben werden können.",
+    "effects": [
+      "Bewegungsgeschwindigkeit ist enorm erhöht. Außerdem immun gegen Rückstoß- und Heranzieheffekte sowie gegen alle Statuseffekte, die von Purifikation aufgehoben werden können."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216678,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "MÖN DRG NIN SAM SNT VPR",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 43,
+      "flag_2": 50
+    }
+  },
+  "fr": {
+    "id": 4477,
+    "title": "Vélocité",
+    "description": "La vitesse de déplacement est grandement augmentée. Insensible aux altérations d'état soignables avec Dépuration, aux projections et aux attractions.",
+    "effects": [
+      "La vitesse de déplacement est grandement augmentée. Insensible aux altérations d'état soignables avec Dépuration, aux projections et aux attractions."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216678,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "MOI DRG NIN SAM FCH VPR",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 43,
+      "flag_2": 50
+    }
+  },
+  "ja": {
+    "id": 4477,
+    "title": "スウィフト",
+    "description": "移動速度が大幅に上昇し、さらに「浄化」で解除することができる状態異常効果とノックバック、引き寄せの効果を無効化する状態。",
+    "effects": [
+      "移動速度が大幅に上昇し、さらに「浄化」で解除することができる状態異常効果とノックバック、引き寄せの効果を無効化する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216678,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "モンク 竜騎士 忍者 侍 リーパー ヴァイパー",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 43,
+      "flag_2": 50
+    }
+  }
+}

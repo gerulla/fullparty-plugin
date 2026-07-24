@@ -1,0 +1,383 @@
+{
+  "en": {
+    "id": 47,
+    "title": "Sneak",
+    "description": "You tread carefully, making nary a sound. Enemies up to 4 levels higher than you are oblivious to your presence.",
+    "effects": [
+      "You tread carefully, making nary a sound. Enemies up to 4 levels higher than you are oblivious to your presence."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216015,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 2,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "All Classes",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 138,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 36,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 47,
+    "title": "Verstohlenheit",
+    "description": "Auf leisen Sohlen unterwegs. Gänzlich unaufspürbar für Gegner, deren Stufe bis zu vier höher ist als die eigene.",
+    "effects": [
+      "Auf leisen Sohlen unterwegs. Gänzlich unaufspürbar für Gegner, deren Stufe bis zu vier höher ist als die eigene."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216015,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 2,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "Alle Klassen",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 138,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 36,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 47,
+    "title": "Discrétion",
+    "description": "Se déplace silencieusement et ne peut pas être détecté par les ennemis jusqu'à 4 niveaux au-dessus du sien.",
+    "effects": [
+      "Se déplace silencieusement et ne peut pas être détecté par les ennemis jusqu'à 4 niveaux au-dessus du sien."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216015,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 2,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "Toutes les classes",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 138,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 36,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 47,
+    "title": "スニーク",
+    "description": "静かに行動し、敵に発見されにくくなった状態。\nレベルが「自分のレベル＋4」以下の敵に襲われなくなる。",
+    "effects": [
+      "静かに行動し、敵に発見されにくくなった状態。",
+      "レベルが「自分のレベル＋4」以下の敵に襲われなくなる。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216015,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 2,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "全クラス",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 138,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 36,
+      "flag_2": 0
+    }
+  }
+}

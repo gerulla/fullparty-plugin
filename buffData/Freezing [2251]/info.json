@@ -1,0 +1,382 @@
+{
+  "en": {
+    "id": 2251,
+    "title": "Freezing",
+    "description": "Your body is slowly turning to ice. When this effect expires, you will experience a Deep Freeze.",
+    "effects": [
+      "Your body is slowly turning to ice. When this effect expires, you will experience a Deep Freeze."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 215238,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": true,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "All Classes",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2251,
+    "title": "Allmähliche Kühlung",
+    "description": "Nach Ablauf der Wirkungsdauer tritt Tiefkühlung ein.",
+    "effects": [
+      "Nach Ablauf der Wirkungsdauer tritt Tiefkühlung ein."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 215238,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": true,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "Alle Klassen",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2251,
+    "title": "Congélation graduelle",
+    "description": "Le corps gèle petit à petit. Lorsque l'effet prend fin, la victime subit Congélation.",
+    "effects": [
+      "Le corps gèle petit à petit. Lorsque l'effet prend fin, la victime subit Congélation."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 215238,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": true,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "Toutes les classes",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2251,
+    "title": "徐々に氷結",
+    "description": "徐々に氷結しつつある状態。効果終了時に氷結状態になる。",
+    "effects": [
+      "徐々に氷結しつつある状態。効果終了時に氷結状態になる。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 215238,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": true,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "全クラス",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

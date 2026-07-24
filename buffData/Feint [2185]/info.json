@@ -1,0 +1,234 @@
+{
+  "en": {
+    "id": 2185,
+    "title": "Feint",
+    "description": "Sustaining increased damage from target who executed Feint.",
+    "effects": [
+      "Sustaining increased damage from target who executed Feint."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 213904,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 20
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "MNK DRG NIN SAM RPR VPR",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2185,
+    "title": "Zermürben",
+    "description": "Erleidet erhöhten Schaden vom Verursacher des Status.",
+    "effects": [
+      "Erleidet erhöhten Schaden vom Verursacher des Status."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 213904,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 20
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "MÖN DRG NIN SAM SNT VPR",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2185,
+    "title": "Restreinte",
+    "description": "Les dégâts reçus du joueur ayant créé l'effet sont augmentés.",
+    "effects": [
+      "Les dégâts reçus du joueur ayant créé l'effet sont augmentés."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 213904,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 20
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "MOI DRG NIN SAM FCH VPR",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2185,
+    "title": "牽制",
+    "description": "この効果を付与したプレイヤーから受けるダメージが増加する状態。",
+    "effects": [
+      "この効果を付与したプレイヤーから受けるダメージが増加する状態。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 213904,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 20
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "モンク 竜騎士 忍者 侍 リーパー ヴァイパー",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

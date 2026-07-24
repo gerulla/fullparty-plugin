@@ -1,0 +1,217 @@
+{
+  "en": {
+    "id": 1897,
+    "title": "Nascent Chaos",
+    "description": "Accumulating sufficient wrath in the Beast Gauge will upgrade Decimate to Chaotic Cyclone.\nFell Cleave will be upgraded to Inner Chaos once learned.",
+    "effects": [
+      "Accumulating sufficient wrath in the Beast Gauge will upgrade Decimate to Chaotic Cyclone.",
+      "Fell Cleave will be upgraded to Inner Chaos once learned."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212560,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "WAR",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1897,
+    "title": "Saat des Chaos",
+    "description": "Bei ausreichend gefülltem Urkraftbalken verbessert sich Dezimieren zu Chaosklinge und Niedermähen zu Inneres Chaos, sofern erlernt.",
+    "effects": [
+      "Bei ausreichend gefülltem Urkraftbalken verbessert sich Dezimieren zu Chaosklinge und Niedermähen zu Inneres Chaos, sofern erlernt."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212560,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "KRG",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1897,
+    "title": "Chaos naissant",
+    "description": "Lorsque la Jauge de la bête a atteint un seuil suffisant, Décimation est remplacé par Cyclone chaotique.\nEffet supplémentaire après obtention de Chaos intérieur\u00A0: Sape-fendeur est remplacé par Chaos intérieur.",
+    "effects": [
+      "Lorsque la Jauge de la bête a atteint un seuil suffisant, Décimation est remplacé par Cyclone chaotique.",
+      "Effet supplémentaire après obtention de Chaos intérieur\u00A0: Sape-fendeur est remplacé par Chaos intérieur."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212560,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "GUE",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1897,
+    "title": "原初の混沌",
+    "description": "十分なインナービーストが蓄積されるとデシメートがカオティックサイクロンに変化する状態。\nインナーカオス修得後はフェルクリーヴもインナーカオスに変化する。",
+    "effects": [
+      "十分なインナービーストが蓄積されるとデシメートがカオティックサイクロンに変化する状態。",
+      "インナーカオス修得後はフェルクリーヴもインナーカオスに変化する。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212560,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "戦士",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

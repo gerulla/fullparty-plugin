@@ -1,0 +1,190 @@
+{
+  "en": {
+    "id": 1799,
+    "title": "Fae Light",
+    "description": "Cane is aglow with the ethereal light of ancient magicks. Damage dealt is greatly increased. All auto-attacks become area of effect attacks.",
+    "effects": [
+      "Cane is aglow with the ethereal light of ancient magicks. Damage dealt is greatly increased. All auto-attacks become area of effect attacks."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215976,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1799,
+    "title": "Feenlicht",
+    "description": "Titanias Stab erstrahlt wie ein Leuchtfeuer. Schaden ist stark erhöht. Auto-Attacke wirkt als Flächenangriff.",
+    "effects": [
+      "Titanias Stab erstrahlt wie ein Leuchtfeuer. Schaden ist stark erhöht. Auto-Attacke wirkt als Flächenangriff."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215976,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1799,
+    "title": "Lueur féérique",
+    "description": "Le sceptre de Titania brille d'un puissant éclat magique. Les dégâts infligés par le Monarque féérique sont grandement accrus, et ses attaques automatiques ont une aire d'effet.",
+    "effects": [
+      "Le sceptre de Titania brille d'un puissant éclat magique. Les dégâts infligés par le Monarque féérique sont grandement accrus, et ses attaques automatiques ont une aire d'effet."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215976,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1799,
+    "title": "妖精光",
+    "description": "ティターニアの杖に妖精の魔力が宿った状態。与ダメージが大幅に増加し、オートアタックが範囲攻撃になる。",
+    "effects": [
+      "ティターニアの杖に妖精の魔力が宿った状態。与ダメージが大幅に増加し、オートアタックが範囲攻撃になる。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215976,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

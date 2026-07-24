@@ -1,0 +1,238 @@
+{
+  "en": {
+    "id": 170,
+    "title": "Apocatastasis",
+    "description": "Magic damage taken is reduced.",
+    "effects": [
+      "Magic damage taken is reduced."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210451,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 5,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 116,
+      "name": "THM ACN BLM SMN RDM BLU PCT",
+      "allowed_jobs": [
+        "ACN",
+        "BLM",
+        "BLU",
+        "PCT",
+        "RDM",
+        "SMN",
+        "THM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 170,
+    "title": "Apokatastasis",
+    "description": "Erlittener Magieschaden ist verringert.",
+    "effects": [
+      "Erlittener Magieschaden ist verringert."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210451,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 5,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 116,
+      "name": "THM SMA HRT BSW RMA BMA PKT",
+      "allowed_jobs": [
+        "ACN",
+        "BLM",
+        "BLU",
+        "PCT",
+        "RDM",
+        "SMN",
+        "THM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 170,
+    "title": "Apocatastase",
+    "description": "Les dégâts magiques reçus sont réduits.",
+    "effects": [
+      "Les dégâts magiques reçus sont réduits."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210451,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 5,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 116,
+      "name": "OCC MNO ACN INV MRG MBU PIC",
+      "allowed_jobs": [
+        "ACN",
+        "BLM",
+        "BLU",
+        "PCT",
+        "RDM",
+        "SMN",
+        "THM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 170,
+    "title": "アポカタスタシス",
+    "description": "受ける魔法ダメージが軽減される状態。",
+    "effects": [
+      "受ける魔法ダメージが軽減される状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210451,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 5,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 116,
+      "name": "呪術士 黒魔道士 巴術士 召喚士 赤魔道士 青魔道士 ピクトマンサー",
+      "allowed_jobs": [
+        "ACN",
+        "BLM",
+        "BLU",
+        "PCT",
+        "RDM",
+        "SMN",
+        "THM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

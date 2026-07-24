@@ -1,0 +1,190 @@
+{
+  "en": {
+    "id": 4464,
+    "title": "Perfect Groove",
+    "description": "An impeccable Arcady Night Fever performance is inspiring excessive confidence. Damage dealt is increased.",
+    "effects": [
+      "An impeccable Arcady Night Fever performance is inspiring excessive confidence. Damage dealt is increased."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214283,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 20
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 4464,
+    "title": "Perfekter Groove",
+    "description": "Arkadion-Tanzfieber wurde perfekt ausgeführt, wodurch die Stimmung durch die Decke geht. Ausgeteilter Schaden ist erhöht.",
+    "effects": [
+      "Arkadion-Tanzfieber wurde perfekt ausgeführt, wodurch die Stimmung durch die Decke geht. Ausgeteilter Schaden ist erhöht."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214283,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 20
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 4464,
+    "title": "Groove parfait",
+    "description": "La fièvre de l'Arcadion a été parfaitement exécutée, ce qui provoque une certaine euphorie. Les dégâts infligés sont augmentés.",
+    "effects": [
+      "La fièvre de l'Arcadion a été parfaitement exécutée, ce qui provoque une certaine euphorie. Les dégâts infligés sont augmentés."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214283,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 20
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 4464,
+    "title": "パーフェクトグルーヴ",
+    "description": "アルカディア・ナイトフィーバーを完璧に踊りきり、気分が高揚した状態。与ダメージが上昇する。",
+    "effects": [
+      "アルカディア・ナイトフィーバーを完璧に踊りきり、気分が高揚した状態。与ダメージが上昇する。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214283,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 20
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

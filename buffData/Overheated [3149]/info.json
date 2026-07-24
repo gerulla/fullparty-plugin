@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3149,
+    "title": "Overheated",
+    "description": "Able to execute Blazing Shot. Movement speed is also increased.",
+    "effects": [
+      "Able to execute Blazing Shot. Movement speed is also increased."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214918,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 96,
+      "name": "MCH",
+      "allowed_jobs": [
+        "MCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 36,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3149,
+    "title": "Überhitzung",
+    "description": "Brandschuss kann ausgeführt werden und Bewegungsgeschwindigkeit ist erhöht.",
+    "effects": [
+      "Brandschuss kann ausgeführt werden und Bewegungsgeschwindigkeit ist erhöht."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214918,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 96,
+      "name": "MCH",
+      "allowed_jobs": [
+        "MCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 36,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3149,
+    "title": "Surchauffe",
+    "description": "Tir ardent peut être lancé. De plus, la vitesse de déplacement est augmentée.",
+    "effects": [
+      "Tir ardent peut être lancé. De plus, la vitesse de déplacement est augmentée."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214918,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 96,
+      "name": "MCH",
+      "allowed_jobs": [
+        "MCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 36,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3149,
+    "title": "オーバーヒート",
+    "description": "ブレイズショットを実行できる状態。さらに移動速度が上昇する。",
+    "effects": [
+      "ブレイズショットを実行できる状態。さらに移動速度が上昇する。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214918,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 96,
+      "name": "機工士",
+      "allowed_jobs": [
+        "MCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 36,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 0
+    }
+  }
+}

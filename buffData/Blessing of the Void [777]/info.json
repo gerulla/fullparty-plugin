@@ -1,0 +1,382 @@
+{
+  "en": {
+    "id": 777,
+    "title": "Blessing of the Void",
+    "description": "A voidal barrier is nullifying damage and granting critical damage for all attacks.",
+    "effects": [
+      "A voidal barrier is nullifying damage and granting critical damage for all attacks."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215753,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10000
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "All Classes",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 12,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 777,
+    "title": "Nichtssegen",
+    "description": "Eine Nichtsbarriere blockiert jeden eingehenden Schaden und lässt jeden ausgehenden Angriff kritisch treffen.",
+    "effects": [
+      "Eine Nichtsbarriere blockiert jeden eingehenden Schaden und lässt jeden ausgehenden Angriff kritisch treffen."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215753,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10000
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "Alle Klassen",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 12,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 777,
+    "title": "Bénédiction du néant",
+    "description": "Une barrière issue du néant réduit les dégâts subis et fait de toutes les attaques des coups critiques.",
+    "effects": [
+      "Une barrière issue du néant réduit les dégâts subis et fait de toutes les attaques des coups critiques."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215753,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10000
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "Toutes les classes",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 12,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 777,
+    "title": "ヴォイドの加護",
+    "description": "ヴォイドの加護を得て、一定量のダメージを軽減するバリア効果が付与された状態。効果中はすべての攻撃がクリティカルになる。",
+    "effects": [
+      "ヴォイドの加護を得て、一定量のダメージを軽減するバリア効果が付与された状態。効果中はすべての攻撃がクリティカルになる。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215753,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10000
+    },
+    "class_job_category": {
+      "id": 1,
+      "name": "全クラス",
+      "allowed_jobs": [
+        "ACN",
+        "ADV",
+        "ALC",
+        "ARC",
+        "ARM",
+        "AST",
+        "BLM",
+        "BLU",
+        "BRD",
+        "BSM",
+        "BTN",
+        "CNJ",
+        "CRP",
+        "CUL",
+        "DNC",
+        "DRG",
+        "DRK",
+        "FSH",
+        "GLA",
+        "GNB",
+        "GSM",
+        "LNC",
+        "LTW",
+        "MCH",
+        "MIN",
+        "MNK",
+        "MRD",
+        "NIN",
+        "PCT",
+        "PGL",
+        "PLD",
+        "RDM",
+        "ROG",
+        "RPR",
+        "SAM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "VPR",
+        "WAR",
+        "WHM",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 12,
+      "flag_2": 0
+    }
+  }
+}

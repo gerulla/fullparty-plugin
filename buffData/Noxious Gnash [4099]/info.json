@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 4099,
+    "title": "Noxious Gnash",
+    "description": "Damage taken from the viper who applied this effect is increased.",
+    "effects": [
+      "Damage taken from the viper who applied this effect is increased."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214995,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 20
+    },
+    "class_job_category": {
+      "id": 196,
+      "name": "VPR",
+      "allowed_jobs": [
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 4099,
+    "title": "Viperngift",
+    "description": "Erleidet erhöhten Schaden vom Verursacher des Status.",
+    "effects": [
+      "Erleidet erhöhten Schaden vom Verursacher des Status."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214995,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 20
+    },
+    "class_job_category": {
+      "id": 196,
+      "name": "VPR",
+      "allowed_jobs": [
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 4099,
+    "title": "Mortification",
+    "description": "Les dégâts reçus du personnage à l'origine de l'effet sont augmentés.",
+    "effects": [
+      "Les dégâts reçus du personnage à l'origine de l'effet sont augmentés."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214995,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 20
+    },
+    "class_job_category": {
+      "id": 196,
+      "name": "VPR",
+      "allowed_jobs": [
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 4099,
+    "title": "惨毒",
+    "description": "この効果を付与したプレイヤーから受けるダメージが増加する状態。",
+    "effects": [
+      "この効果を付与したプレイヤーから受けるダメージが増加する状態。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214995,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 20
+    },
+    "class_job_category": {
+      "id": 196,
+      "name": "ヴァイパー",
+      "allowed_jobs": [
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

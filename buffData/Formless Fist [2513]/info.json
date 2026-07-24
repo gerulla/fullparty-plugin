@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 2513,
+    "title": "Formless Fist",
+    "description": "Employing all three pugilistic fighting stances─opo-opo, raptor, and coeurl. Additional effects of actions used in these forms will also be triggered.",
+    "effects": [
+      "Employing all three pugilistic fighting stances─opo-opo, raptor, and coeurl. Additional effects of actions used in these forms will also be triggered."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212535,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 21,
+      "name": "MNK",
+      "allowed_jobs": [
+        "MNK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 528,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2513,
+    "title": "Freie Form",
+    "description": "Alle Kommandos der Opo-Opo-, Raptor- und Coeurl-Form können ausgeführt werden. Ihre Zusatzeffekte werden ebenfalls ausgelöst.",
+    "effects": [
+      "Alle Kommandos der Opo-Opo-, Raptor- und Coeurl-Form können ausgeführt werden. Ihre Zusatzeffekte werden ebenfalls ausgelöst."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212535,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 21,
+      "name": "MÖN",
+      "allowed_jobs": [
+        "MNK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 528,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2513,
+    "title": "Poing informe",
+    "description": "Les techniques d'arme requérant la posture de l'opo-opo, du raptor ou du coeurl peuvent être utilisées, et leurs effets additionnels sont appliqués le cas échéant.",
+    "effects": [
+      "Les techniques d'arme requérant la posture de l'opo-opo, du raptor ou du coeurl peuvent être utilisées, et leurs effets additionnels sont appliqués le cas échéant."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212535,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 21,
+      "name": "MOI",
+      "allowed_jobs": [
+        "MNK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 528,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2513,
+    "title": "零の型",
+    "description": "壱の型、弐の型、参の型のすべてに対応できる態勢をとっており、さらに追加効果も発動させることができる状態。",
+    "effects": [
+      "壱の型、弐の型、参の型のすべてに対応できる態勢をとっており、さらに追加効果も発動させることができる状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212535,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 21,
+      "name": "モンク",
+      "allowed_jobs": [
+        "MNK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 528,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "en": {
+    "id": 1808,
+    "title": "Spell-in-Waiting",
+    "description": "The next spell cast will activate after a delay.",
+    "effects": [
+      "The next spell cast will activate after a delay."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215982,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 124,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1808,
+    "title": "Verzögerung",
+    "description": "Der nächste gewirkte Zauber wird verzögert ausgelöst.",
+    "effects": [
+      "Der nächste gewirkte Zauber wird verzögert ausgelöst."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215982,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 124,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1808,
+    "title": "Déphasage incantatoire",
+    "description": "Retarde l'effet du prochain sort lancé.",
+    "effects": [
+      "Retarde l'effet du prochain sort lancé."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215982,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 124,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1808,
+    "title": "ディレイスペル",
+    "description": "次に唱える魔法の発動を、遅延させる状態。",
+    "effects": [
+      "次に唱える魔法の発動を、遅延させる状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 215982,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 124,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

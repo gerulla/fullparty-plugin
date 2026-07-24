@@ -1,0 +1,215 @@
+{
+  "en": {
+    "id": 1303,
+    "title": "Inner Release",
+    "description": "All Stun, Heavy, Bind, Silence, Half-asleep, Sleep, Deep Freeze, knockback, and draw-in effects are nullified. Potency of certain weaponskills is also increased. Movement speed is also increased.",
+    "effects": [
+      "All Stun, Heavy, Bind, Silence, Half-asleep, Sleep, Deep Freeze, knockback, and draw-in effects are nullified. Potency of certain weaponskills is also increased. Movement speed is also increased."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212556,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "WAR",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 29,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 50
+    }
+  },
+  "de": {
+    "id": 1303,
+    "title": "Urbefreiung",
+    "description": "Bewegungsgeschwindigkeit ist erhöht. Außerdem immun gegen Rückstoß- und Heranzieheffekte sowie gegen alle Statuseffekte, die von Purifikation aufgehoben werden können. Die Attacke-Werte einiger Waffenfertigkeiten sind erhöht.",
+    "effects": [
+      "Bewegungsgeschwindigkeit ist erhöht. Außerdem immun gegen Rückstoß- und Heranzieheffekte sowie gegen alle Statuseffekte, die von Purifikation aufgehoben werden können. Die Attacke-Werte einiger Waffenfertigkeiten sind erhöht."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212556,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "KRG",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 29,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 50
+    }
+  },
+  "fr": {
+    "id": 1303,
+    "title": "Relâchement bestial",
+    "description": "La vitesse de déplacement est augmentée. Insensible aux altérations d'état soignables avec Dépuration, aux projections et aux attractions. La puissance de certaines techniques d'arme est également augmentée.",
+    "effects": [
+      "La vitesse de déplacement est augmentée. Insensible aux altérations d'état soignables avec Dépuration, aux projections et aux attractions. La puissance de certaines techniques d'arme est également augmentée."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212556,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "GUE",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 29,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 50
+    }
+  },
+  "ja": {
+    "id": 1303,
+    "title": "原初の解放",
+    "description": "移動速度が上昇し、「浄化」で解除することができる状態異常効果とノックバック、引き寄せの効果を無効化する状態。\nさらに、一部のウェポンスキルの威力が上昇する。",
+    "effects": [
+      "移動速度が上昇し、「浄化」で解除することができる状態異常効果とノックバック、引き寄せの効果を無効化する状態。",
+      "さらに、一部のウェポンスキルの威力が上昇する。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212556,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "戦士",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 29,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 50
+    }
+  }
+}

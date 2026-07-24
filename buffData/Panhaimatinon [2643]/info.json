@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 2643,
+    "title": "Panhaimatinon",
+    "description": "Stacks are consumed to restore the Panhaima barrier each time it is absorbed. Grants a healing effect when duration expires, its potency based on the number of remaining stacks.",
+    "effects": [
+      "Stacks are consumed to restore the Panhaima barrier each time it is absorbed. Grants a healing effect when duration expires, its potency based on the number of remaining stacks."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217355,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 5,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 181,
+      "name": "SGE",
+      "allowed_jobs": [
+        "SGE"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2643,
+    "title": "Panhaimatinon",
+    "description": "Bei Verbrauch eines Stapels wird die durch Panhaima gewährte Barriere erneuert. Bei Ablauf der Wirkungsdauer werden LP regeneriert, je nach übriger Stapelzahl.",
+    "effects": [
+      "Bei Verbrauch eines Stapels wird die durch Panhaima gewährte Barriere erneuert. Bei Ablauf der Wirkungsdauer werden LP regeneriert, je nach übriger Stapelzahl."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217355,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 5,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 181,
+      "name": "WEI",
+      "allowed_jobs": [
+        "SGE"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2643,
+    "title": "Panhaimatinon",
+    "description": "Quand la barrière de Panhaima a absorbé son montant de dégâts, Panhaimatinon en applique une nouvelle en échange d'un degré. Panhaimatinon restaure des PV en fonction des degrés restants lorsqu'il prend fin.",
+    "effects": [
+      "Quand la barrière de Panhaima a absorbé son montant de dégâts, Panhaimatinon en applique une nouvelle en échange d'un degré. Panhaimatinon restaure des PV en fonction des degrés restants lorsqu'il prend fin."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217355,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 5,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 181,
+      "name": "SAG",
+      "allowed_jobs": [
+        "SGE"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2643,
+    "title": "パンハイマの印",
+    "description": "「パンハイマ」が解除されるとスタックを消費して「パンハイマ」を付与する状態。効果時間が経過すると自身のＨＰを回復する。残スタック数が多いほど回復力が上昇する。",
+    "effects": [
+      "「パンハイマ」が解除されるとスタックを消費して「パンハイマ」を付与する状態。効果時間が経過すると自身のＨＰを回復する。残スタック数が多いほど回復力が上昇する。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217355,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 5,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 181,
+      "name": "賢者",
+      "allowed_jobs": [
+        "SGE"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

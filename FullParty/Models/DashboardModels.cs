@@ -122,7 +122,12 @@ public sealed record FullPartyRosterSlot(
     int? PhantomJobMaxLevel,
     int? PhantomJobIconId,
     string? PhantomJobIconUrl,
-    IReadOnlyList<string> PhantomJobIconUrls);
+    IReadOnlyList<string> PhantomJobIconUrls,
+    string? SlotKind,
+    bool IsBench,
+    bool IsFillIn,
+    string? FilledGroupKey,
+    string? FilledGroupLabel);
 
 public sealed record FullPartyRosterCharacter(
     long Id,

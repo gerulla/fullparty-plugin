@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3140,
+    "title": "Frontliner's Forte",
+    "description": "Weaponskill cast and recast times are reduced while increasing damage dealt by nearby party members.",
+    "effects": [
+      "Weaponskill cast and recast times are reduced while increasing damage dealt by nearby party members."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212605,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3140,
+    "title": "Forte der Front",
+    "description": "Aktivierungs- und Reaktivierungszeit von Waffenfertigkeiten ist verkürzt und ausgeteilter Schaden umstehender Gruppenmitglieder ist erhöht.",
+    "effects": [
+      "Aktivierungs- und Reaktivierungszeit von Waffenfertigkeiten ist verkürzt und ausgeteilter Schaden umstehender Gruppenmitglieder ist erhöht."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212605,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3140,
+    "title": "Alpha forte",
+    "description": "Le temps de lancement et de recharge des techniques d'arme est réduit. Les dégâts infligés par les équipiers alentour sont augmentés.",
+    "effects": [
+      "Le temps de lancement et de recharge des techniques d'arme est réduit. Les dégâts infligés par les équipiers alentour sont augmentés."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212605,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3140,
+    "title": "エイペックス・フォルテ",
+    "description": "ウェポンスキルのキャストタイムとリキャストタイムが短縮され、さらに周囲のパーティメンバーの与ダメージを上昇させる状態。",
+    "effects": [
+      "ウェポンスキルのキャストタイムとリキャストタイムが短縮され、さらに周囲のパーティメンバーの与ダメージを上昇させる状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212605,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "吟遊詩人",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

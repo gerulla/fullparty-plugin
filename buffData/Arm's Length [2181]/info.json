@@ -1,0 +1,234 @@
+{
+  "en": {
+    "id": 2181,
+    "title": "Arm's Length",
+    "description": "Damage dealt is reduced.",
+    "effects": [
+      "Damage dealt is reduced."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214885,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "MNK DRG NIN SAM RPR VPR",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2181,
+    "title": "Abtausch",
+    "description": "Ausgeteilter Schaden ist verringert.",
+    "effects": [
+      "Ausgeteilter Schaden ist verringert."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214885,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "MÖN DRG NIN SAM SNT VPR",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2181,
+    "title": "Portée de bras",
+    "description": "Les dégâts infligés sont réduits.",
+    "effects": [
+      "Les dégâts infligés sont réduits."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214885,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "MOI DRG NIN SAM FCH VPR",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2181,
+    "title": "アームズレングス：効果",
+    "description": "与ダメージが低下した状態。",
+    "effects": [
+      "与ダメージが低下した状態。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214885,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "モンク 竜騎士 忍者 侍 リーパー ヴァイパー",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

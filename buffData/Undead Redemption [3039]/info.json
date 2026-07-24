@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3039,
+    "title": "Undead Redemption",
+    "description": "Most attacks cannot reduce your HP to less than 1. HP is restored with each weaponskill successfully delivered.",
+    "effects": [
+      "Most attacks cannot reduce your HP to less than 1. HP is restored with each weaponskill successfully delivered."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213124,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "DRK",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 971,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 31,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3039,
+    "title": "Untote Erlösung",
+    "description": "LP sinken durch die meisten Attacken nicht unter 1 und eigene Waffenfertigkeiten regenerieren LP.",
+    "effects": [
+      "LP sinken durch die meisten Attacken nicht unter 1 und eigene Waffenfertigkeiten regenerieren LP."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213124,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "DKR",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 971,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 31,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3039,
+    "title": "Rédemption du survivant",
+    "description": "Les PV ne peuvent être réduits en dessous de 1 par la plupart des attaques et des PV sont absorbés lorsque des techniques d'arme touchent.",
+    "effects": [
+      "Les PV ne peuvent être réduits en dessous de 1 par la plupart des attaques et des PV sont absorbés lorsque des techniques d'arme touchent."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213124,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "CHN",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 971,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 31,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3039,
+    "title": "アンデッド・リデンプション",
+    "description": "一部を除くすべての攻撃に対してＨＰが1より減ることがない状態。また、自身のウェポンスキルによる攻撃が命中するとＨＰを回復する状態。",
+    "effects": [
+      "一部を除くすべての攻撃に対してＨＰが1より減ることがない状態。また、自身のウェポンスキルによる攻撃が命中するとＨＰを回復する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213124,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "暗黒騎士",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 971,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 31,
+      "flag_2": 0
+    }
+  }
+}

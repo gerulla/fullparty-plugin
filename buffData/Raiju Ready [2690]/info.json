@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 2690,
+    "title": "Raiju Ready",
+    "description": "Able to execute Forked Raiju and Fleeting Raiju.",
+    "effects": [
+      "Able to execute Forked Raiju and Fleeting Raiju."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217597,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 3,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 92,
+      "name": "NIN",
+      "allowed_jobs": [
+        "NIN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2690,
+    "title": "Raiju",
+    "description": "Tanzendes Raiju und Brüllendes Raiju können ausgeführt werden.",
+    "effects": [
+      "Tanzendes Raiju und Brüllendes Raiju können ausgeführt werden."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217597,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 3,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 92,
+      "name": "NIN",
+      "allowed_jobs": [
+        "NIN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2690,
+    "title": "Technique de Raijû préparée",
+    "description": "Griffe de Raijû ou Croc de Raijû peuvent être lancés.",
+    "effects": [
+      "Griffe de Raijû ou Croc de Raijû peuvent être lancés."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217597,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 3,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 92,
+      "name": "NIN",
+      "allowed_jobs": [
+        "NIN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2690,
+    "title": "月影雷獣実行可",
+    "description": "月影雷獣爪または月影雷獣牙を実行できる状態。",
+    "effects": [
+      "月影雷獣爪または月影雷獣牙を実行できる状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217597,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 3,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 92,
+      "name": "忍者",
+      "allowed_jobs": [
+        "NIN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

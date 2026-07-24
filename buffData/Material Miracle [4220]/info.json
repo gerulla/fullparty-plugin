@@ -1,0 +1,242 @@
+{
+  "en": {
+    "id": 4220,
+    "title": "Material Miracle",
+    "description": "Next material condition will be Good, Sturdy, Centered, Pliant, Primed, or Malleable.",
+    "effects": [
+      "Next material condition will be Good, Sturdy, Centered, Pliant, Primed, or Malleable."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216254,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "Disciple of the Hand",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 4220,
+    "title": "Wundermaterial",
+    "description": "Der Materialzustand wird zu „Gut“, „Robust“, „Stabil“, „Ergiebig“, „Präpariert“ oder „Formbar“.",
+    "effects": [
+      "Der Materialzustand wird zu „Gut“, „Robust“, „Stabil“, „Ergiebig“, „Präpariert“ oder „Formbar“."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216254,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "Handwerker",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 4220,
+    "title": "Miracle de la matière",
+    "description": "L'état de la synthèse devient bon, robuste, stable, modulable, apprêté ou malléable.",
+    "effects": [
+      "L'état de la synthèse devient bon, robuste, stable, modulable, apprêté ou malléable."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216254,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "artisans",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 4220,
+    "title": "ミラクルマテリアル",
+    "description": "製作の状態が「高品質」「頑丈」「安定」「高能率」「長持続」「高進捗」のいずれかに変化する状態。",
+    "effects": [
+      "製作の状態が「高品質」「頑丈」「安定」「高能率」「長持続」「高進捗」のいずれかに変化する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216254,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "クラフター",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

@@ -1,0 +1,242 @@
+{
+  "en": {
+    "id": 260,
+    "title": "Reclaim",
+    "description": "90% chance that materials will not be lost in the event of botched synthesis.",
+    "effects": [
+      "90% chance that materials will not be lost in the event of botched synthesis."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 211851,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 90
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "Disciple of the Hand",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 260,
+    "title": "Reklamation",
+    "description": "Wahrscheinlichkeit von 90 %, dass die Materialien nach fehlgeschlagener Synthese nicht verloren sind.",
+    "effects": [
+      "Wahrscheinlichkeit von 90 %, dass die Materialien nach fehlgeschlagener Synthese nicht verloren sind."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 211851,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 90
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "Handwerker",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 260,
+    "title": "Récupération",
+    "description": "90% de chances de récupérer les matériaux si la synthèse échoue.",
+    "effects": [
+      "90% de chances de récupérer les matériaux si la synthèse échoue."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 211851,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 90
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "artisans",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 260,
+    "title": "リクレイム",
+    "description": "製作失敗時の素材が戻ってくる確率が90％になっている状態。",
+    "effects": [
+      "製作失敗時の素材が戻ってくる確率が90％になっている状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 211851,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 90
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "クラフター",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

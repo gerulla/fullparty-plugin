@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 831,
+    "title": "The Arrow",
+    "description": "Weaponskill cast time and recast time, spell cast time and recast time, and auto-attack delay are reduced.",
+    "effects": [
+      "Weaponskill cast time and recast time, spell cast time and recast time, and auto-attack delay are reduced."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213206,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 99,
+      "name": "AST",
+      "allowed_jobs": [
+        "AST"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 831,
+    "title": "Kraft des Pfeils",
+    "description": "Intervalle von Auto-Attacke sowie die (Re-)Aktivierungszeit von Waffenfertigkeiten und Zaubern sind verkürzt.",
+    "effects": [
+      "Intervalle von Auto-Attacke sowie die (Re-)Aktivierungszeit von Waffenfertigkeiten und Zaubern sind verkürzt."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213206,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 99,
+      "name": "AST",
+      "allowed_jobs": [
+        "AST"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 831,
+    "title": "La Flèche",
+    "description": "La vitesse des attaques automatiques est augmentée, et les temps de lancement et de recharge des sorts et des techniques d'arme sont réduits.",
+    "effects": [
+      "La vitesse des attaques automatiques est augmentée, et les temps de lancement et de recharge des sorts et des techniques d'arme sont réduits."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213206,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 99,
+      "name": "AST",
+      "allowed_jobs": [
+        "AST"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 831,
+    "title": "オシュオンの矢",
+    "description": "オートアタックの攻撃間隔と、ウェポンスキルおよび魔法のキャストタイムとリキャストタイムが短縮された状態。",
+    "effects": [
+      "オートアタックの攻撃間隔と、ウェポンスキルおよび魔法のキャストタイムとリキャストタイムが短縮された状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213206,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 99,
+      "name": "占星術師",
+      "allowed_jobs": [
+        "AST"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

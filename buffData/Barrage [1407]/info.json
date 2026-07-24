@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 1407,
+    "title": "Barrage",
+    "description": "Striking multiple times per weaponskill.",
+    "effects": [
+      "Striking multiple times per weaponskill."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210356,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 2
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1407,
+    "title": "Sperrfeuer",
+    "description": "Nächste Waffenfertigkeit kann mehrmals ausgeführt werden.",
+    "effects": [
+      "Nächste Waffenfertigkeit kann mehrmals ausgeführt werden."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210356,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 2
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1407,
+    "title": "Rafale de coups",
+    "description": "Plusieurs coups sont portés lors de la prochaine technique d'arme.",
+    "effects": [
+      "Plusieurs coups sont portés lors de la prochaine technique d'arme."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210356,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 2
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1407,
+    "title": "乱れ撃ち",
+    "description": "自身が次に実行するウェポンスキルの攻撃回数が増加する状態。",
+    "effects": [
+      "自身が次に実行するウェポンスキルの攻撃回数が増加する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210356,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 2
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "吟遊詩人",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

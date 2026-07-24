@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 1972,
+    "title": "Delirium",
+    "description": "Blackblood cost for Bloodspiller and Quietus is nullified, and restoring MP when landing either weaponskill.",
+    "effects": [
+      "Blackblood cost for Bloodspiller and Quietus is nullified, and restoring MP when landing either weaponskill."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217147,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 3,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "DRK",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1972,
+    "title": "Blutdelirium",
+    "description": "Blutvergießen und Quietus kosten kein Schwarzes Blut und stellen bei erfolgreichem Treffer MP wieder her.",
+    "effects": [
+      "Blutvergießen und Quietus kosten kein Schwarzes Blut und stellen bei erfolgreichem Treffer MP wieder her."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217147,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 3,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "DKR",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1972,
+    "title": "Delirium de sang",
+    "description": "Les actions Quietus et Marée de sang ne consomment plus de Jauge de sang et restaurent des PM à chaque fois qu'elles touchent.",
+    "effects": [
+      "Les actions Quietus et Marée de sang ne consomment plus de Jauge de sang et restaurent des PM à chaque fois qu'elles touchent."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217147,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 3,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "CHN",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1972,
+    "title": "ブラッドデリリアム",
+    "description": "ブラッドスピラーとクワイタスをブラックブラッドの消費無しで実行でき、かつ命中時に自身のＭＰを回復する状態。",
+    "effects": [
+      "ブラッドスピラーとクワイタスをブラックブラッドの消費無しで実行でき、かつ命中時に自身のＭＰを回復する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 217147,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 3,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "暗黒騎士",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3219,
+    "title": "Deep Freeze",
+    "description": "Frozen solid and unable to execute actions.",
+    "effects": [
+      "Frozen solid and unable to execute actions."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 215637,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": true,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 26,
+      "name": "BLM",
+      "allowed_jobs": [
+        "BLM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 18,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 32,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3219,
+    "title": "Tiefkühlung",
+    "description": "Steif gefroren und handlungsunfähig.",
+    "effects": [
+      "Steif gefroren und handlungsunfähig."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 215637,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": true,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 26,
+      "name": "SMA",
+      "allowed_jobs": [
+        "BLM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 18,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 32,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3219,
+    "title": "Congélation",
+    "description": "Le corps est entièrement gelé, rendant toute action impossible.",
+    "effects": [
+      "Le corps est entièrement gelé, rendant toute action impossible."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 215637,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": true,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 26,
+      "name": "MNO",
+      "allowed_jobs": [
+        "BLM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 18,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 32,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3219,
+    "title": "氷結",
+    "description": "身体が凍り付き、行動できなくなった状態。",
+    "effects": [
+      "身体が凍り付き、行動できなくなった状態。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 215637,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": true,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 26,
+      "name": "黒魔道士",
+      "allowed_jobs": [
+        "BLM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 18,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 32,
+      "flag_2": 0
+    }
+  }
+}

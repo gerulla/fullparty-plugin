@@ -1,0 +1,242 @@
+{
+  "en": {
+    "id": 2665,
+    "title": "Heart and Soul",
+    "description": "Able to execute Precise Touch, Intensive Synthesis, and Tricks of the Trade.",
+    "effects": [
+      "Able to execute Precise Touch, Intensive Synthesis, and Tricks of the Trade."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216127,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "Disciple of the Hand",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2665,
+    "title": "Mit Leib und Seele",
+    "description": "Ermöglicht den Einsatz von Präzise Veredelung, Fokussierte Bearbeitung und Kunstgriff unabhängig vom Materialzustand.",
+    "effects": [
+      "Ermöglicht den Einsatz von Präzise Veredelung, Fokussierte Bearbeitung und Kunstgriff unabhängig vom Materialzustand."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216127,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "Handwerker",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2665,
+    "title": "Attention totale",
+    "description": "Travail vigilant, Ouvrage précis ou Ficelles du métier peuvent être lancés.",
+    "effects": [
+      "Travail vigilant, Ouvrage précis ou Ficelles du métier peuvent être lancés."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216127,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "artisans",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2665,
+    "title": "一心不乱",
+    "description": "「集中作業」「集中加工」「秘訣」が使用可能な状態。",
+    "effects": [
+      "「集中作業」「集中加工」「秘訣」が使用可能な状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216127,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "クラフター",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

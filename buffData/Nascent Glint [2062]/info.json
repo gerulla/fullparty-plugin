@@ -1,0 +1,216 @@
+{
+  "en": {
+    "id": 2062,
+    "title": "Nascent Glint",
+    "description": "Damage taken is reduced, and receiving 100% of all HP absorbed by the warrior who granted this status via Nascent Flash.",
+    "effects": [
+      "Damage taken is reduced, and receiving 100% of all HP absorbed by the warrior who granted this status via Nascent Flash."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212559,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "WAR",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2062,
+    "title": "Urglimmen",
+    "description": "Erhält 100 % der durch Urflackern regenerierten LP als Heilung.\nAußerdem ist erlittener Schaden verringert.",
+    "effects": [
+      "Erhält 100 % der durch Urflackern regenerierten LP als Heilung.",
+      "Außerdem ist erlittener Schaden verringert."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212559,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "KRG",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2062,
+    "title": "Exaltation communicative",
+    "description": "Des PV sont restaurés à hauteur de 100% des PV qu'absorbent le lanceur de cet effet grâce à Exaltation naissante. Les dégâts subis sont réduits.",
+    "effects": [
+      "Des PV sont restaurés à hauteur de 100% des PV qu'absorbent le lanceur de cet effet grâce à Exaltation naissante. Les dégâts subis sont réduits."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212559,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "GUE",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2062,
+    "title": "原初の猛り[被]",
+    "description": "自身にこの効果を付与した戦士が「原初の猛り」によるＨＰ吸収効果を受けた際に、その100％分の回復効果を受ける状態。\nさらに、受けるダメージが軽減される状態。",
+    "effects": [
+      "自身にこの効果を付与した戦士が「原初の猛り」によるＨＰ吸収効果を受けた際に、その100％分の回復効果を受ける状態。",
+      "さらに、受けるダメージが軽減される状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212559,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "戦士",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

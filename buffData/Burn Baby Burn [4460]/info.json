@@ -1,0 +1,190 @@
+{
+  "en": {
+    "id": 4460,
+    "title": "Burn Baby Burn",
+    "description": "Consumed by the Disco Infernal and condemned to strike a groovy pose when this effect expires. Posing outside of the spotlight will result in damage taken.",
+    "effects": [
+      "Consumed by the Disco Infernal and condemned to strike a groovy pose when this effect expires. Posing outside of the spotlight will result in damage taken."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214280,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 4460,
+    "title": "Höllendisco",
+    "description": "Kann die Aufforderung zum Tanz nicht ablehnen und posiert bei Ablauf des Effekts. Löst negative Effekte aus, wenn man sich zu diesem Zeitpunkt nicht im Rampenlicht befindet.",
+    "effects": [
+      "Kann die Aufforderung zum Tanz nicht ablehnen und posiert bei Ablauf des Effekts. Löst negative Effekte aus, wenn man sich zu diesem Zeitpunkt nicht im Rampenlicht befindet."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214280,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 4460,
+    "title": "Enfer du disco",
+    "description": "Le corps est entraîné par le rythme et ne peut s'empêcher de danser. À la fin de l'effet, prend une pose. Des dégâts sont subis lorsque celle-ci est effectuée en dehors de la lumière des projecteurs.",
+    "effects": [
+      "Le corps est entraîné par le rythme et ne peut s'empêcher de danser. À la fin de l'effet, prend une pose. Des dégâts sont subis lorsque celle-ci est effectuée en dehors de la lumière des projecteurs."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214280,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 4460,
+    "title": "ディスコインファーナル",
+    "description": "ダンスに誘われ、踊らずにはいられない状態。効果時間終了時に身体が勝手にポーズをとり、その際にスポットライトを浴びていないと被害が発生してしまう。",
+    "effects": [
+      "ダンスに誘われ、踊らずにはいられない状態。効果時間終了時に身体が勝手にポーズをとり、その際にスポットライトを浴びていないと被害が発生してしまう。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214280,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

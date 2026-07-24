@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 832,
+    "title": "The Spear",
+    "description": "Critical hit rate is increased.",
+    "effects": [
+      "Critical hit rate is increased."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213207,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 12
+    },
+    "class_job_category": {
+      "id": 99,
+      "name": "AST",
+      "allowed_jobs": [
+        "AST"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 18,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 832,
+    "title": "Kraft des Speers",
+    "description": "Kritische Trefferrate ist erhöht.",
+    "effects": [
+      "Kritische Trefferrate ist erhöht."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213207,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 12
+    },
+    "class_job_category": {
+      "id": 99,
+      "name": "AST",
+      "allowed_jobs": [
+        "AST"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 18,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 832,
+    "title": "L'Épieu",
+    "description": "Les chances de critiques sont augmentées.",
+    "effects": [
+      "Les chances de critiques sont augmentées."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213207,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 12
+    },
+    "class_job_category": {
+      "id": 99,
+      "name": "AST",
+      "allowed_jobs": [
+        "AST"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 18,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 832,
+    "title": "ハルオーネの槍",
+    "description": "クリティカル発動率が向上した状態。",
+    "effects": [
+      "クリティカル発動率が向上した状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213207,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 12
+    },
+    "class_job_category": {
+      "id": 99,
+      "name": "占星術師",
+      "allowed_jobs": [
+        "AST"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 18,
+      "flag_2": 0
+    }
+  }
+}

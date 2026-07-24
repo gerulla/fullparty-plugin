@@ -1,0 +1,215 @@
+{
+  "en": {
+    "id": 2061,
+    "title": "Nascent Flash",
+    "description": "Absorbing HP with each physical attack delivered. Damage taken is also reduced.",
+    "effects": [
+      "Absorbing HP with each physical attack delivered. Damage taken is also reduced."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212558,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "WAR",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2061,
+    "title": "Urflackern",
+    "description": "Ausgeteilte physische Attacken regenerieren LP. Erlittener Schaden ist verringert.",
+    "effects": [
+      "Ausgeteilte physische Attacken regenerieren LP. Erlittener Schaden ist verringert."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212558,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "KRG",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2061,
+    "title": "Exaltation naissante",
+    "description": "Des PV sont absorbés lorsqu'une attaque physique touche. De plus, les dégâts reçus sont réduits.",
+    "effects": [
+      "Des PV sont absorbés lorsqu'une attaque physique touche. De plus, les dégâts reçus sont réduits."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212558,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "GUE",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2061,
+    "title": "原初の猛り",
+    "description": "自身の物理攻撃が命中するとＨＰを吸収する状態。\nさらに、受けるダメージが軽減される状態。",
+    "effects": [
+      "自身の物理攻撃が命中するとＨＰを吸収する状態。",
+      "さらに、受けるダメージが軽減される状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212558,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "戦士",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

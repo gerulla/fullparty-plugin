@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 1240,
+    "title": "Chiten",
+    "description": "Damage taken is reduced while countering attacks.",
+    "effects": [
+      "Damage taken is reduced while countering attacks."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214820,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -20
+    },
+    "class_job_category": {
+      "id": 111,
+      "name": "SAM",
+      "allowed_jobs": [
+        "SAM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 975,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1240,
+    "title": "Hissatsu: Chiten",
+    "description": "Erlittener Schaden ist reduziert und ein Teil wird auf den Angreifer zurückgeworfen.",
+    "effects": [
+      "Erlittener Schaden ist reduziert und ein Teil wird auf den Angreifer zurückgeworfen."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214820,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -20
+    },
+    "class_job_category": {
+      "id": 111,
+      "name": "SAM",
+      "allowed_jobs": [
+        "SAM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 975,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1240,
+    "title": "Hissatsu\u00A0: Chiten",
+    "description": "Les dégâts reçus sont réduits, et des dégâts sont infligés chaque fois qu'un coup est reçu.",
+    "effects": [
+      "Les dégâts reçus sont réduits, et des dégâts sont infligés chaque fois qu'un coup est reçu."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214820,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -20
+    },
+    "class_job_category": {
+      "id": 111,
+      "name": "SAM",
+      "allowed_jobs": [
+        "SAM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 975,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1240,
+    "title": "必殺剣・地天",
+    "description": "受けるダメージを軽減し、かつ反撃ダメージを与える状態。",
+    "effects": [
+      "受けるダメージを軽減し、かつ反撃ダメージを与える状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214820,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -20
+    },
+    "class_job_category": {
+      "id": 111,
+      "name": "侍",
+      "allowed_jobs": [
+        "SAM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 975,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "en": {
+    "id": 4471,
+    "title": "In the Spotlight",
+    "description": "Struck a groovy pose to the adulation of all on the dance floor. Cannot stop thinking about it, resulting in increased magic damage taken.",
+    "effects": [
+      "Struck a groovy pose to the adulation of all on the dance floor. Cannot stop thinking about it, resulting in increased magic damage taken."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214284,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 4471,
+    "title": "Fette Pose",
+    "description": "Legt eindrucksvolle Tanzschritte auf das Parkett und ist vom Kampfgeschehen abgelenkt. Erlittener magischer Schaden ist erhöht.",
+    "effects": [
+      "Legt eindrucksvolle Tanzschritte auf das Parkett und ist vom Kampfgeschehen abgelenkt. Erlittener magischer Schaden ist erhöht."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214284,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 4471,
+    "title": "Pose réussie",
+    "description": "La pose finale a été réalisée avec succès. Toutefois, la concentration sur la danse entraîne une augmentation des dégâts magiques subis.",
+    "effects": [
+      "La pose finale a été réalisée avec succès. Toutefois, la concentration sur la danse entraîne une augmentation des dégâts magiques subis."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214284,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 4471,
+    "title": "キメポーズ成功",
+    "description": "ダンスのキメポーズに成功した状態。ポーズに集中するあまり、被魔法ダメージが増加する。",
+    "effects": [
+      "ダンスのキメポーズに成功した状態。ポーズに集中するあまり、被魔法ダメージが増加する。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214284,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

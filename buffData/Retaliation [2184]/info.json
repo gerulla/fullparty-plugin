@@ -1,0 +1,226 @@
+{
+  "en": {
+    "id": 2184,
+    "title": "Retaliation",
+    "description": "Delivering counter damage every time an attack is suffered.",
+    "effects": [
+      "Delivering counter damage every time an attack is suffered."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214817,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 121,
+      "name": "PLD WAR DRK GNB",
+      "allowed_jobs": [
+        "DRK",
+        "GNB",
+        "PLD",
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2184,
+    "title": "Gegenangriff",
+    "description": "Fügt dem Gegner bei jedem erhaltenen Treffer einen Gegenangriff zu.",
+    "effects": [
+      "Fügt dem Gegner bei jedem erhaltenen Treffer einen Gegenangriff zu."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214817,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 121,
+      "name": "PLD KRG DKR REV",
+      "allowed_jobs": [
+        "DRK",
+        "GNB",
+        "PLD",
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2184,
+    "title": "Vengeance",
+    "description": "Lorsqu'une attaque est subie, des dégâts sont infligés à l'assaillant.",
+    "effects": [
+      "Lorsqu'une attaque est subie, des dégâts sont infligés à l'assaillant."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214817,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 121,
+      "name": "PLD GUE CHN PSB",
+      "allowed_jobs": [
+        "DRK",
+        "GNB",
+        "PLD",
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2184,
+    "title": "逆襲",
+    "description": "攻撃を受けると、攻撃者に反撃ダメージを与える状態。",
+    "effects": [
+      "攻撃を受けると、攻撃者に反撃ダメージを与える状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214817,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 121,
+      "name": "ナイト 戦士 暗黒騎士 ガンブレイカー",
+      "allowed_jobs": [
+        "DRK",
+        "GNB",
+        "PLD",
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

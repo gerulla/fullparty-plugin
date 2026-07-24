@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3191,
+    "title": "Death Link",
+    "description": "Grants the ninja who applied this effect Unsealed Seiton Tenchu if defeated before effect expires.",
+    "effects": [
+      "Grants the ninja who applied this effect Unsealed Seiton Tenchu if defeated before effect expires."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214944,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 92,
+      "name": "NIN",
+      "allowed_jobs": [
+        "NIN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3191,
+    "title": "Totenbund",
+    "description": "Tritt während der Effektdauer Kampfunfähigkeit ein, kann der Verursacher dieses Status Seiton Tenchu ausführen.",
+    "effects": [
+      "Tritt während der Effektdauer Kampfunfähigkeit ein, kann der Verursacher dieses Status Seiton Tenchu ausführen."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214944,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 92,
+      "name": "NIN",
+      "allowed_jobs": [
+        "NIN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3191,
+    "title": "Morts en chaîne",
+    "description": "Octroie Seiton Tenchû préparé au joueur à l'origine de l'effet en cas de K.O.",
+    "effects": [
+      "Octroie Seiton Tenchû préparé au joueur à l'origine de l'effet en cas de K.O."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214944,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 92,
+      "name": "NIN",
+      "allowed_jobs": [
+        "NIN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3191,
+    "title": "死の連鎖",
+    "description": "効果中に戦闘不能になると、この効果を付与したプレイヤーが「星遁天誅」を実行できるようになる状態。",
+    "effects": [
+      "効果中に戦闘不能になると、この効果を付与したプレイヤーが「星遁天誅」を実行できるようになる状態。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214944,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 92,
+      "name": "忍者",
+      "allowed_jobs": [
+        "NIN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

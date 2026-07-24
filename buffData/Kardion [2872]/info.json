@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 2872,
+    "title": "Kardion",
+    "description": "Triggers additional effects when the sage who applied this status casts certain attack magic.",
+    "effects": [
+      "Triggers additional effects when the sage who applied this status casts certain attack magic."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212952,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 181,
+      "name": "SGE",
+      "allowed_jobs": [
+        "SGE"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2872,
+    "title": "Kardion",
+    "description": "Erhält bestimmte Zusatzeffekte durch gewisse magische Attacken des Verursachers des Status.",
+    "effects": [
+      "Erhält bestimmte Zusatzeffekte durch gewisse magische Attacken des Verursachers des Status."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212952,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 181,
+      "name": "WEI",
+      "allowed_jobs": [
+        "SGE"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2872,
+    "title": "Kardion",
+    "description": "Bénéficie de bonus lorsque le joueur à l'origine de l'effet lance certains sorts offensifs.",
+    "effects": [
+      "Bénéficie de bonus lorsque le joueur à l'origine de l'effet lance certains sorts offensifs."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212952,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 181,
+      "name": "SAG",
+      "allowed_jobs": [
+        "SGE"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2872,
+    "title": "カルディア［被］",
+    "description": "自身にこの効果を付与したプレイヤーが特定の攻撃魔法を実行した際に、自身に対して追加効果が発動する状態。",
+    "effects": [
+      "自身にこの効果を付与したプレイヤーが特定の攻撃魔法を実行した際に、自身に対して追加効果が発動する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212952,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 181,
+      "name": "賢者",
+      "allowed_jobs": [
+        "SGE"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

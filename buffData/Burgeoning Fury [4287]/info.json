@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 4287,
+    "title": "Burgeoning Fury",
+    "description": "Fury is building within you. At 3 stacks, effect changes to Wrathful, allowing you to execute Primal Wrath.",
+    "effects": [
+      "Fury is building within you. At 3 stacks, effect changes to Wrathful, allowing you to execute Primal Wrath."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 218147,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 3,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "WAR",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 4287,
+    "title": "Inneres Zittern",
+    "description": "Urkraft lässt den Körper zittern. Ändert sich bei 3 Stapeln zu Inneres Beben.",
+    "effects": [
+      "Urkraft lässt den Körper zittern. Ändert sich bei 3 Stapeln zu Inneres Beben."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 218147,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 3,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "KRG",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 4287,
+    "title": "Palpitations bestiales",
+    "description": "Le corps est secoué par des palpitations. L'effet devient Trépidation bestiale préparée s'il est accumulé 3 fois.",
+    "effects": [
+      "Le corps est secoué par des palpitations. L'effet devient Trépidation bestiale préparée s'il est accumulé 3 fois."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 218147,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 3,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "GUE",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 4287,
+    "title": "原初の鼓動",
+    "description": "原初の鼓動が蓄積された状態。3スタック付与されると「原初の激震実行可」に変化する。",
+    "effects": [
+      "原初の鼓動が蓄積された状態。3スタック付与されると「原初の激震実行可」に変化する。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 218147,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 3,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "戦士",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

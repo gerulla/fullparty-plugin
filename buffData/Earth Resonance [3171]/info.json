@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3171,
+    "title": "Earth Resonance",
+    "description": "Damage potency and healing potency of Earth's Reply are increased based on damage taken and compiled over the duration of this effect.",
+    "effects": [
+      "Damage potency and healing potency of Earth's Reply are increased based on damage taken and compiled over the duration of this effect."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212527,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 21,
+      "name": "MNK",
+      "allowed_jobs": [
+        "MNK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3171,
+    "title": "Wesen der Erde",
+    "description": "Bei Echo der Erde wird eine Attacke auf umstehende Gegner und ein LP-Regenerationseffekt auf sich selbst ausgeführt.",
+    "effects": [
+      "Bei Echo der Erde wird eine Attacke auf umstehende Gegner und ein LP-Regenerationseffekt auf sich selbst ausgeführt."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212527,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 21,
+      "name": "MÖN",
+      "allowed_jobs": [
+        "MNK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3171,
+    "title": "Quintessence de terre",
+    "description": "Cercles de terre attaque les ennemis alentour et restaure vos PV. La puissance de chaque action dépend des dégâts reçus pendant la durée de l'effet.",
+    "effects": [
+      "Cercles de terre attaque les ennemis alentour et restaure vos PV. La puissance de chaque action dépend des dégâts reçus pendant la durée de l'effet."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212527,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 21,
+      "name": "MOI",
+      "allowed_jobs": [
+        "MNK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3171,
+    "title": "金剛の神髄",
+    "description": "「金剛転輪」を実行することで、自身の周囲の敵への攻撃と、自身へのＨＰ回復効果が発動する状態。それぞれの効果量はこのステータスの効果中に受けたダメージの総量により変化する。",
+    "effects": [
+      "「金剛転輪」を実行することで、自身の周囲の敵への攻撃と、自身へのＨＰ回復効果が発動する状態。それぞれの効果量はこのステータスの効果中に受けたダメージの総量により変化する。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212527,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 21,
+      "name": "モンク",
+      "allowed_jobs": [
+        "MNK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

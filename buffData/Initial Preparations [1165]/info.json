@@ -1,0 +1,242 @@
+{
+  "en": {
+    "id": 1165,
+    "title": "Initial Preparations",
+    "description": "CP consumption may be reduced.",
+    "effects": [
+      "CP consumption may be reduced."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216121,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "Disciple of the Hand",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1165,
+    "title": "Fulminanter Start",
+    "description": "Der HP-Verbrauch wird gelegentlich verringert.",
+    "effects": [
+      "Der HP-Verbrauch wird gelegentlich verringert."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216121,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "Handwerker",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1165,
+    "title": "Préparatifs initiaux",
+    "description": "Le coût en PS des actions est parfois réduit.",
+    "effects": [
+      "Le coût en PS des actions est parfois réduit."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216121,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "artisans",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1165,
+    "title": "初手仕込",
+    "description": "CPの消費量が、まれに軽減される状態。",
+    "effects": [
+      "CPの消費量が、まれに軽減される状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216121,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "クラフター",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

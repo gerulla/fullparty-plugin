@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 1819,
+    "title": "Technical Step",
+    "description": "Caught up in the dance and only able to execute step actions, role actions, Sprint, Limit Break, Technical Finish,  and En Avant.",
+    "effects": [
+      "Caught up in the dance and only able to execute step actions, role actions, Sprint, Limit Break, Technical Finish,  and En Avant."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213706,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 150,
+      "name": "DNC",
+      "allowed_jobs": [
+        "DNC"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1819,
+    "title": "Komplexe Choreographie",
+    "description": "Komplexe Choreographie gestartet. Nur En Avant, Heilender Walzer, Schildsamba, Tanzschritte, Rollenkommandos, Limitrausch und Sprint können ausgeführt werden. Komplexes Finale beendet den Effekt.",
+    "effects": [
+      "Komplexe Choreographie gestartet. Nur En Avant, Heilender Walzer, Schildsamba, Tanzschritte, Rollenkommandos, Limitrausch und Sprint können ausgeführt werden. Komplexes Finale beendet den Effekt."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213706,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 150,
+      "name": "TÄN",
+      "allowed_jobs": [
+        "DNC"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1819,
+    "title": "Pas technique",
+    "description": "En train de danser. Seules les actions de pas de danse et de rôle, ainsi que Final technique, En avant, Valse revigorante, Samba protectrice, Sprint et Transcendance peuvent être utilisés.",
+    "effects": [
+      "En train de danser. Seules les actions de pas de danse et de rôle, ainsi que Final technique, En avant, Valse revigorante, Samba protectrice, Sprint et Transcendance peuvent être utilisés."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213706,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 150,
+      "name": "DNS",
+      "allowed_jobs": [
+        "DNC"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1819,
+    "title": "テクニカルステップ",
+    "description": "ダンスモードに入った状態。ステップアクションと「テクニカルフィニッシュ」「アン・アヴァン」「癒やしのワルツ」「守りのサンバ」、ロールアクション、スプリント、リミットブレイク以外のアクションを実行することができない。",
+    "effects": [
+      "ダンスモードに入った状態。ステップアクションと「テクニカルフィニッシュ」「アン・アヴァン」「癒やしのワルツ」「守りのサンバ」、ロールアクション、スプリント、リミットブレイク以外のアクションを実行することができない。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213706,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 150,
+      "name": "踊り子",
+      "allowed_jobs": [
+        "DNC"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

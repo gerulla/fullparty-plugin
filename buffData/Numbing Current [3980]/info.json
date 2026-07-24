@@ -1,0 +1,190 @@
+{
+  "en": {
+    "id": 3980,
+    "title": "Numbing Current",
+    "description": "Paralyzed by an electric shock and unable to move. Damage taken by lightning-aspected attacks is greatly increased.",
+    "effects": [
+      "Paralyzed by an electric shock and unable to move. Damage taken by lightning-aspected attacks is greatly increased."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 215229,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 2,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3980,
+    "title": "Blitzparalyse",
+    "description": "Durch zu viel Blitz im Körper bewegungsunfähig. Erleidet durch gewisse blitzbasierte Attacken enorm erhöhten Schaden.",
+    "effects": [
+      "Durch zu viel Blitz im Körper bewegungsunfähig. Erleidet durch gewisse blitzbasierte Attacken enorm erhöhten Schaden."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 215229,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 2,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3980,
+    "title": "Paralysie électrique",
+    "description": "Paralysé par l'électricité. Augmente grandement le montant de dégâts reçus lorsque certaines attaques de foudre sont subies.",
+    "effects": [
+      "Paralysé par l'électricité. Augmente grandement le montant de dégâts reçus lorsque certaines attaques de foudre sont subies."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 215229,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 2,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3980,
+    "title": "雷気性麻痺",
+    "description": "雷気で痺れて動けない状態。特定の雷属性攻撃を受けた際の被ダメージが大幅に増加する。",
+    "effects": [
+      "雷気で痺れて動けない状態。特定の雷属性攻撃を受けた際の被ダメージが大幅に増加する。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 215229,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 2,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 4096,
+    "title": "Hardened Scales",
+    "description": "Though unable to move, damage taken is reduced. All Stun, Heavy, Bind, Silence, Half-asleep, Sleep, Deep Freeze, knockback, and draw-in effects are nullified.",
+    "effects": [
+      "Though unable to move, damage taken is reduced. All Stun, Heavy, Bind, Silence, Half-asleep, Sleep, Deep Freeze, knockback, and draw-in effects are nullified."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214992,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": true,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 39186
+    },
+    "class_job_category": {
+      "id": 196,
+      "name": "VPR",
+      "allowed_jobs": [
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 27,
+      "flag_2": 24
+    }
+  },
+  "de": {
+    "id": 4096,
+    "title": "Hornplatten",
+    "description": "Bewegungsunfähig, aber erlittener Schaden ist verringert und Immunität gegen alle Statuseffekte, die von Purifikation aufgehoben werden können, sowie Rückstoß- und Heranzieheffekte.",
+    "effects": [
+      "Bewegungsunfähig, aber erlittener Schaden ist verringert und Immunität gegen alle Statuseffekte, die von Purifikation aufgehoben werden können, sowie Rückstoß- und Heranzieheffekte."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214992,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": true,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 39186
+    },
+    "class_job_category": {
+      "id": 196,
+      "name": "VPR",
+      "allowed_jobs": [
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 27,
+      "flag_2": 24
+    }
+  },
+  "fr": {
+    "id": 4096,
+    "title": "Écailles inflexibles",
+    "description": "Il est impossible de se mouvoir, mais les dégâts reçus sont réduits. Insensible aux altérations d'état soignables avec Dépuration, aux projections et aux attractions.",
+    "effects": [
+      "Il est impossible de se mouvoir, mais les dégâts reçus sont réduits. Insensible aux altérations d'état soignables avec Dépuration, aux projections et aux attractions."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214992,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": true,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 39186
+    },
+    "class_job_category": {
+      "id": 196,
+      "name": "VPR",
+      "allowed_jobs": [
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 27,
+      "flag_2": 24
+    }
+  },
+  "ja": {
+    "id": 4096,
+    "title": "蛇鱗",
+    "description": "身動きが取れないが、受けるダメージが軽減され、さらに「浄化」で解除することができる状態異常効果と、ノックバック、引き寄せの効果を無効化する状態。",
+    "effects": [
+      "身動きが取れないが、受けるダメージが軽減され、さらに「浄化」で解除することができる状態異常効果と、ノックバック、引き寄せの効果を無効化する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214992,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": true,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 39186
+    },
+    "class_job_category": {
+      "id": 196,
+      "name": "ヴァイパー",
+      "allowed_jobs": [
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 27,
+      "flag_2": 24
+    }
+  }
+}

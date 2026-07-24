@@ -1,0 +1,222 @@
+{
+  "en": {
+    "id": 4478,
+    "title": "Dervish",
+    "description": "Weaponskill and spell cast and recast time are reduced. Movement speed is also increased.",
+    "effects": [
+      "Weaponskill and spell cast and recast time are reduced. Movement speed is also increased."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216621,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 123,
+      "name": "BRD MCH DNC",
+      "allowed_jobs": [
+        "BRD",
+        "DNC",
+        "MCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 4478,
+    "title": "Derwisch",
+    "description": "(Re-)Aktivierungszeiten von Waffenfertigkeiten und Magie sind verkürzt. Bewegungsgeschwindigkeit ist erhöht.",
+    "effects": [
+      "(Re-)Aktivierungszeiten von Waffenfertigkeiten und Magie sind verkürzt. Bewegungsgeschwindigkeit ist erhöht."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216621,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 123,
+      "name": "BRD MCH TÄN",
+      "allowed_jobs": [
+        "BRD",
+        "DNC",
+        "MCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 4478,
+    "title": "Célérité extrême",
+    "description": "Le temps de lancement et de recharge des sorts et des techniques d'arme est réduit. En outre, la vitesse de déplacement est augmentée.",
+    "effects": [
+      "Le temps de lancement et de recharge des sorts et des techniques d'arme est réduit. En outre, la vitesse de déplacement est augmentée."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216621,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 123,
+      "name": "BRD MCH DNS",
+      "allowed_jobs": [
+        "BRD",
+        "DNC",
+        "MCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 4478,
+    "title": "スピードスター",
+    "description": "ウェポンスキルと魔法のキャストタイムとリキャストタイムが短縮された状態。さらに移動速度が上昇する。",
+    "effects": [
+      "ウェポンスキルと魔法のキャストタイムとリキャストタイムが短縮された状態。さらに移動速度が上昇する。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216621,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 123,
+      "name": "吟遊詩人 機工士 踊り子",
+      "allowed_jobs": [
+        "BRD",
+        "DNC",
+        "MCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 0
+    }
+  }
+}

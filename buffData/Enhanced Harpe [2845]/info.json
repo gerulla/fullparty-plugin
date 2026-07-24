@@ -1,0 +1,215 @@
+{
+  "en": {
+    "id": 2845,
+    "title": "Enhanced Harpe",
+    "description": "Next Harpe requires no time to cast and will reduce the recast timer of Hell's Ingress and Hell's Egress.",
+    "effects": [
+      "Next Harpe requires no time to cast and will reduce the recast timer of Hell's Ingress and Hell's Egress."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212939,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "RPR",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2845,
+    "title": "Schnelle Harpe",
+    "description": "Die nächste Harpe kann sofort gewirkt werden und bei ihrer Ausführung wird die Reaktivierungszeit von Höllischer Auftritt und Höllischer Abgang verkürzt.",
+    "effects": [
+      "Die nächste Harpe kann sofort gewirkt werden und bei ihrer Ausführung wird die Reaktivierungszeit von Höllischer Auftritt und Höllischer Abgang verkürzt."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212939,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "SNT",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2845,
+    "title": "Harpé améliorée",
+    "description": "Le prochain sort Harpé est instantané. De plus, le temps de recharge d'Intrusion de l'enfer et de Retraite de l'enfer est réduit.",
+    "effects": [
+      "Le prochain sort Harpé est instantané. De plus, le temps de recharge d'Intrusion de l'enfer et de Retraite de l'enfer est réduit."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212939,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "FCH",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2845,
+    "title": "ハルパー効果アップ",
+    "description": "次に実行するハルパーを、詠唱時間無しで唱えられる状態。\nさらに、ハルパーを実行するとヘルズイングレスとヘルズイーグレスのリキャストタイムを短縮する。",
+    "effects": [
+      "次に実行するハルパーを、詠唱時間無しで唱えられる状態。",
+      "さらに、ハルパーを実行するとヘルズイングレスとヘルズイーグレスのリキャストタイムを短縮する。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212939,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "リーパー",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

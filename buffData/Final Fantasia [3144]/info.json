@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3144,
+    "title": "Final Fantasia",
+    "description": "Weaponskill cast and recast times are reduced. Increasing damage dealt by self and nearby party members while also increasing movement speed and gradually filling the limit gauge.",
+    "effects": [
+      "Weaponskill cast and recast times are reduced. Increasing damage dealt by self and nearby party members while also increasing movement speed and gradually filling the limit gauge."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214914,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 406,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3144,
+    "title": "Fantasie des Helden",
+    "description": "Aktivierungs- und Reaktivierungszeit von Waffenfertigkeiten ist verkürzt. Ausgeteilter Schaden umstehender Gruppenmitglieder und deren Bewegungsgeschwindigkeit ist erhöht und Limitrausch-Balken füllt sich stetig.",
+    "effects": [
+      "Aktivierungs- und Reaktivierungszeit von Waffenfertigkeiten ist verkürzt. Ausgeteilter Schaden umstehender Gruppenmitglieder und deren Bewegungsgeschwindigkeit ist erhöht und Limitrausch-Balken füllt sich stetig."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214914,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 406,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3144,
+    "title": "Fantaisie héroïque",
+    "description": "Le temps de lancement et de recharge des techniques d'arme est réduit, et la vitesse de déplacement est augmentée. Les dégâts infligés et la vitesse de déplacement des équipiers alentour sont augmentés, et la jauge de Transcendance augmente graduellement.",
+    "effects": [
+      "Le temps de lancement et de recharge des techniques d'arme est réduit, et la vitesse de déplacement est augmentée. Les dégâts infligés et la vitesse de déplacement des équipiers alentour sont augmentés, et la jauge de Transcendance augmente graduellement."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214914,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 406,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3144,
+    "title": "英雄のファンタジア",
+    "description": "ウェポンスキルのキャストタイムとリキャストタイムが短縮された状態。さらに周囲のパーティメンバーの与ダメージと移動速度を上昇させ、リミットゲージを徐々に増加させる。",
+    "effects": [
+      "ウェポンスキルのキャストタイムとリキャストタイムが短縮された状態。さらに周囲のパーティメンバーの与ダメージと移動速度を上昇させ、リミットゲージを徐々に増加させる。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214914,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "吟遊詩人",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 406,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "en": {
+    "id": 2586,
+    "title": "Death's Design",
+    "description": "Damage taken from the reaper who applied this effect is increased. Increases said reaper's Soul Gauge if defeated before effect expires.",
+    "effects": [
+      "Damage taken from the reaper who applied this effect is increased. Increases said reaper's Soul Gauge if defeated before effect expires."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 212926,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "RPR",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2586,
+    "title": "Architekt des Todes",
+    "description": "Erleidet erhöhten Schaden vom Verursacher des Status. Geht das Ziel während der Wirkungsdauer k. o., füllt sich der Seelenbalken.",
+    "effects": [
+      "Erleidet erhöhten Schaden vom Verursacher des Status. Geht das Ziel während der Wirkungsdauer k. o., füllt sich der Seelenbalken."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 212926,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "SNT",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2586,
+    "title": "Dessein de la Camarde",
+    "description": "Les dégâts reçus du personnage à l'origine de l'effet sont augmentés. Remplit la Jauge des âmes du faucheur à l'origine de l'effet si la cible tombe inconsciente pendant sa durée.",
+    "effects": [
+      "Les dégâts reçus du personnage à l'origine de l'effet sont augmentés. Remplit la Jauge des âmes du faucheur à l'origine de l'effet si la cible tombe inconsciente pendant sa durée."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 212926,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "FCH",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2586,
+    "title": "デスデザイン",
+    "description": "この効果を付与したプレイヤーから受けるダメージが増加する状態。\nさらに効果時間中に対象が倒されると、この効果を付与したリーパーの「ソウルゲージ」が上昇する。",
+    "effects": [
+      "この効果を付与したプレイヤーから受けるダメージが増加する状態。",
+      "さらに効果時間中に対象が倒されると、この効果を付与したリーパーの「ソウルゲージ」が上昇する。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 212926,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "リーパー",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

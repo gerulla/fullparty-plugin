@@ -1,0 +1,242 @@
+{
+  "en": {
+    "id": 3813,
+    "title": "Trained Perfection",
+    "description": "Durability loss of next action is reduced to zero.",
+    "effects": [
+      "Durability loss of next action is reduced to zero."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216129,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "Disciple of the Hand",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3813,
+    "title": "Meisters Beitrag",
+    "description": "Das nächste Kommando kostet keine Belastbarkeit.",
+    "effects": [
+      "Das nächste Kommando kostet keine Belastbarkeit."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216129,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "Handwerker",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3813,
+    "title": "Main suprême",
+    "description": "Le prochain coût en solidité dû à une action est réduit à 0.",
+    "effects": [
+      "Le prochain coût en solidité dû à une action est réduit à 0."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216129,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "artisans",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3813,
+    "title": "匠の絶技",
+    "description": "一度だけ、耐久の消費が無効化される状態。",
+    "effects": [
+      "一度だけ、耐久の消費が無効化される状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216129,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 33,
+      "name": "クラフター",
+      "allowed_jobs": [
+        "ALC",
+        "ARM",
+        "BSM",
+        "CRP",
+        "CUL",
+        "GSM",
+        "LTW",
+        "WVR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

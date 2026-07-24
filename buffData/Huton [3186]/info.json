@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3186,
+    "title": "Huton",
+    "description": "A magicked barrier is nullifying damage. Weaponskill cast and recast times are reduced while movement speed is increased.",
+    "effects": [
+      "A magicked barrier is nullifying damage. Weaponskill cast and recast times are reduced while movement speed is increased."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212903,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 92,
+      "name": "NIN",
+      "allowed_jobs": [
+        "NIN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 12
+    }
+  },
+  "de": {
+    "id": 3186,
+    "title": "Huton",
+    "description": "Erlittener Schaden ist um einen bestimmten Betrag verringert. Aktivierungs- und Reaktivierungszeit von Waffenfertigkeiten ist verkürzt und Bewegungsgeschwindigkeit ist erhöht.",
+    "effects": [
+      "Erlittener Schaden ist um einen bestimmten Betrag verringert. Aktivierungs- und Reaktivierungszeit von Waffenfertigkeiten ist verkürzt und Bewegungsgeschwindigkeit ist erhöht."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212903,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 92,
+      "name": "NIN",
+      "allowed_jobs": [
+        "NIN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 12
+    }
+  },
+  "fr": {
+    "id": 3186,
+    "title": "Fûton",
+    "description": "Insensible à un certain montant de dégâts, le temps de lancement et de recharge des techniques d'arme est réduit et la vitesse de déplacement est augmentée.",
+    "effects": [
+      "Insensible à un certain montant de dégâts, le temps de lancement et de recharge des techniques d'arme est réduit et la vitesse de déplacement est augmentée."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212903,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 92,
+      "name": "NIN",
+      "allowed_jobs": [
+        "NIN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 12
+    }
+  },
+  "ja": {
+    "id": 3186,
+    "title": "風遁の術",
+    "description": "一定量のダメージを軽減する状態。効果中はウェポンスキルのキャストタイムとリキャストタイムが短縮され、移動速度が上昇する。",
+    "effects": [
+      "一定量のダメージを軽減する状態。効果中はウェポンスキルのキャストタイムとリキャストタイムが短縮され、移動速度が上昇する。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212903,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 92,
+      "name": "忍者",
+      "allowed_jobs": [
+        "NIN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 12
+    }
+  }
+}

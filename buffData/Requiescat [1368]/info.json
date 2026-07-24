@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 1368,
+    "title": "Requiescat",
+    "description": "Potency of certain actions is increased and spells require no time to cast.",
+    "effects": [
+      "Potency of certain actions is increased and spells require no time to cast."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 218345,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 4,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 20,
+      "name": "PLD",
+      "allowed_jobs": [
+        "PLD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1368,
+    "title": "Requiescat",
+    "description": "Zauber können sofort gewirkt werden und der Attacke-Wert bestimmter Kommandos ist erhöht.",
+    "effects": [
+      "Zauber können sofort gewirkt werden und der Attacke-Wert bestimmter Kommandos ist erhöht."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 218345,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 4,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 20,
+      "name": "PLD",
+      "allowed_jobs": [
+        "PLD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1368,
+    "title": "Requiescat",
+    "description": "Les sorts sont instantanés et la puissance de certaines actions est augmentée.",
+    "effects": [
+      "Les sorts sont instantanés et la puissance de certaines actions est augmentée."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 218345,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 4,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 20,
+      "name": "PLD",
+      "allowed_jobs": [
+        "PLD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1368,
+    "title": "レクイエスカット",
+    "description": "魔法を詠唱時間無しで唱えることができ、一部のアクションの威力が上昇する状態。",
+    "effects": [
+      "魔法を詠唱時間無しで唱えることができ、一部のアクションの威力が上昇する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 218345,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 4,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 27,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 20,
+      "name": "ナイト",
+      "allowed_jobs": [
+        "PLD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

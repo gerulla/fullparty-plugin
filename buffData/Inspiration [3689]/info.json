@@ -1,0 +1,215 @@
+{
+  "en": {
+    "id": 3689,
+    "title": "Inspiration",
+    "description": "Inspired by Starry Muse, your spell cast and recast times are reduced.",
+    "effects": [
+      "Inspired by Starry Muse, your spell cast and recast times are reduced."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213811,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 49,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 197,
+      "name": "PCT",
+      "allowed_jobs": [
+        "PCT"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3689,
+    "title": "Inszenierung",
+    "description": "Die Inszenierung der Sternenmuse verkürzt die Intervalle zwischen Auto-Attacken und die\n(Re-)Aktivierungszeiten von Waffenfertigkeiten und Magie.",
+    "effects": [
+      "Die Inszenierung der Sternenmuse verkürzt die Intervalle zwischen Auto-Attacken und die",
+      "(Re-)Aktivierungszeiten von Waffenfertigkeiten und Magie."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213811,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 49,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 197,
+      "name": "PKT",
+      "allowed_jobs": [
+        "PCT"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3689,
+    "title": "Installation artistique",
+    "description": "Le ciel peint réduit les temps de lancement et de recharge des sorts.",
+    "effects": [
+      "Le ciel peint réduit les temps de lancement et de recharge des sorts."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213811,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 49,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 197,
+      "name": "PIC",
+      "allowed_jobs": [
+        "PCT"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3689,
+    "title": "インスタレーション［被］",
+    "description": "イマジンスカイの恩恵により、魔法のキャストタイムとリキャストタイムが短縮された状態。",
+    "effects": [
+      "イマジンスカイの恩恵により、魔法のキャストタイムとリキャストタイムが短縮された状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213811,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": true,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 49,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 197,
+      "name": "ピクトマンサー",
+      "allowed_jobs": [
+        "PCT"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

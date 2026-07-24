@@ -1,0 +1,190 @@
+{
+  "en": {
+    "id": 4462,
+    "title": "Wavelength α",
+    "description": "A sound bomb will detonate when this effect expires. Its damage can be reduced by sound of a different wavelength. However, mixing two sounds of the same wavelength, or more than two sounds total, will result in cacophonous explosion.",
+    "effects": [
+      "A sound bomb will detonate when this effect expires. Its damage can be reduced by sound of a different wavelength. However, mixing two sounds of the same wavelength, or more than two sounds total, will result in cacophonous explosion."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214281,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 4462,
+    "title": "Schallbombe α",
+    "description": "Mit einer Schallbombe behaftet, die bei Ablauf des Effekts explodiert. Trifft die Explosion auf den gegensätzlichen Schall, so wird der Schaden reduziert. Trifft der Schall auf den gleichen Schall oder treffen drei oder mehr Explosionen aufeinander, wird die Explosion verstärkt.",
+    "effects": [
+      "Mit einer Schallbombe behaftet, die bei Ablauf des Effekts explodiert. Trifft die Explosion auf den gegensätzlichen Schall, so wird der Schaden reduziert. Trifft der Schall auf den gleichen Schall oder treffen drei oder mehr Explosionen aufeinander, wird die Explosion verstärkt."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214281,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 4462,
+    "title": "Bombe sonore α",
+    "description": "La bombe sonore provoquera une explosion à la fin de l'effet. La puissance de l'explosion peut être réduite en cognant un son opposé. Toutefois, si le même son est répété ou si plus de trois sons sont cognés, provoque une plus grande explosion.",
+    "effects": [
+      "La bombe sonore provoquera une explosion à la fin de l'effet. La puissance de l'explosion peut être réduite en cognant un son opposé. Toutefois, si le même son est répété ou si plus de trois sons sont cognés, provoque une plus grande explosion."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214281,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 4462,
+    "title": "音響爆弾α",
+    "description": "音響爆弾が仕掛けられ、効果時間終了時に爆発を起こす状態。爆発時に対となる音をぶつけることで威力を軽減できるが、同音、あるいは3つ以上の音が重なると大爆発を起こす。",
+    "effects": [
+      "音響爆弾が仕掛けられ、効果時間終了時に爆発を起こす状態。爆発時に対となる音をぶつけることで威力を軽減できるが、同音、あるいは3つ以上の音が重なると大爆発を起こす。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214281,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

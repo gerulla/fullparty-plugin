@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 1182,
+    "title": "Meditative Brotherhood",
+    "description": "Grants chance to open a chakra to the monk who applied the effect when you or party members under this effect successfully land a weaponskill or cast a spell.",
+    "effects": [
+      "Grants chance to open a chakra to the monk who applied the effect when you or party members under this effect successfully land a weaponskill or cast a spell."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212529,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": {
+      "id": 21,
+      "name": "MNK",
+      "allowed_jobs": [
+        "MNK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 5,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1182,
+    "title": "Meditative Bruderschaft",
+    "description": "Öffnet dem Mönch, der diesen Status gewährt hat, mit einer gewissen Wahrscheinlichkeit ein Schatten-Chakra, wenn du oder ein Gruppenmitglied mit einer Waffenfertigkeit oder einem Zauber trifft.",
+    "effects": [
+      "Öffnet dem Mönch, der diesen Status gewährt hat, mit einer gewissen Wahrscheinlichkeit ein Schatten-Chakra, wenn du oder ein Gruppenmitglied mit einer Waffenfertigkeit oder einem Zauber trifft."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212529,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": {
+      "id": 21,
+      "name": "MÖN",
+      "allowed_jobs": [
+        "MNK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 5,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1182,
+    "title": "Fraternité méditative",
+    "description": "Octroie un chakra au moine à l'origine de l'effet quand lui ou un membre de son équipe lance un sort ou utilise une technique d'arme.",
+    "effects": [
+      "Octroie un chakra au moine à l'origine de l'effet quand lui ou un membre de son équipe lance un sort ou utilise une technique d'arme."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212529,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": {
+      "id": 21,
+      "name": "MOI",
+      "allowed_jobs": [
+        "MNK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 5,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1182,
+    "title": "桃園結義：闘気",
+    "description": "自身またはパーティメンバーがウェポンスキルおよび魔法による攻撃を命中させると、この効果を付与したモンクに「闘気」が付与されることがある状態。",
+    "effects": [
+      "自身またはパーティメンバーがウェポンスキルおよび魔法による攻撃を命中させると、この効果を付与したモンクに「闘気」が付与されることがある状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212529,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": {
+      "id": 21,
+      "name": "モンク",
+      "allowed_jobs": [
+        "MNK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 5,
+      "flag_2": 0
+    }
+  }
+}

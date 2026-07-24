@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3180,
+    "title": "Sky High",
+    "description": "Leaping high into the sky, beyond the reach of enemy attacks. Movement speed is also increased.",
+    "effects": [
+      "Leaping high into the sky, beyond the reach of enemy attacks. Movement speed is also increased."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214939,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 2,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 29499
+    },
+    "class_job_category": {
+      "id": 23,
+      "name": "DRG",
+      "allowed_jobs": [
+        "DRG"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 413,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 24,
+      "flag_2": 50
+    }
+  },
+  "de": {
+    "id": 3180,
+    "title": "Himmelhoch",
+    "description": "Hoch in den Himmel gesprungen und von keinem Gegner angreifbar. Bewegungsgeschwindigkeit ist erhöht.",
+    "effects": [
+      "Hoch in den Himmel gesprungen und von keinem Gegner angreifbar. Bewegungsgeschwindigkeit ist erhöht."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214939,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 2,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 29499
+    },
+    "class_job_category": {
+      "id": 23,
+      "name": "DRG",
+      "allowed_jobs": [
+        "DRG"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 413,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 24,
+      "flag_2": 50
+    }
+  },
+  "fr": {
+    "id": 3180,
+    "title": "Vertigineux",
+    "description": "Saute très haut dans les airs, ne peut être pris pour cible et la vitesse de déplacement est augmentée.",
+    "effects": [
+      "Saute très haut dans les airs, ne peut être pris pour cible et la vitesse de déplacement est augmentée."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214939,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 2,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 29499
+    },
+    "class_job_category": {
+      "id": 23,
+      "name": "DRG",
+      "allowed_jobs": [
+        "DRG"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 413,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 24,
+      "flag_2": 50
+    }
+  },
+  "ja": {
+    "id": 3180,
+    "title": "スカイハイ",
+    "description": "天高く跳躍し、敵の攻撃を受けない状態。さらに、移動速度が上昇する。",
+    "effects": [
+      "天高く跳躍し、敵の攻撃を受けない状態。さらに、移動速度が上昇する。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214939,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 2,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 29499
+    },
+    "class_job_category": {
+      "id": 23,
+      "name": "竜騎士",
+      "allowed_jobs": [
+        "DRG"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 413,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 24,
+      "flag_2": 50
+    }
+  }
+}

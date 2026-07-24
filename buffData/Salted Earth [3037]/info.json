@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3037,
+    "title": "Salted Earth",
+    "description": "Damage taken is reduced and regenerating HP over time.",
+    "effects": [
+      "Damage taken is reduced and regenerating HP over time."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214896,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "DRK",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3037,
+    "title": "Salzige Erde",
+    "description": "Erlittener Schaden ist verringert und regeneriert schrittweise LP.",
+    "effects": [
+      "Erlittener Schaden ist verringert und regeneriert schrittweise LP."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214896,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "DKR",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3037,
+    "title": "Terre salée",
+    "description": "Les dégâts reçus sont réduits et des PV sont récupérés périodiquement.",
+    "effects": [
+      "Les dégâts reçus sont réduits et des PV sont récupérés périodiquement."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214896,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "CHN",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3037,
+    "title": "ソルトアース",
+    "description": "受けるダメージが軽減され、かつ連続してＨＰが回復している状態。",
+    "effects": [
+      "受けるダメージが軽減され、かつ連続してＨＰが回復している状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214896,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "暗黒騎士",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

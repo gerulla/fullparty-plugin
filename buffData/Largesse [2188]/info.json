@@ -1,0 +1,226 @@
+{
+  "en": {
+    "id": 2188,
+    "title": "Largesse",
+    "description": "Potency of all HP restoration actions is increased.",
+    "effects": [
+      "Potency of all HP restoration actions is increased."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210407,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 25
+    },
+    "class_job_category": {
+      "id": 125,
+      "name": "WHM SCH AST SGE",
+      "allowed_jobs": [
+        "AST",
+        "SCH",
+        "SGE",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2188,
+    "title": "Huld",
+    "description": "Wirkung von Heilmagie ist erhöht.",
+    "effects": [
+      "Wirkung von Heilmagie ist erhöht."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210407,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 25
+    },
+    "class_job_category": {
+      "id": 125,
+      "name": "WMA GLT AST WEI",
+      "allowed_jobs": [
+        "AST",
+        "SCH",
+        "SGE",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2188,
+    "title": "Largesse",
+    "description": "La puissance des effets curatifs prodigués est augmentée.",
+    "effects": [
+      "La puissance des effets curatifs prodigués est augmentée."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210407,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 25
+    },
+    "class_job_category": {
+      "id": 125,
+      "name": "MBL ÉRU AST SAG",
+      "allowed_jobs": [
+        "AST",
+        "SCH",
+        "SGE",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2188,
+    "title": "慈愛",
+    "description": "自身からのＨＰ回復効果が上昇した状態。",
+    "effects": [
+      "自身からのＨＰ回復効果が上昇した状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210407,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 25
+    },
+    "class_job_category": {
+      "id": 125,
+      "name": "白魔道士 学者 占星術師 賢者",
+      "allowed_jobs": [
+        "AST",
+        "SCH",
+        "SGE",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

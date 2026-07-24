@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 1312,
+    "title": "Chaos Thrust",
+    "description": "Sustaining damage over time, as well as increased damage from target who executed Chaos Thrust.",
+    "effects": [
+      "Sustaining damage over time, as well as increased damage from target who executed Chaos Thrust."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 210307,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": {
+      "id": 23,
+      "name": "DRG",
+      "allowed_jobs": [
+        "DRG"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1312,
+    "title": "Chaotischer Tjost",
+    "description": "Erleidet schrittweise Schaden und erhöhten Schaden vom Verursacher des Status.",
+    "effects": [
+      "Erleidet schrittweise Schaden und erhöhten Schaden vom Verursacher des Status."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 210307,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": {
+      "id": 23,
+      "name": "DRG",
+      "allowed_jobs": [
+        "DRG"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1312,
+    "title": "Percée chaotique",
+    "description": "Des dégâts périodiques sont subis, et les dégâts reçus du joueur ayant créé l'effet sont augmentés.",
+    "effects": [
+      "Des dégâts périodiques sont subis, et les dégâts reçus du joueur ayant créé l'effet sont augmentés."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 210307,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": {
+      "id": 23,
+      "name": "DRG",
+      "allowed_jobs": [
+        "DRG"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1312,
+    "title": "桜華狂咲",
+    "description": "継続ダメージを受け、この効果を付与したプレイヤーから受けるダメージが増加する状態。",
+    "effects": [
+      "継続ダメージを受け、この効果を付与したプレイヤーから受けるダメージが増加する状態。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 210307,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 10
+    },
+    "class_job_category": {
+      "id": 23,
+      "name": "竜騎士",
+      "allowed_jobs": [
+        "DRG"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

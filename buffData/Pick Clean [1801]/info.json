@@ -1,0 +1,190 @@
+{
+  "en": {
+    "id": 1801,
+    "title": "Pick Clean",
+    "description": "Reduces the chance of obtaining HQ items to 0% but increases item yield. Amount of increase is determined by your perception rating.",
+    "effects": [
+      "Reduces the chance of obtaining HQ items to 0% but increases item yield. Amount of increase is determined by your perception rating."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216013,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1801,
+    "title": "Rigoroser Abbau",
+    "description": "HQ-Wahrscheinlichkeit beträgt 0\u00A0%, Anzahl der gesammelten Gegenstände dafür je nach Expertise erhöht.",
+    "effects": [
+      "HQ-Wahrscheinlichkeit beträgt 0\u00A0%, Anzahl der gesammelten Gegenstände dafür je nach Expertise erhöht."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216013,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1801,
+    "title": "Récolte rapide",
+    "description": "Les chances de récolter un objet HQ sont réduites à 0, mais le nombre d'objets récoltés est augmenté en fonction de la valeur du Savoir-faire.",
+    "effects": [
+      "Les chances de récolter un objet HQ sont réduites à 0, mais le nombre d'objets récoltés est augmenté en fonction de la valeur du Savoir-faire."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216013,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1801,
+    "title": "突貫採集",
+    "description": "全ての採集アイテムのHQ獲得率が0％になる代わりに、技術力に応じて獲得数が上昇した状態。",
+    "effects": [
+      "全ての採集アイテムのHQ獲得率が0％になる代わりに、技術力に応じて獲得数が上昇した状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 216013,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

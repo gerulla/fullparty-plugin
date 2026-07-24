@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 1932,
+    "title": "Army's Muse",
+    "description": "Auto-attack delay as well as weaponskill and spell cast and recast time are reduced.",
+    "effects": [
+      "Auto-attack delay as well as weaponskill and spell cast and recast time are reduced."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212619,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -15
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1932,
+    "title": "Gunst des Schlachtensängers",
+    "description": "Die Intervalle zwischen Auto-Attacken und die (Re-)Aktivierungszeiten von Waffenfertigkeiten und Magie sind verkürzt.",
+    "effects": [
+      "Die Intervalle zwischen Auto-Attacken und die (Re-)Aktivierungszeiten von Waffenfertigkeiten und Magie sind verkürzt."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212619,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -15
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1932,
+    "title": "Bénédiction martiale",
+    "description": "La vitesse des attaques automatiques est augmentée, et les temps de lancement et de recharge des sorts et des techniques d'arme sont réduits.",
+    "effects": [
+      "La vitesse des attaques automatiques est augmentée, et les temps de lancement et de recharge des sorts et des techniques d'arme sont réduits."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212619,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -15
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1932,
+    "title": "軍神の加護",
+    "description": "オートアタックの攻撃間隔と、ウェポンスキルおよび魔法のキャストタイムとリキャストタイムが短縮された状態。",
+    "effects": [
+      "オートアタックの攻撃間隔と、ウェポンスキルおよび魔法のキャストタイムとリキャストタイムが短縮された状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212619,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -15
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "吟遊詩人",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

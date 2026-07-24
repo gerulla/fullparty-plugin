@@ -1,0 +1,190 @@
+{
+  "en": {
+    "id": 4447,
+    "title": "Long Fuse",
+    "description": "Primed to explode, and will not hesitate to do so if allowed to move too far from partner.",
+    "effects": [
+      "Primed to explode, and will not hesitate to do so if allowed to move too far from partner."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 229936,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 4447,
+    "title": "Ferner Zündstoff",
+    "description": "Mit einer Deklaration belegt, die unter bestimmten Voraussetzungen eine Explosion verursacht. Ist der Abstand zum Ziel groß, wird Fegeflamme ausgelöst.",
+    "effects": [
+      "Mit einer Deklaration belegt, die unter bestimmten Voraussetzungen eine Explosion verursacht. Ist der Abstand zum Ziel groß, wird Fegeflamme ausgelöst."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 229936,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 4447,
+    "title": "Agent explosif éloigné",
+    "description": "Diffuse un agent explosif. Provoque Explosion embrasante lorsque Papa bombo et Maman bombo sont éloignés l'un de l'autre.",
+    "effects": [
+      "Diffuse un agent explosif. Provoque Explosion embrasante lorsque Papa bombo et Maman bombo sont éloignés l'un de l'autre."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 229936,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 4447,
+    "title": "誘爆因子［遠］",
+    "description": "特定条件下で誘爆する因子を生じさせた状態。対となる存在との距離が遠いと集火爆炎を起こす。",
+    "effects": [
+      "特定条件下で誘爆する因子を生じさせた状態。対となる存在との距離が遠いと集火爆炎を起こす。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 229936,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 200,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": null,
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

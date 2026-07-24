@@ -332,7 +332,13 @@ public sealed class FullPartyApiClient
             phantomJobValue?.MaxLevel,
             phantomJobValue?.IconId,
             GetPhantomJobIconUrl(phantomJobValue),
-            GetPhantomJobIconUrls(phantomJobValue));
+            GetPhantomJobIconUrls(phantomJobValue),
+            slot.SlotKind,
+            slot.IsBench,
+            slot.IsFillIn,
+            slot.FilledGroupKey,
+            slot.FilledGroupLabel?.En ??
+            (string.IsNullOrWhiteSpace(slot.FilledGroupKey) ? null : FormatGroupLabel(slot.FilledGroupKey)));
     }
 
     private static FullPartyApplicationDetails? MapApplicationDetails(ApplicationDetailsDto? details)
@@ -1081,11 +1087,26 @@ public sealed class FullPartyApiClient
         [JsonPropertyName("id")]
         public int Id { get; set; }
 
+        [JsonPropertyName("slot_kind")]
+        public string? SlotKind { get; set; }
+
+        [JsonPropertyName("is_bench")]
+        public bool IsBench { get; set; }
+
+        [JsonPropertyName("is_fill_in")]
+        public bool IsFillIn { get; set; }
+
         [JsonPropertyName("group_key")]
         public string GroupKey { get; set; } = string.Empty;
 
         [JsonPropertyName("group_label")]
         public LocalizedStringDto? GroupLabel { get; set; }
+
+        [JsonPropertyName("filled_group_key")]
+        public string? FilledGroupKey { get; set; }
+
+        [JsonPropertyName("filled_group_label")]
+        public LocalizedStringDto? FilledGroupLabel { get; set; }
 
         [JsonPropertyName("slot_key")]
         public string SlotKey { get; set; } = string.Empty;

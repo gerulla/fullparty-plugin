@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 2718,
+    "title": "Macrocosmos",
+    "description": "Restores HP when effect duration expires or the astrologian who granted this effect executes Microcosmos. Healing potency is based on damage taken and compiled over the duration of the effect.",
+    "effects": [
+      "Restores HP when effect duration expires or the astrologian who granted this effect executes Microcosmos. Healing potency is based on damage taken and compiled over the duration of the effect."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213263,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 99,
+      "name": "AST",
+      "allowed_jobs": [
+        "AST"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2718,
+    "title": "Makrokosmos",
+    "description": "Bei Ablauf der Wirkungsdauer oder wenn der Verursacher des Status Mikrokosmos ausführt, werden eigene LP regeneriert. Der Heileffekt steigt mit der Menge des während der Wirkungsdauer erlittenen Schadens.",
+    "effects": [
+      "Bei Ablauf der Wirkungsdauer oder wenn der Verursacher des Status Mikrokosmos ausführt, werden eigene LP regeneriert. Der Heileffekt steigt mit der Menge des während der Wirkungsdauer erlittenen Schadens."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213263,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 99,
+      "name": "AST",
+      "allowed_jobs": [
+        "AST"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2718,
+    "title": "Macrocosme",
+    "description": "Des PV sont récupérés à la fin de l'effet ou quand l'astromancien à l'origine de celui-ci utilise Microcosme. Le montant de PV récupérés dépend des dégâts reçus pendant cet intervalle.",
+    "effects": [
+      "Des PV sont récupérés à la fin de l'effet ou quand l'astromancien à l'origine de celui-ci utilise Microcosme. Le montant de PV récupérés dépend des dégâts reçus pendant cet intervalle."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213263,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 99,
+      "name": "AST",
+      "allowed_jobs": [
+        "AST"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2718,
+    "title": "マクロコスモス",
+    "description": "効果時間が経過するか自身にこのステータスを付与した占星術師が「ミクロコスモス」を実行することで、自身のＨＰを回復させる効果が発動する状態。回復効果の効果量はこのステータスが付与されているときに受けたダメージの総量によって変化する。",
+    "effects": [
+      "効果時間が経過するか自身にこのステータスを付与した占星術師が「ミクロコスモス」を実行することで、自身のＨＰを回復させる効果が発動する状態。回復効果の効果量はこのステータスが付与されているときに受けたダメージの総量によって変化する。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213263,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 99,
+      "name": "占星術師",
+      "allowed_jobs": [
+        "AST"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  }
+}

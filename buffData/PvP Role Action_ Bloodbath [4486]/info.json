@@ -1,0 +1,234 @@
+{
+  "en": {
+    "id": 4486,
+    "title": "PvP Role Action: Bloodbath",
+    "description": "Bloodbath has been selected as a PvP role action.",
+    "effects": [
+      "Bloodbath has been selected as a PvP role action."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214754,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 1,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "MNK DRG NIN SAM RPR VPR",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 4486,
+    "title": "PvP-Rollenkommando: Blutbad",
+    "description": "Blutbad wurde als PvP-Rollenkommando ausgewählt.",
+    "effects": [
+      "Blutbad wurde als PvP-Rollenkommando ausgewählt."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214754,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 1,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "MÖN DRG NIN SAM SNT VPR",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 4486,
+    "title": "Action de rôle JcJ\u00A0: Bain de sang",
+    "description": "Bain de sang a été choisi comme action de rôle JcJ.",
+    "effects": [
+      "Bain de sang a été choisi comme action de rôle JcJ."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214754,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 1,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "MOI DRG NIN SAM FCH VPR",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 4486,
+    "title": "PvPロールアクション：ブラッドバス",
+    "description": "PvPロールアクションとしてブラッドバスを選択している状態。",
+    "effects": [
+      "PvPロールアクションとしてブラッドバスを選択している状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214754,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 1,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 122,
+      "name": "モンク 竜騎士 忍者 侍 リーパー ヴァイパー",
+      "allowed_jobs": [
+        "DRG",
+        "MNK",
+        "NIN",
+        "RPR",
+        "SAM",
+        "VPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

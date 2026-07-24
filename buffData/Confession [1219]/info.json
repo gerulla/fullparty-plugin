@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 1219,
+    "title": "Confession",
+    "description": "Sins are confessed, partially diminishing damage accrued. Additional HP is recovered when receiving the healing effect of certain spells cast by the white mage who granted this effect.",
+    "effects": [
+      "Sins are confessed, partially diminishing damage accrued. Additional HP is recovered when receiving the healing effect of certain spells cast by the white mage who granted this effect."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212637,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 60,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 39,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 25,
+      "name": "WHM",
+      "allowed_jobs": [
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 28,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1219,
+    "title": "Vollkommener Ablass",
+    "description": "Erlittener Schaden ist verringert. Darüber hinaus löst ein Teil der Heilmagie des verursachenden Weißmagiers bei erfolgreicher Ausführung einen zusätzlichen Heileffekt aus, der LP regeneriert.",
+    "effects": [
+      "Erlittener Schaden ist verringert. Darüber hinaus löst ein Teil der Heilmagie des verursachenden Weißmagiers bei erfolgreicher Ausführung einen zusätzlichen Heileffekt aus, der LP regeneriert."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212637,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 60,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 39,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 25,
+      "name": "WMA",
+      "allowed_jobs": [
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 28,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1219,
+    "title": "Indulgence plénière",
+    "description": "Les dégâts reçus sont réduits. Des PV supplémentaires sont récupérés lorsque le mage blanc à l'origine de cet effet utilise certains sorts curatifs.",
+    "effects": [
+      "Les dégâts reçus sont réduits. Des PV supplémentaires sont récupérés lorsque le mage blanc à l'origine de cet effet utilise certains sorts curatifs."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212637,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 60,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 39,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 25,
+      "name": "MBL",
+      "allowed_jobs": [
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 28,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1219,
+    "title": "インドゥルゲンティア",
+    "description": "受けるダメージの一部が軽減される状態。さらに、このステータスを付与した白魔道士が実行する一部の回復魔法の回復効果を受けると、自身のＨＰを追加で回復させる効果が発動する状態。",
+    "effects": [
+      "受けるダメージの一部が軽減される状態。さらに、このステータスを付与した白魔道士が実行する一部の回復魔法の回復効果を受けると、自身のＨＰを追加で回復させる効果が発動する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212637,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 60,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 39,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 25,
+      "name": "白魔道士",
+      "allowed_jobs": [
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 28,
+      "flag_2": 0
+    }
+  }
+}

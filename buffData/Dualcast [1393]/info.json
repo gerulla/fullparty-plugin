@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 1393,
+    "title": "Dualcast",
+    "description": "The next spell will be cast immediately. This effect only applies to red mage job actions.",
+    "effects": [
+      "The next spell will be cast immediately. This effect only applies to red mage job actions."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213406,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 112,
+      "name": "RDM",
+      "allowed_jobs": [
+        "RDM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1393,
+    "title": "Doppelzauber",
+    "description": "Nächster Zauber kann sofort gewirkt werden. Nur bei Job-Kommandos des Rotmagiers wirksam.",
+    "effects": [
+      "Nächster Zauber kann sofort gewirkt werden. Nur bei Job-Kommandos des Rotmagiers wirksam."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213406,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 112,
+      "name": "RMA",
+      "allowed_jobs": [
+        "RDM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1393,
+    "title": "Chaîne de sorts",
+    "description": "Le prochain sort est instantané. Cet effet ne s'applique qu'aux actions de job de mage rouge.",
+    "effects": [
+      "Le prochain sort est instantané. Cet effet ne s'applique qu'aux actions de job de mage rouge."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213406,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 112,
+      "name": "MRG",
+      "allowed_jobs": [
+        "RDM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1393,
+    "title": "連続魔",
+    "description": "次の魔法が、詠唱時間無しで唱えられる状態。この効果は赤魔道士のジョブアクションにのみ有効。",
+    "effects": [
+      "次の魔法が、詠唱時間無しで唱えられる状態。この効果は赤魔道士のジョブアクションにのみ有効。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213406,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 112,
+      "name": "赤魔道士",
+      "allowed_jobs": [
+        "RDM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

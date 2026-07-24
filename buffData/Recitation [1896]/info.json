@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 1896,
+    "title": "Recitation",
+    "description": "The next Adloquium, , Indomitability, or Excogitation executed will cost no MP or Aetherflow stacks and will restore critical HP.",
+    "effects": [
+      "The next Adloquium, , Indomitability, or Excogitation executed will cost no MP or Aetherflow stacks and will restore critical HP."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212813,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 29,
+      "name": "SCH",
+      "allowed_jobs": [
+        "SCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1896,
+    "title": "Raffinesse",
+    "description": "Nächstes Adloquium, , Unbezwingbarkeit oder Weise Voraussicht kostet weder MP noch Ätherfluss und trifft kritisch.",
+    "effects": [
+      "Nächstes Adloquium, , Unbezwingbarkeit oder Weise Voraussicht kostet weder MP noch Ätherfluss und trifft kritisch."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212813,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 29,
+      "name": "GLT",
+      "allowed_jobs": [
+        "SCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1896,
+    "title": "Récitation",
+    "description": "Le prochain Traité du réconfort, , Traité de la persévérance ou Traité de l'excogitation est critique et ne consomme ni PM ni Flux d'éther.",
+    "effects": [
+      "Le prochain Traité du réconfort, , Traité de la persévérance ou Traité de l'excogitation est critique et ne consomme ni PM ni Flux d'éther."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212813,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 29,
+      "name": "ÉRU",
+      "allowed_jobs": [
+        "SCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1896,
+    "title": "秘策",
+    "description": "次に実行する1回の「鼓舞激励の策」「」「不撓不屈の策」「深謀遠慮の策」について、ＭＰや「エーテルフロー」を消費することなく実行することができ、かつ必ずクリティカルヒットする状態。",
+    "effects": [
+      "次に実行する1回の「鼓舞激励の策」「」「不撓不屈の策」「深謀遠慮の策」について、ＭＰや「エーテルフロー」を消費することなく実行することができ、かつ必ずクリティカルヒットする状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212813,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 29,
+      "name": "学者",
+      "allowed_jobs": [
+        "SCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

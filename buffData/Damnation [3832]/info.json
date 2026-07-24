@@ -1,0 +1,216 @@
+{
+  "en": {
+    "id": 3832,
+    "title": "Damnation",
+    "description": "Damage taken is reduced while inflicting a portion of sustained damage back to its source. HP will be restored over time when effect expires.",
+    "effects": [
+      "Damage taken is reduced while inflicting a portion of sustained damage back to its source. HP will be restored over time when effect expires."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212568,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -30
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "WAR",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3832,
+    "title": "Verdammnis",
+    "description": "Erlittener Schaden ist verringert und ein Teil des erlittenen physischen Schadens wird auf den Angreifer zurückgeworfen.\nDarüber hinaus werden stetig LP regeneriert, wenn Schaden genommen wird oder der Effekt ausläuft.",
+    "effects": [
+      "Erlittener Schaden ist verringert und ein Teil des erlittenen physischen Schadens wird auf den Angreifer zurückgeworfen.",
+      "Darüber hinaus werden stetig LP regeneriert, wenn Schaden genommen wird oder der Effekt ausläuft."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212568,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -30
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "KRG",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3832,
+    "title": "Damnation",
+    "description": "Les dégâts reçus sont réduits et des dégâts sont infligés chaque fois qu'un coup est reçu. De plus, procure un effet de récupération périodique des PV à la première attaque subie ou à la fin de l'effet.",
+    "effects": [
+      "Les dégâts reçus sont réduits et des dégâts sont infligés chaque fois qu'un coup est reçu. De plus, procure un effet de récupération périodique des PV à la première attaque subie ou à la fin de l'effet."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212568,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -30
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "GUE",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3832,
+    "title": "ダムネーション",
+    "description": "受けるダメージが軽減され、かつ物理攻撃を受けた場合に、反撃ダメージを与える状態。\nさらに、ダメージを受けるか、ダメージを受けることなく効果時間が経過すると、自身に継続回復効果が付与される。",
+    "effects": [
+      "受けるダメージが軽減され、かつ物理攻撃を受けた場合に、反撃ダメージを与える状態。",
+      "さらに、ダメージを受けるか、ダメージを受けることなく効果時間が経過すると、自身に継続回復効果が付与される。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212568,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 1,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -30
+    },
+    "class_job_category": {
+      "id": 22,
+      "name": "戦士",
+      "allowed_jobs": [
+        "WAR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

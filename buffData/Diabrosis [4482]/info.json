@@ -1,0 +1,226 @@
+{
+  "en": {
+    "id": 4482,
+    "title": "Diabrosis",
+    "description": "HP recovery via healing actions is reduced.",
+    "effects": [
+      "HP recovery via healing actions is reduced."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214750,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 125,
+      "name": "WHM SCH AST SGE",
+      "allowed_jobs": [
+        "AST",
+        "SCH",
+        "SGE",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 4482,
+    "title": "Diablose",
+    "description": "Erhaltene Heileffekte sind verringert.",
+    "effects": [
+      "Erhaltene Heileffekte sind verringert."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214750,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 125,
+      "name": "WMA GLT AST WEI",
+      "allowed_jobs": [
+        "AST",
+        "SCH",
+        "SGE",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 4482,
+    "title": "Diabrosis",
+    "description": "L'effet des sorts de restauration des PV est réduit.",
+    "effects": [
+      "L'effet des sorts de restauration des PV est réduit."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214750,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 125,
+      "name": "MBL ÉRU AST SAG",
+      "allowed_jobs": [
+        "AST",
+        "SCH",
+        "SGE",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 4482,
+    "title": "ディアブロシス",
+    "description": "自身に対するＨＰ回復効果が低下した状態。",
+    "effects": [
+      "自身に対するＨＰ回復効果が低下した状態。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 214750,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -10
+    },
+    "class_job_category": {
+      "id": 125,
+      "name": "白魔道士 学者 占星術師 賢者",
+      "allowed_jobs": [
+        "AST",
+        "SCH",
+        "SGE",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

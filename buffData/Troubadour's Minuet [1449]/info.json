@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 1449,
+    "title": "Troubadour's Minuet",
+    "description": "Damage dealt is increased.",
+    "effects": [
+      "Damage dealt is increased."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213311,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 111,
+      "name": "SAM",
+      "allowed_jobs": [
+        "SAM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 12,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1449,
+    "title": "Menuett des Troubadours",
+    "description": "Ausgeteilter Schaden ist erhöht.",
+    "effects": [
+      "Ausgeteilter Schaden ist erhöht."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213311,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 111,
+      "name": "SAM",
+      "allowed_jobs": [
+        "SAM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 12,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1449,
+    "title": "Fûgetsu",
+    "description": "Insensible à un certain montant de dégâts.",
+    "effects": [
+      "Insensible à un certain montant de dégâts."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213311,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 111,
+      "name": "SAM",
+      "allowed_jobs": [
+        "SAM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 12,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1449,
+    "title": "風月",
+    "description": "一定量のダメージを軽減する状態。",
+    "effects": [
+      "一定量のダメージを軽減する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213311,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 111,
+      "name": "侍",
+      "allowed_jobs": [
+        "SAM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 12,
+      "flag_2": 0
+    }
+  }
+}

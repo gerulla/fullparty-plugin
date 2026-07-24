@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3206,
+    "title": "Death Warrant",
+    "description": "Damage taken from the reaper who applied this effect is compiled. Triggers additional damage when the effect expires.",
+    "effects": [
+      "Damage taken from the reaper who applied this effect is compiled. Triggers additional damage when the effect expires."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 212926,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "RPR",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3206,
+    "title": "Richtbefehl",
+    "description": "Die Attacken des Verursachers dieses Status werden gespeichert und am Ende als Schaden erlitten.",
+    "effects": [
+      "Die Attacken des Verursachers dieses Status werden gespeichert und am Ende als Schaden erlitten."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 212926,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "SNT",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3206,
+    "title": "Arrêt de mort",
+    "description": "Les dégâts infligés par le faucheur à l'origine de l'effet sont cumulés et 50% du total sont infligés à la fin de l'effet.",
+    "effects": [
+      "Les dégâts infligés par le faucheur à l'origine de l'effet sont cumulés et 50% du total sont infligés à la fin de l'effet."
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 212926,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "FCH",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3206,
+    "title": "デスワラント",
+    "description": "この効果を付与したプレイヤーから攻撃を受けるとダメージが蓄積され、効果時間終了時にダメージを受ける状態。",
+    "effects": [
+      "この効果を付与したプレイヤーから攻撃を受けるとダメージが蓄積され、効果時間終了時にダメージを受ける状態。"
+    ],
+    "classification": "debuff",
+    "icon": {
+      "id": 212926,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 2,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 180,
+      "name": "リーパー",
+      "allowed_jobs": [
+        "RPR"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 17,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  }
+}

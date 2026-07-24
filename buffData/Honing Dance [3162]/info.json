@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3162,
+    "title": "Honing Dance",
+    "description": "Dancing blades are dealing damage over time to nearby enemies and deflecting a portion of damage taken. Movement speed is also increased.",
+    "effects": [
+      "Dancing blades are dealing damage over time to nearby enemies and deflecting a portion of damage taken. Movement speed is also increased."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214930,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 29470
+    },
+    "class_job_category": {
+      "id": 150,
+      "name": "DNC",
+      "allowed_jobs": [
+        "DNC"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 23,
+      "flag_2": 24
+    }
+  },
+  "de": {
+    "id": 3162,
+    "title": "Klingentanz",
+    "description": "Fügt umstehenden Gegnern schrittweise Schaden zu, eigener erlittener Schaden ist verringert und Bewegungsgeschwindigkeit ist erhöht.",
+    "effects": [
+      "Fügt umstehenden Gegnern schrittweise Schaden zu, eigener erlittener Schaden ist verringert und Bewegungsgeschwindigkeit ist erhöht."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214930,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 29470
+    },
+    "class_job_category": {
+      "id": 150,
+      "name": "TÄN",
+      "allowed_jobs": [
+        "DNC"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 23,
+      "flag_2": 24
+    }
+  },
+  "fr": {
+    "id": 3162,
+    "title": "Danse tranchante",
+    "description": "Des dégâts physiques périodiques sont infligés aux ennemis alentour, les dégâts reçus sont réduits et la vitesse de déplacement est augmentée.",
+    "effects": [
+      "Des dégâts physiques périodiques sont infligés aux ennemis alentour, les dégâts reçus sont réduits et la vitesse de déplacement est augmentée."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214930,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 29470
+    },
+    "class_job_category": {
+      "id": 150,
+      "name": "DNS",
+      "allowed_jobs": [
+        "DNC"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 23,
+      "flag_2": 24
+    }
+  },
+  "ja": {
+    "id": 3162,
+    "title": "刃の舞い",
+    "description": "周囲に対してダメージを発生させ続けている状態。さらに、受けるダメージの一部が軽減され、移動速度が上昇する。",
+    "effects": [
+      "周囲に対してダメージを発生させ続けている状態。さらに、受けるダメージの一部が軽減され、移動速度が上昇する。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214930,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 29470
+    },
+    "class_job_category": {
+      "id": 150,
+      "name": "踊り子",
+      "allowed_jobs": [
+        "DNC"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 23,
+      "flag_2": 24
+    }
+  }
+}

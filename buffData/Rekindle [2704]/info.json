@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 2704,
+    "title": "Rekindle",
+    "description": "Undying Flame will be triggered upon HP falling below a certain level or expiration of effect duration.",
+    "effects": [
+      "Undying Flame will be triggered upon HP falling below a certain level or expiration of effect duration."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212693,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 50,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 28,
+      "name": "SMN",
+      "allowed_jobs": [
+        "SMN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2704,
+    "title": "Wiederaufleben",
+    "description": "Wenn LP unter einen bestimmten Betrag fallen oder die Wirkungsdauer endet, wird Immerflamme ausgelöst.",
+    "effects": [
+      "Wenn LP unter einen bestimmten Betrag fallen oder die Wirkungsdauer endet, wird Immerflamme ausgelöst."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212693,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 50,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 28,
+      "name": "BSW",
+      "allowed_jobs": [
+        "SMN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2704,
+    "title": "Ravivement",
+    "description": "Flamme éternelle est reçue lorsque les PV tombent en dessous d'un certain montant ou à la fin de l'effet.",
+    "effects": [
+      "Flamme éternelle est reçue lorsque les PV tombent en dessous d'un certain montant ou à la fin de l'effet."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212693,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 50,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 28,
+      "name": "INV",
+      "allowed_jobs": [
+        "SMN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2704,
+    "title": "再生の炎",
+    "description": "ＨＰが一定割合を下回るか効果時間が経過すると、「再生の炎：効果」が発動する状態。",
+    "effects": [
+      "ＨＰが一定割合を下回るか効果時間が経過すると、「再生の炎：効果」が発動する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212693,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 50,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 28,
+      "name": "召喚士",
+      "allowed_jobs": [
+        "SMN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  }
+}

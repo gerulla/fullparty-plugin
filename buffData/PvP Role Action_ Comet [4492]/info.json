@@ -1,0 +1,230 @@
+{
+  "en": {
+    "id": 4492,
+    "title": "PvP Role Action: Comet",
+    "description": "Comet has been selected as a PvP role action.",
+    "effects": [
+      "Comet has been selected as a PvP role action."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214760,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 1,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 124,
+      "name": "BLM SMN RDM BLU PCT",
+      "allowed_jobs": [
+        "BLM",
+        "BLU",
+        "PCT",
+        "RDM",
+        "SMN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 4492,
+    "title": "PvP-Rollenkommando: Komet",
+    "description": "Komet wurde als PvP-Rollenkommando ausgewählt.",
+    "effects": [
+      "Komet wurde als PvP-Rollenkommando ausgewählt."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214760,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 1,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 124,
+      "name": "SMA BSW RMA BMA PKT",
+      "allowed_jobs": [
+        "BLM",
+        "BLU",
+        "PCT",
+        "RDM",
+        "SMN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 4492,
+    "title": "Action de rôle JcJ\u00A0: Comète",
+    "description": "Comète a été choisie comme action de rôle JcJ.",
+    "effects": [
+      "Comète a été choisie comme action de rôle JcJ."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214760,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 1,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 124,
+      "name": "MNO INV MRG MBU PIC",
+      "allowed_jobs": [
+        "BLM",
+        "BLU",
+        "PCT",
+        "RDM",
+        "SMN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 4492,
+    "title": "PvPロールアクション：コメット",
+    "description": "PvPロールアクションとしてコメットを選択している状態。",
+    "effects": [
+      "PvPロールアクションとしてコメットを選択している状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214760,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": true,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 1,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 124,
+      "name": "黒魔道士 召喚士 赤魔道士 青魔道士 ピクトマンサー",
+      "allowed_jobs": [
+        "BLM",
+        "BLU",
+        "PCT",
+        "RDM",
+        "SMN"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 0,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

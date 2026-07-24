@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 2413,
+    "title": "Covered",
+    "description": "Under the protection of an ally.",
+    "effects": [
+      "Under the protection of an ally."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214381,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 100,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 20,
+      "name": "PLD",
+      "allowed_jobs": [
+        "PLD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 35,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 2413,
+    "title": "Gedeckt",
+    "description": "Steht unter dem Schutz eines Anderen.",
+    "effects": [
+      "Steht unter dem Schutz eines Anderen."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214381,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 100,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 20,
+      "name": "PLD",
+      "allowed_jobs": [
+        "PLD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 35,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 2413,
+    "title": "Couvert",
+    "description": "Sous la protection de quelqu'un.",
+    "effects": [
+      "Sous la protection de quelqu'un."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214381,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 100,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 20,
+      "name": "PLD",
+      "allowed_jobs": [
+        "PLD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 35,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 2413,
+    "title": "かばう［被］",
+    "description": "特定の対象によって護られている状態。",
+    "effects": [
+      "特定の対象によって護られている状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214381,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 100,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 20,
+      "name": "ナイト",
+      "allowed_jobs": [
+        "PLD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 35,
+      "flag_2": 0
+    }
+  }
+}

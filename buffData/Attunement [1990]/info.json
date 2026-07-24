@@ -1,0 +1,226 @@
+{
+  "en": {
+    "id": 1990,
+    "title": "Attunement",
+    "description": "Damage taken is significantly reduced. Unable to act.",
+    "effects": [
+      "Damage taken is significantly reduced. Unable to act."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214816,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -99
+    },
+    "class_job_category": {
+      "id": 125,
+      "name": "WHM SCH AST SGE",
+      "allowed_jobs": [
+        "AST",
+        "SCH",
+        "SGE",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1990,
+    "title": "Gleichgewicht",
+    "description": "Ist handlungsunfähig, aber erlittener Schaden ist stark verringert.",
+    "effects": [
+      "Ist handlungsunfähig, aber erlittener Schaden ist stark verringert."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214816,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -99
+    },
+    "class_job_category": {
+      "id": 125,
+      "name": "WMA GLT AST WEI",
+      "allowed_jobs": [
+        "AST",
+        "SCH",
+        "SGE",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1990,
+    "title": "Harmonie",
+    "description": "Les dégâts reçus sont grandement réduits. Impossible d'agir.",
+    "effects": [
+      "Les dégâts reçus sont grandement réduits. Impossible d'agir."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214816,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -99
+    },
+    "class_job_category": {
+      "id": 125,
+      "name": "MBL ÉRU AST SAG",
+      "allowed_jobs": [
+        "AST",
+        "SCH",
+        "SGE",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1990,
+    "title": "調和",
+    "description": "受けるダメージが大幅に軽減される代わりに、行動不能になった状態。",
+    "effects": [
+      "受けるダメージが大幅に軽減される代わりに、行動不能になった状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214816,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": true,
+      "actions": true,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": -99
+    },
+    "class_job_category": {
+      "id": 125,
+      "name": "白魔道士 学者 占星術師 賢者",
+      "allowed_jobs": [
+        "AST",
+        "SCH",
+        "SGE",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

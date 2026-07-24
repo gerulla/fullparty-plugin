@@ -41,7 +41,6 @@ public sealed class Plugin : IDalamudPlugin
     public RemoteImageCache ImageCache { get; init; }
     internal AdventurerListService AdventurerList { get; init; }
     public LiveRoomManager LiveRoomManager { get; init; }
-    public OccultCrescentRunMonitor OccultCrescentRunMonitor { get; init; }
     public string VersionText { get; init; }
 
     public readonly WindowSystem WindowSystem = new("FullParty");
@@ -64,7 +63,6 @@ public sealed class Plugin : IDalamudPlugin
         ImageCache = new RemoteImageCache(AuthService);
         AdventurerList = new AdventurerListService();
         LiveRoomManager = new LiveRoomManager(this);
-        OccultCrescentRunMonitor = new OccultCrescentRunMonitor(this);
         VersionText = PluginInterface.Manifest.AssemblyVersion?.ToString() ?? "dev";
         ClassJobResolver.WarmUp();
         PhantomJobResolver.WarmUp();
@@ -102,8 +100,6 @@ public sealed class Plugin : IDalamudPlugin
 
     public void Dispose()
     {
-        OccultCrescentRunMonitor.Dispose();
-
         // Unregister all actions to not leak anything during disposal of plugin
         PluginInterface.UiBuilder.Draw -= DrawUi;
         PluginInterface.UiBuilder.OpenConfigUi -= ToggleSettingsUi;

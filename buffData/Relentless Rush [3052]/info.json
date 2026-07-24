@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3052,
+    "title": "Relentless Rush",
+    "description": "Swinging blade wildly, dealing damage over time to nearby enemies and deflecting a portion of damage taken.",
+    "effects": [
+      "Swinging blade wildly, dealing damage over time to nearby enemies and deflecting a portion of damage taken."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214904,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 29469
+    },
+    "class_job_category": {
+      "id": 149,
+      "name": "GNB",
+      "allowed_jobs": [
+        "GNB"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 23,
+      "flag_2": 24
+    }
+  },
+  "de": {
+    "id": 3052,
+    "title": "Multi",
+    "description": "Fügt umstehenden Gegnern schrittweise Schaden zu und eigener erlittener Schaden ist verringert.",
+    "effects": [
+      "Fügt umstehenden Gegnern schrittweise Schaden zu und eigener erlittener Schaden ist verringert."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214904,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 29469
+    },
+    "class_job_category": {
+      "id": 149,
+      "name": "REV",
+      "allowed_jobs": [
+        "GNB"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 23,
+      "flag_2": 24
+    }
+  },
+  "fr": {
+    "id": 3052,
+    "title": "Multi-taillade",
+    "description": "Des dégâts physiques périodiques sont infligés aux ennemis alentour, et les dégâts reçus sont réduits.",
+    "effects": [
+      "Des dégâts physiques périodiques sont infligés aux ennemis alentour, et les dégâts reçus sont réduits."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214904,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 29469
+    },
+    "class_job_category": {
+      "id": 149,
+      "name": "PSB",
+      "allowed_jobs": [
+        "GNB"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 23,
+      "flag_2": 24
+    }
+  },
+  "ja": {
+    "id": 3052,
+    "title": "連続剣",
+    "description": "周囲に対してダメージを発生させ続けている状態。さらに、受けるダメージの一部が軽減される。",
+    "effects": [
+      "周囲に対してダメージを発生させ続けている状態。さらに、受けるダメージの一部が軽減される。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214904,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 2,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 36,
+      "modifier": 29469
+    },
+    "class_job_category": {
+      "id": 149,
+      "name": "ガンブレイカー",
+      "allowed_jobs": [
+        "GNB"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 23,
+      "flag_2": 24
+    }
+  }
+}

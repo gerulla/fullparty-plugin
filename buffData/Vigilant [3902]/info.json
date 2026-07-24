@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3902,
+    "title": "Vigilant",
+    "description": "HP will be restored automatically upon falling below a certain level or expiration of effect duration.",
+    "effects": [
+      "HP will be restored automatically upon falling below a certain level or expiration of effect duration."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213127,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 60,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "DRK",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3902,
+    "title": "Schattenschutz",
+    "description": "LP werden regeneriert, wenn sie unter einen bestimmten Betrag fallen oder die Wirkungsdauer endet.",
+    "effects": [
+      "LP werden regeneriert, wenn sie unter einen bestimmten Betrag fallen oder die Wirkungsdauer endet."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213127,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 60,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "DKR",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3902,
+    "title": "Garde ténébreuse",
+    "description": "Un effet curatif est reçu lorsque les PV tombent en dessous d'un certain montant ou à la fin de l'effet.",
+    "effects": [
+      "Un effet curatif est reçu lorsque les PV tombent en dessous d'un certain montant ou à la fin de l'effet."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213127,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 60,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "CHN",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3902,
+    "title": "シャドウヴィジル［被］",
+    "description": "ＨＰが一定割合を下回るか効果時間が経過すると、回復効果が発動する状態。",
+    "effects": [
+      "ＨＰが一定割合を下回るか効果時間が経過すると、回復効果が発動する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 213127,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 60,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 98,
+      "name": "暗黒騎士",
+      "allowed_jobs": [
+        "DRK"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 25,
+      "flag_2": 0
+    }
+  }
+}

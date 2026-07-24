@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 1944,
+    "title": "Sacred Soil",
+    "description": "A circle of sanctified earth is healing party members and reducing damage taken within its bounds.",
+    "effects": [
+      "A circle of sanctified earth is healing party members and reducing damage taken within its bounds."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212802,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 50
+    },
+    "class_job_category": {
+      "id": 29,
+      "name": "SCH",
+      "allowed_jobs": [
+        "SCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 1944,
+    "title": "Geweihte Erde",
+    "description": "Ein Schild verringert erlittenen Schaden und regeneriert LP für alle im Bereich.",
+    "effects": [
+      "Ein Schild verringert erlittenen Schaden und regeneriert LP für alle im Bereich."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212802,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 50
+    },
+    "class_job_category": {
+      "id": 29,
+      "name": "GLT",
+      "allowed_jobs": [
+        "SCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 1944,
+    "title": "Dogme de survie",
+    "description": "Les dégâts subis par les équipiers dans l'aire d'effet sont réduits, et leurs PV sont restaurés.",
+    "effects": [
+      "Les dégâts subis par les équipiers dans l'aire d'effet sont réduits, et leurs PV sont restaurés."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212802,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 50
+    },
+    "class_job_category": {
+      "id": 29,
+      "name": "ÉRU",
+      "allowed_jobs": [
+        "SCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 1944,
+    "title": "野戦治療の陣",
+    "description": "範囲内のパーティメンバーの被ダメージを軽減し、かつＨＰを回復するエリアを発生させている状態。",
+    "effects": [
+      "範囲内のパーティメンバーの被ダメージを軽減し、かつＨＰを回復するエリアを発生させている状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 212802,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 50
+    },
+    "class_job_category": {
+      "id": 29,
+      "name": "学者",
+      "allowed_jobs": [
+        "SCH"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

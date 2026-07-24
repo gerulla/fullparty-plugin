@@ -240,6 +240,24 @@ public sealed class RunWindow : Window, IDisposable
         if (!canSendLiveCommand)
             ImGui.EndDisabled();
 
+        ImGui.SameLine();
+        if (liveRoom.IsActive)
+        {
+            if (DrawRunActionButton(FontAwesomeIcon.SignOutAlt, "Disconnect", buttonWidth, true))
+                liveRoom.Disconnect();
+        }
+        else
+        {
+            if (liveRoom.IsBusy)
+                ImGui.BeginDisabled();
+
+            if (DrawRunActionButton(FontAwesomeIcon.Cloud, "Connect", buttonWidth, true, true))
+                liveRoom.Connect();
+
+            if (liveRoom.IsBusy)
+                ImGui.EndDisabled();
+        }
+
         EndRunPanel();
     }
 
@@ -1214,7 +1232,7 @@ public sealed class RunWindow : Window, IDisposable
         if (fillInSlots.Count > 0)
         {
             ImGui.Spacing();
-            DrawModernAuxiliaryRosterSection(runDetail, fillInSlots, "FILL-IN PARTY", "fill_in", runDetail.CanModerate);
+            DrawModernAuxiliaryRosterSection(runDetail, fillInSlots, "FILL-IN PARTY", "fill_in", runDetail.CanModerate, true);
         }
 
         if (benchSlots.Count > 0)
@@ -1537,7 +1555,8 @@ public sealed class RunWindow : Window, IDisposable
     private void DrawModernRosterSlot(
         FullPartyRunDetail runDetail,
         FullPartyRosterSlot slot,
-        bool canModerate)
+        bool canModerate,
+        string? positionLabel = null)
     {
         DrawModernResolvedRosterSlot(
             runDetail,
@@ -1551,7 +1570,8 @@ public sealed class RunWindow : Window, IDisposable
             slot.CharacterClassRole,
             null,
             [],
-            canModerate);
+            canModerate,
+            positionLabel);
     }
 
     private void DrawModernDetectedRosterSlot(
@@ -1621,7 +1641,8 @@ public sealed class RunWindow : Window, IDisposable
         string? role,
         ValidationState? validationState,
         IReadOnlyList<string> validationMessages,
-        bool canModerate)
+        bool canModerate,
+        string? positionLabel = null)
     {
         const float height = 44f;
         var canOpenApplication = canModerate && rosterSlot?.ApplicationId != null;
@@ -1633,9 +1654,13 @@ public sealed class RunWindow : Window, IDisposable
         var drawList = ImGui.GetWindowDrawList();
         var hovered = ImGui.IsItemHovered();
         var searchMatch = IsRosterSearchMatch(displayName, classJob, phantomJob, rosterSlot, resurrectionCharges);
-        var positionWidth = 24f;
+        var positionWidth = string.IsNullOrWhiteSpace(positionLabel)
+            ? 24f
+            : MathF.Max(54f, ImGui.CalcTextSize(positionLabel).X + 12f);
         var cardMin = min + new Vector2(positionWidth + 4f, 0f);
-        var number = (plannedSlot.PositionInGroup ?? 0).ToString();
+        var number = string.IsNullOrWhiteSpace(positionLabel)
+            ? (plannedSlot.PositionInGroup ?? 0).ToString()
+            : positionLabel;
 
         drawList.AddRectFilled(min, new Vector2(min.X + positionWidth, max.Y), FullPartyModernPalette.Color(FullPartyModernPalette.Elevated with { W = 0.72f }), 4f);
         var numberWidth = ImGui.CalcTextSize(number).X;
@@ -1756,7 +1781,8 @@ public sealed class RunWindow : Window, IDisposable
         IReadOnlyList<FullPartyRosterSlot> slots,
         string title,
         string id,
-        bool canModerate)
+        bool canModerate,
+        bool showFilledParty = false)
     {
         ImGui.Separator();
         ImGui.Spacing();
@@ -1781,7 +1807,12 @@ public sealed class RunWindow : Window, IDisposable
                 ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
-            DrawModernRosterSlot(runDetail, visibleSlots[index], canModerate);
+            var slot = visibleSlots[index];
+            DrawModernRosterSlot(
+                runDetail,
+                slot,
+                canModerate,
+                showFilledParty ? GetFilledPartyLabel(slot) : null);
         }
 
         ImGui.EndTable();
@@ -3379,13 +3410,28 @@ public sealed class RunWindow : Window, IDisposable
 
     private static bool IsBenchSlot(FullPartyRosterSlot slot)
     {
-        return slot.GroupKey.Contains("bench", StringComparison.OrdinalIgnoreCase) ||
+        return slot.IsBench ||
+               slot.SlotKind?.Equals("bench", StringComparison.OrdinalIgnoreCase) == true ||
+               slot.GroupKey.Contains("bench", StringComparison.OrdinalIgnoreCase) ||
                slot.GroupLabel.Contains("bench", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsFillInSlot(FullPartyRosterSlot slot)
     {
-        return IsFillInGroupName(slot.GroupKey) || IsFillInGroupName(slot.GroupLabel);
+        return slot.IsFillIn ||
+               slot.SlotKind?.Equals("fill_in", StringComparison.OrdinalIgnoreCase) == true ||
+               IsFillInGroupName(slot.GroupKey) ||
+               IsFillInGroupName(slot.GroupLabel);
+    }
+
+    private static string GetFilledPartyLabel(FullPartyRosterSlot slot)
+    {
+        if (!string.IsNullOrWhiteSpace(slot.FilledGroupLabel))
+            return slot.FilledGroupLabel;
+
+        return string.IsNullOrWhiteSpace(slot.FilledGroupKey)
+            ? "-"
+            : FormatPartyKey(slot.FilledGroupKey);
     }
 
     private static bool IsFillInGroupName(string? value)

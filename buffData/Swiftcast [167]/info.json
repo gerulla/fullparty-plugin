@@ -1,0 +1,258 @@
+{
+  "en": {
+    "id": 167,
+    "title": "Swiftcast",
+    "description": "Next spell will require no time to cast.",
+    "effects": [
+      "Next spell will require no time to cast."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210454,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 120,
+      "name": "CNJ THM ACN WHM BLM SMN SCH AST RDM BLU SGE PCT",
+      "allowed_jobs": [
+        "ACN",
+        "AST",
+        "BLM",
+        "BLU",
+        "CNJ",
+        "PCT",
+        "RDM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 167,
+    "title": "Spontaneität",
+    "description": "Nächster Zauber wird sofort gewirkt.",
+    "effects": [
+      "Nächster Zauber wird sofort gewirkt."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210454,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 120,
+      "name": "DRU THM WMA SMA HRT BSW SCH AST RMA BMA WEI PKT",
+      "allowed_jobs": [
+        "ACN",
+        "AST",
+        "BLM",
+        "BLU",
+        "CNJ",
+        "PCT",
+        "RDM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 167,
+    "title": "Magie prompte",
+    "description": "Le prochain sort est instantané.",
+    "effects": [
+      "Le prochain sort est instantané."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210454,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 120,
+      "name": "ÉLM OCC MBL MNO ACN INV ÉRU AST MRG MBU SAG PIC",
+      "allowed_jobs": [
+        "ACN",
+        "AST",
+        "BLM",
+        "BLU",
+        "CNJ",
+        "PCT",
+        "RDM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 167,
+    "title": "迅速魔",
+    "description": "次の魔法が、詠唱時間無しで唱えられる状態。",
+    "effects": [
+      "次の魔法が、詠唱時間無しで唱えられる状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 210454,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": false,
+    "is_permanent": false,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 0,
+      "modifier": 0
+    },
+    "class_job_category": {
+      "id": 120,
+      "name": "幻術士 呪術士 白魔道士 黒魔道士 巴術士 召喚士 学者 占星術師 赤魔道士 青魔道士 賢者 ピクトマンサー",
+      "allowed_jobs": [
+        "ACN",
+        "AST",
+        "BLM",
+        "BLU",
+        "CNJ",
+        "PCT",
+        "RDM",
+        "SCH",
+        "SGE",
+        "SMN",
+        "THM",
+        "WHM"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 0,
+      "flag_2": 0
+    }
+  }
+}

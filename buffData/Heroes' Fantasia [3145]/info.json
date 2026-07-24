@@ -1,0 +1,214 @@
+{
+  "en": {
+    "id": 3145,
+    "title": "Heroes' Fantasia",
+    "description": "Damage dealt and movement speed is increased. Limit gauge is gradually filling.",
+    "effects": [
+      "Damage dealt and movement speed is increased. Limit gauge is gradually filling."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214915,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 0
+    }
+  },
+  "de": {
+    "id": 3145,
+    "title": "Heroische Fantasie",
+    "description": "Ausgeteilter Schaden und Bewegungsgeschwindigkeit sind erhöht und der Limitrausch-Balken wird schrittweise gefüllt.",
+    "effects": [
+      "Ausgeteilter Schaden und Bewegungsgeschwindigkeit sind erhöht und der Limitrausch-Balken wird schrittweise gefüllt."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214915,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 0
+    }
+  },
+  "fr": {
+    "id": 3145,
+    "title": "Fantaisie orchestrale",
+    "description": "Les dégâts infligés et la vitesse de déplacement sont augmentés. La vitesse de remplissage de la jauge de Transcendance est accélérée.",
+    "effects": [
+      "Les dégâts infligés et la vitesse de déplacement sont augmentés. La vitesse de remplissage de la jauge de Transcendance est accélérée."
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214915,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "BRD",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 0
+    }
+  },
+  "ja": {
+    "id": 3145,
+    "title": "英雄のファンタジア［被］",
+    "description": "与ダメージと移動速度が上昇し、リミットゲージが徐々に増加する状態。",
+    "effects": [
+      "与ダメージと移動速度が上昇し、リミットゲージが徐々に増加する状態。"
+    ],
+    "classification": "buff",
+    "icon": {
+      "id": 214915,
+      "file": "icon.png",
+      "available_in_game_files": true
+    },
+    "max_stacks": 0,
+    "status_category_id": 1,
+    "target_type": 0,
+    "can_dispel": false,
+    "can_remove_manually": true,
+    "is_permanent": true,
+    "inflicted_by_actor": false,
+    "is_fc_buff": false,
+    "is_gaze": false,
+    "is_invisible": false,
+    "party_list_priority": 0,
+    "can_increase_rewards": 0,
+    "locks": {
+      "movement": false,
+      "actions": false,
+      "control": false
+    },
+    "transfiguration": false,
+    "parameter": {
+      "effect": 18,
+      "modifier": 100
+    },
+    "class_job_category": {
+      "id": 24,
+      "name": "吟遊詩人",
+      "allowed_jobs": [
+        "BRD"
+      ]
+    },
+    "visual": {
+      "hit_effect_id": 16,
+      "loop_vfx_id": 0,
+      "suppress_log_vfx": false
+    },
+    "log_id": 0,
+    "raw_flags": {
+      "flags": 6,
+      "flag_2": 0
+    }
+  }
+}
