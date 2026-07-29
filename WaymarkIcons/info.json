@@ -1,0 +1,82 @@
+[
+  {
+    "label": "A",
+    "field_marker_id": 1,
+    "name": "Waymark A",
+    "ui_icon_id": 61241,
+    "map_icon_id": 60474,
+    "vfx_id": 302,
+    "file": "A.png",
+    "high_resolution": true
+  },
+  {
+    "label": "B",
+    "field_marker_id": 2,
+    "name": "Waymark B",
+    "ui_icon_id": 61242,
+    "map_icon_id": 60475,
+    "vfx_id": 303,
+    "file": "B.png",
+    "high_resolution": true
+  },
+  {
+    "label": "C",
+    "field_marker_id": 3,
+    "name": "Waymark C",
+    "ui_icon_id": 61243,
+    "map_icon_id": 60476,
+    "vfx_id": 304,
+    "file": "C.png",
+    "high_resolution": true
+  },
+  {
+    "label": "D",
+    "field_marker_id": 4,
+    "name": "Waymark D",
+    "ui_icon_id": 61247,
+    "map_icon_id": 60936,
+    "vfx_id": 519,
+    "file": "D.png",
+    "high_resolution": true
+  },
+  {
+    "label": "1",
+    "field_marker_id": 5,
+    "name": "Waymark 1",
+    "ui_icon_id": 61244,
+    "map_icon_id": 60931,
+    "vfx_id": 489,
+    "file": "1.png",
+    "high_resolution": true
+  },
+  {
+    "label": "2",
+    "field_marker_id": 6,
+    "name": "Waymark 2",
+    "ui_icon_id": 61245,
+    "map_icon_id": 60932,
+    "vfx_id": 490,
+    "file": "2.png",
+    "high_resolution": true
+  },
+  {
+    "label": "3",
+    "field_marker_id": 7,
+    "name": "Waymark 3",
+    "ui_icon_id": 61246,
+    "map_icon_id": 60933,
+    "vfx_id": 491,
+    "file": "3.png",
+    "high_resolution": true
+  },
+  {
+    "label": "4",
+    "field_marker_id": 8,
+    "name": "Waymark 4",
+    "ui_icon_id": 61248,
+    "map_icon_id": 63904,
+    "vfx_id": 861,
+    "file": "4.png",
+    "high_resolution": true
+  }
+]

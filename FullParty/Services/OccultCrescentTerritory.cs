@@ -10,9 +10,12 @@ internal static class OccultCrescentTerritory
 {
     internal const uint SouthHornTerritoryId = 1252;
     internal const uint SouthHornDefaultMapId = 967;
+    internal const uint NorthHornTerritoryId = 1346;
+    internal const uint NorthHornDefaultMapId = 1135;
+    internal static readonly uint[] TerritoryIds = [SouthHornTerritoryId, NorthHornTerritoryId];
     internal static readonly uint[] ForkedTowerMapIds = [968, 986];
 
-    private static readonly string[] TerritoryNameMatches = ["Occult Crescent", "South Horn"];
+    private static readonly string[] TerritoryNameMatches = ["Occult Crescent", "South Horn", "North Horn"];
     private static readonly ClientLanguage[] DebugLanguages =
     [
         ClientLanguage.English,
@@ -39,7 +42,7 @@ internal static class OccultCrescentTerritory
 
     public static bool IsOccultCrescentTerritory(uint territoryId)
     {
-        return GetDebugInfo(territoryId).IsOccultCrescent;
+        return TerritoryIds.Contains(territoryId) || GetDebugInfo(territoryId).IsOccultCrescent;
     }
 
     public static TerritoryDebugInfo GetCurrentDebugInfo()
@@ -49,9 +52,12 @@ internal static class OccultCrescentTerritory
 
     public static TerritoryDebugInfo GetDebugInfo(uint territoryId)
     {
+        var isKnownOccultTerritory = TerritoryIds.Contains(territoryId);
         var info = new TerritoryDebugInfo
         {
             TerritoryId = territoryId,
+            IsOccultCrescent = isKnownOccultTerritory,
+            MatchSource = isKnownOccultTerritory ? $"territory ID {territoryId}" : "none",
             IsForkedTower = territoryId == SouthHornTerritoryId && IsForkedTowerMap(Plugin.ClientState.MapId),
         };
 
@@ -80,9 +86,9 @@ internal static class OccultCrescentTerritory
                 .Append(info.DirectPlaceName)
                 .FirstOrDefault(IsOccultCrescentName);
 
-            info.IsOccultCrescent = territoryId == SouthHornTerritoryId || matchedName != null;
-            info.MatchSource = territoryId == SouthHornTerritoryId
-                ? $"territory ID {SouthHornTerritoryId}"
+            info.IsOccultCrescent = isKnownOccultTerritory || matchedName != null;
+            info.MatchSource = isKnownOccultTerritory
+                ? $"territory ID {territoryId}"
                 : matchedName == null
                     ? "none"
                     : $"place name \"{matchedName}\"";

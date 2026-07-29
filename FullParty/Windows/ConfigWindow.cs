@@ -213,7 +213,9 @@ public class ConfigWindow : Window, IDisposable
         ImGui.Text($"Runtime map ID: {Plugin.ClientState.MapId}");
         ImGui.Text($"Territory default map row ID: {territory.DefaultMapId}");
         ImGui.TextDisabled(
-            $"Forked Tower detection: territory {OccultCrescentTerritory.SouthHornTerritoryId}, runtime maps {string.Join(", ", OccultCrescentTerritory.ForkedTowerMapIds)}.");
+            $"Occult Crescent territories: {OccultCrescentTerritory.SouthHornTerritoryId} (South Horn), {OccultCrescentTerritory.NorthHornTerritoryId} (North Horn).");
+        ImGui.TextDisabled(
+            $"Forked Tower detection: South Horn runtime maps {string.Join(", ", OccultCrescentTerritory.ForkedTowerMapIds)}.");
 
         var localPlayer = Plugin.ObjectTable.LocalPlayer;
         if (localPlayer != null)
