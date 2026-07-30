@@ -1229,10 +1229,53 @@ public sealed class FullPartyApiClient
         public string? AttendanceStatus { get; set; }
     }
 
+    [JsonConverter(typeof(LocalizedStringDtoConverter))]
     private sealed class LocalizedStringDto
     {
         [JsonPropertyName("en")]
         public string? En { get; set; }
+    }
+
+    private sealed class LocalizedStringDtoConverter : JsonConverter<LocalizedStringDto>
+    {
+        public override LocalizedStringDto? Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.Null)
+                return null;
+
+            if (reader.TokenType == JsonTokenType.String)
+                return new LocalizedStringDto { En = reader.GetString() };
+
+            if (reader.TokenType != JsonTokenType.StartObject)
+                throw new JsonException("Expected a localized string or object.");
+
+            using var document = JsonDocument.ParseValue(ref reader);
+            var root = document.RootElement;
+            if (root.TryGetProperty("en", out var english) && english.ValueKind == JsonValueKind.String)
+                return new LocalizedStringDto { En = english.GetString() };
+
+            foreach (var property in root.EnumerateObject())
+            {
+                if (property.Value.ValueKind == JsonValueKind.String)
+                    return new LocalizedStringDto { En = property.Value.GetString() };
+            }
+
+            return new LocalizedStringDto();
+        }
+
+        public override void Write(
+            Utf8JsonWriter writer,
+            LocalizedStringDto value,
+            JsonSerializerOptions options)
+        {
+            writer.WriteStartObject();
+            if (value.En != null)
+                writer.WriteString("en", value.En);
+            writer.WriteEndObject();
+        }
     }
 
     private sealed class ApplicationDto
