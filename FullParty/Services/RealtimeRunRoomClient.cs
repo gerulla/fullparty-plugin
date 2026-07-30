@@ -304,6 +304,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             commandStatusUpdatedAt = DateTimeOffset.MinValue;
             CommandStatusMessage = null;
             PartySnapshotStatusMessage = null;
+            lastPartySnapshotAttemptAt = DateTimeOffset.MinValue;
             HasEverStarted = true;
             SetStateNoLock(RealtimeRunRoomState.Connecting, "Connecting to live room...");
             connectionTask = Task.Run(() => RunAsync(cancellation.Token));
@@ -991,6 +992,12 @@ public sealed class RealtimeRunRoomClient : IDisposable
         {
             var now = DateTimeOffset.UtcNow;
 
+            if (PartySnapshotStatusMessage == "Party sync waits for Occult Crescent.")
+            {
+                PartySnapshotStatusMessage = "Occult Crescent detected; preparing party sync.";
+                lastPartySnapshotAttemptAt = DateTimeOffset.MinValue;
+            }
+
             if (State != RealtimeRunRoomState.Connected || cancellation == null)
                 return;
 
@@ -1008,7 +1015,9 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
         if (currentRunDetail == null || currentMember == null)
         {
-            SetPartySyncDebug(null, null, null, "Party sync waiting for live room user/run detail.");
+            const string status = "Party sync waiting for live room user/run detail.";
+            SetPartySnapshotStatus(status);
+            SetPartySyncDebug(null, null, null, status);
             return;
         }
 

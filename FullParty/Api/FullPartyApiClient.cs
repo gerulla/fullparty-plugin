@@ -1249,21 +1249,43 @@ public sealed class FullPartyApiClient
             if (reader.TokenType == JsonTokenType.String)
                 return new LocalizedStringDto { En = reader.GetString() };
 
-            if (reader.TokenType != JsonTokenType.StartObject)
-                throw new JsonException("Expected a localized string or object.");
-
             using var document = JsonDocument.ParseValue(ref reader);
-            var root = document.RootElement;
-            if (root.TryGetProperty("en", out var english) && english.ValueKind == JsonValueKind.String)
-                return new LocalizedStringDto { En = english.GetString() };
+            return new LocalizedStringDto { En = FindLocalizedText(document.RootElement) };
+        }
 
-            foreach (var property in root.EnumerateObject())
+        private static string? FindLocalizedText(JsonElement element)
+        {
+            if (element.ValueKind == JsonValueKind.String)
+                return element.GetString();
+
+            if (element.ValueKind == JsonValueKind.Object)
             {
-                if (property.Value.ValueKind == JsonValueKind.String)
-                    return new LocalizedStringDto { En = property.Value.GetString() };
+                if (element.TryGetProperty("en", out var english))
+                {
+                    var englishText = FindLocalizedText(english);
+                    if (!string.IsNullOrWhiteSpace(englishText))
+                        return englishText;
+                }
+
+                foreach (var property in element.EnumerateObject())
+                {
+                    var text = FindLocalizedText(property.Value);
+                    if (!string.IsNullOrWhiteSpace(text))
+                        return text;
+                }
             }
 
-            return new LocalizedStringDto();
+            if (element.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in element.EnumerateArray())
+                {
+                    var text = FindLocalizedText(item);
+                    if (!string.IsNullOrWhiteSpace(text))
+                        return text;
+                }
+            }
+
+            return null;
         }
 
         public override void Write(
