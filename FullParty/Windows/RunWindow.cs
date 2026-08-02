@@ -597,19 +597,25 @@ public sealed class RunWindow : Window, IDisposable
         for (var i = 0; i < countdownOptions.Length; i++)
         {
             var seconds = countdownOptions[i];
-            var selected = selectedCountdownSeconds == seconds;
-            if (selected)
-            {
-                ImGui.PushStyleColor(ImGuiCol.Button, FullPartyModernPalette.Brand);
-                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, FullPartyModernPalette.BrandHover);
-                ImGui.PushStyleColor(ImGuiCol.ButtonActive, FullPartyModernPalette.BrandHover);
-            }
+            ImGui.PushStyleColor(ImGuiCol.Button, FullPartyModernPalette.Elevated);
+            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, FullPartyModernPalette.BorderSoft);
+            ImGui.PushStyleColor(ImGuiCol.ButtonActive, FullPartyModernPalette.BrandSoft);
 
             if (ImGui.Button($"{seconds}s##fullparty_countdown_{seconds}_{Run.Id}", new Vector2(optionWidth, 34f)))
                 selectedCountdownSeconds = seconds;
 
-            if (selected)
-                ImGui.PopStyleColor(3);
+            ImGui.PopStyleColor(3);
+
+            if (selectedCountdownSeconds == seconds)
+            {
+                ImGui.GetWindowDrawList().AddRect(
+                    ImGui.GetItemRectMin(),
+                    ImGui.GetItemRectMax(),
+                    FullPartyModernPalette.Color(FullPartyModernPalette.Brand),
+                    4f,
+                    ImDrawFlags.None,
+                    2f);
+            }
 
             if (i % 3 != 2)
                 ImGui.SameLine();
