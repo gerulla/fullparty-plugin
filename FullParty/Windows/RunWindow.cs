@@ -125,6 +125,8 @@ public sealed class RunWindow : Window, IDisposable
     private RosterLayoutMode rosterLayoutMode;
     private RosterDataMode rosterDataMode = RosterDataMode.Off;
     private bool rosterShowEmptySlots = true;
+    private bool countdownPickerRequested;
+    private int selectedCountdownSeconds = 20;
 
     public FullPartyRun Run { get; }
 
@@ -196,6 +198,7 @@ public sealed class RunWindow : Window, IDisposable
 
         DrawLiveRoom();
         DrawReadyCheckConfirmationPopup();
+        DrawCountdownPickerPopup();
         DrawRosterCompanion(runWindowPosition, runWindowSize, isLoading);
     }
 
@@ -213,6 +216,7 @@ public sealed class RunWindow : Window, IDisposable
         ImGui.Spacing();
         DrawMiniLiveMembersSection();
         DrawReadyCheckConfirmationPopup();
+        DrawCountdownPickerPopup();
     }
 
     private void DrawMiniPartyActions(bool canModerate)
@@ -233,12 +237,12 @@ public sealed class RunWindow : Window, IDisposable
         if (DrawRunActionButton(FontAwesomeIcon.Users, "Parties", buttonWidth, true))
             liveRoom.SendReadyCheckParty();
 
-        ImGui.Spacing();
-        if (DrawRunActionButton(FontAwesomeIcon.HourglassHalf, "Countdown", buttonWidth, true))
-            liveRoom.SendCountdown(20);
-
         if (!canSendLiveCommand)
             ImGui.EndDisabled();
+
+        ImGui.Spacing();
+        if (DrawRunActionButton(FontAwesomeIcon.HourglassHalf, "Countdown", buttonWidth, true))
+            OpenCountdownPicker();
 
         ImGui.SameLine();
         if (liveRoom.IsActive)
@@ -451,14 +455,14 @@ public sealed class RunWindow : Window, IDisposable
         if (DrawRunActionButton(FontAwesomeIcon.Users, readyPartyLabel, primaryWidth, true))
             liveRoom.SendReadyCheckParty();
 
+        if (!canSendLiveCommand)
+            ImGui.EndDisabled();
+
         ImGui.Spacing();
 
         var secondaryWidth = (availableWidth - gap) * 0.5f;
         if (DrawRunActionButton(FontAwesomeIcon.HourglassHalf, countdownLabel, secondaryWidth, true))
-            liveRoom.SendCountdown(20);
-
-        if (!canSendLiveCommand)
-            ImGui.EndDisabled();
+            OpenCountdownPicker();
 
         var isCheckingIn = checkInTask is { IsCompleted: false };
         var waitingForAdventurerList = OccultCrescentTerritory.IsCurrent() && plugin.AdventurerList.IsRefreshing;
@@ -564,6 +568,102 @@ public sealed class RunWindow : Window, IDisposable
             readyCheckPromptPopupRequestId = null;
             if (closePopupOnAction)
                 ImGui.CloseCurrentPopup();
+        }
+    }
+
+    private void OpenCountdownPicker()
+    {
+        countdownPickerRequested = true;
+    }
+
+    private void DrawCountdownPickerPopup()
+    {
+        var popupName = $"Start Countdown##fullparty_countdown_picker_{Run.Id}";
+        if (countdownPickerRequested)
+        {
+            countdownPickerRequested = false;
+            ImGui.OpenPopup(popupName);
+        }
+
+        var popupOpen = true;
+        if (!ImGui.BeginPopupModal(popupName, ref popupOpen, ImGuiWindowFlags.AlwaysAutoResize))
+            return;
+
+        ImGui.TextColored(FullPartyModernPalette.Muted, "Countdown duration");
+        ImGui.Spacing();
+
+        ReadOnlySpan<int> countdownOptions = [5, 7, 10, 12, 16, 20];
+        const float optionWidth = 72f;
+        for (var i = 0; i < countdownOptions.Length; i++)
+        {
+            var seconds = countdownOptions[i];
+            var selected = selectedCountdownSeconds == seconds;
+            if (selected)
+            {
+                ImGui.PushStyleColor(ImGuiCol.Button, FullPartyModernPalette.Brand);
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, FullPartyModernPalette.BrandHover);
+                ImGui.PushStyleColor(ImGuiCol.ButtonActive, FullPartyModernPalette.BrandHover);
+            }
+
+            if (ImGui.Button($"{seconds}s##fullparty_countdown_{seconds}_{Run.Id}", new Vector2(optionWidth, 34f)))
+                selectedCountdownSeconds = seconds;
+
+            if (selected)
+                ImGui.PopStyleColor(3);
+
+            if (i % 3 != 2)
+                ImGui.SameLine();
+        }
+
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+
+        var actionWidth = ((optionWidth * 3f) + (ImGui.GetStyle().ItemSpacing.X * 2f) - ImGui.GetStyle().ItemSpacing.X) * 0.5f;
+        if (ImGui.Button($"Single##fullparty_countdown_single_{Run.Id}", new Vector2(actionWidth, 36f)))
+        {
+            StartSingleCountdown(selectedCountdownSeconds);
+            ImGui.CloseCurrentPopup();
+        }
+
+        ImGui.SameLine();
+        var canSendToAll = detail?.CanModerate == true &&
+                           liveRoom.State == RealtimeRunRoomState.Connected &&
+                           !liveRoom.IsIssuingCommand;
+        if (!canSendToAll)
+            ImGui.BeginDisabled();
+
+        if (ImGui.Button($"All Parties##fullparty_countdown_all_{Run.Id}", new Vector2(actionWidth, 36f)))
+        {
+            Plugin.Log.Information(
+                "FullParty run {RunId}: requesting {Seconds}s countdown for all connected live-room users.",
+                Run.Id,
+                selectedCountdownSeconds);
+            liveRoom.SendCountdown(selectedCountdownSeconds);
+            ImGui.CloseCurrentPopup();
+        }
+
+        if (!canSendToAll)
+            ImGui.EndDisabled();
+
+        ImGui.EndPopup();
+    }
+
+    private void StartSingleCountdown(int seconds)
+    {
+        var command = $"/countdown {seconds}";
+        try
+        {
+            GameCommandExecutor.Execute(command);
+            Plugin.Log.Information(
+                "FullParty run {RunId}: started local {Seconds}s countdown.",
+                Run.Id,
+                seconds);
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.Warning(ex, "FullParty run {RunId}: could not start local countdown.", Run.Id);
+            Plugin.ShowErrorToast($"Could not start {seconds}s countdown: {ex.Message}");
         }
     }
 
