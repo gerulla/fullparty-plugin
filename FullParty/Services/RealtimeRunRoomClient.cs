@@ -67,6 +67,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private readonly Dictionary<long, string> syncedPartyKeyByUserId = new();
     private readonly HashSet<string> handledCommandIds = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentQueue<PendingCommandExecution> pendingCommandExecutions = new();
+    private readonly ConcurrentQueue<ReadyCheckSoundCue> pendingReadyCheckSounds = new();
     private readonly SemaphoreSlim socketSendLock = new(1, 1);
     private LatestCommandTracker? latestCommand;
     private const int CommandExpirySeconds = 30;
@@ -99,6 +100,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
     private string? lastReadyCheckStatusPayloadKey;
     private bool readyCheckStatusBroadcastFailed;
     private int partySnapshotSequence;
+    private DateTimeOffset? pendingAllianceReadySoundAt;
 
     public RealtimeRunRoomClient(int runId, Plugin plugin)
     {
@@ -297,6 +299,11 @@ public sealed class RealtimeRunRoomClient : IDisposable
             handledCommandIds.Clear();
             latestCommand = null;
             latestCommandUpdatedAt = DateTimeOffset.MinValue;
+            pendingAllianceReadySoundAt = null;
+            while (pendingReadyCheckSounds.TryDequeue(out _))
+            {
+            }
+
             readyCheckConfirmation = null;
             readyCheckConfirmationPrompt = null;
             readyCheckSummary = null;
@@ -327,6 +334,11 @@ public sealed class RealtimeRunRoomClient : IDisposable
             handledCommandIds.Clear();
             latestCommand = null;
             latestCommandUpdatedAt = DateTimeOffset.MinValue;
+            pendingAllianceReadySoundAt = null;
+            while (pendingReadyCheckSounds.TryDequeue(out _))
+            {
+            }
+
             readyCheckConfirmation = null;
             readyCheckConfirmationPrompt = null;
             readyCheckSummary = null;
@@ -411,6 +423,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             }
 
             var status = ready ? "ready" : "not_ready";
+            QueueReadyCheckConfirmationResultSoundNoLock(currentUserId, ready);
             readyCheckConfirmation.StatusByUserId[currentUserId] = status;
             readyCheckConfirmationPrompt = null;
             commandId = readyCheckConfirmation.RequestId;
@@ -851,6 +864,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
             }
 
             SetCommandStatusNoLock($"{initiatorName} requested ready-check confirmation.");
+            QueueReadyCheckConfirmationStartedSoundNoLock(command.Id);
         }
 
         QueueAck(command.Id, "received");
@@ -879,6 +893,11 @@ public sealed class RealtimeRunRoomClient : IDisposable
             {
                 var confirmationStatus = GetReadyCheckConfirmationStatusFromAck(ack.Status);
                 readyCheckConfirmation.StatusByUserId[ack.UserId] = confirmationStatus;
+                if (confirmationStatus.Equals("ready", StringComparison.OrdinalIgnoreCase))
+                    QueueReadyCheckConfirmationResultSoundNoLock(ack.UserId, true);
+                else if (confirmationStatus.Equals("not_ready", StringComparison.OrdinalIgnoreCase))
+                    QueueReadyCheckConfirmationResultSoundNoLock(ack.UserId, false);
+
                 if (confirmationStatus.Equals("not_ready", StringComparison.OrdinalIgnoreCase))
                 {
                     SetCommandStatusNoLock("Ready check confirmation stopped: a raid lead is not ready.");
@@ -917,8 +936,107 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
             latestCommand.ReadyCheckStatusByUserId[status.UserId] = status.Summary;
             latestCommand.StatusByUserId.TryAdd(status.UserId, "executed");
+            QueueReadyCheckCompletionSoundNoLock(status.UserId, status.Summary);
             TouchCommandTrackerNoLock();
         }
+    }
+
+    private void QueueReadyCheckCompletionSoundNoLock(string userId, ReadyCheckSummary summary)
+    {
+        if (latestCommand == null || summary.Total == 0 || summary.Pending > 0)
+            return;
+
+        var completionKey = GetReadyCheckCompletionKeyNoLock(userId);
+        var isFirstCompletionForParty = latestCommand.CompletedReadyCheckSoundKeys.Add(completionKey);
+        TryQueueAllianceReadySoundNoLock();
+        if (!isFirstCompletionForParty)
+            return;
+
+        var allReady = summary.NotReady == 0;
+        var currentUserId = GetCurrentUserId();
+        var currentPartyKey = string.IsNullOrWhiteSpace(currentUserId)
+            ? null
+            : GetReadyCheckCompletionKeyNoLock(currentUserId);
+        var isLocalParty =
+            userId.Equals(currentUserId, StringComparison.OrdinalIgnoreCase) ||
+            (completionKey.StartsWith("party:", StringComparison.OrdinalIgnoreCase) &&
+             completionKey.Equals(currentPartyKey, StringComparison.OrdinalIgnoreCase));
+
+        if (isLocalParty)
+        {
+            Plugin.Log.Debug(
+                "Ready check finalized for local {PartyKey}; relying on the vanilla completion sound.",
+                completionKey);
+            return;
+        }
+
+        pendingReadyCheckSounds.Enqueue(allReady ? ReadyCheckSoundCue.AlliancePartyReady : ReadyCheckSoundCue.AlliancePartyNotReady);
+        Plugin.Log.Information(
+            "Ready check finalized for {PartyKey}: {Result}. Queued the vanilla result sound.",
+            completionKey,
+            allReady ? "all ready" : $"{summary.NotReady} declined");
+    }
+
+    private void QueueReadyCheckConfirmationStartedSoundNoLock(string commandId)
+    {
+        if (latestCommand == null ||
+            !latestCommand.CommandId.Equals(commandId, StringComparison.OrdinalIgnoreCase) ||
+            latestCommand.ReadyCheckConfirmationStartedSoundQueued)
+        {
+            return;
+        }
+
+        latestCommand.ReadyCheckConfirmationStartedSoundQueued = true;
+        pendingReadyCheckSounds.Enqueue(ReadyCheckSoundCue.PartyLeadStarted);
+    }
+
+    private void QueueReadyCheckConfirmationResultSoundNoLock(string userId, bool ready)
+    {
+        if (latestCommand == null ||
+            !latestCommand.CommandName.Equals("ready_check_confirm", StringComparison.OrdinalIgnoreCase) ||
+            !latestCommand.CompletedReadyCheckConfirmationSoundUserIds.Add(userId))
+        {
+            return;
+        }
+
+        pendingReadyCheckSounds.Enqueue(ready ? ReadyCheckSoundCue.PartyLeadReady : ReadyCheckSoundCue.PartyLeadNotReady);
+        Plugin.Log.Information(
+            "Raid-lead ready-check confirmation finalized for user {UserId}: {Result}.",
+            userId,
+            ready ? "ready" : "not ready");
+    }
+
+    private void TryQueueAllianceReadySoundNoLock()
+    {
+        if (latestCommand == null || latestCommand.AllianceReadySoundQueued || latestCommand.TargetUserIds.Count == 0)
+            return;
+
+        foreach (var targetUserId in latestCommand.TargetUserIds)
+        {
+            if (!latestCommand.ReadyCheckStatusByUserId.TryGetValue(targetUserId, out var targetSummary) ||
+                targetSummary.Total == 0 ||
+                targetSummary.Pending > 0 ||
+                targetSummary.NotReady > 0)
+            {
+                return;
+            }
+        }
+
+        latestCommand.AllianceReadySoundQueued = true;
+        pendingAllianceReadySoundAt = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(1);
+        Plugin.Log.Information("Every connected party reported all ready. Alliance-ready bongos queued in one second.");
+    }
+
+    private string GetReadyCheckCompletionKeyNoLock(string userId)
+    {
+        if (long.TryParse(userId, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedUserId) &&
+            syncedPartyKeyByUserId.TryGetValue(parsedUserId, out var partyKey) &&
+            !string.IsNullOrWhiteSpace(partyKey))
+        {
+            return $"party:{GetPartySortKey(partyKey)}";
+        }
+
+        return $"user:{userId}";
     }
 
     private void HandlePartySnapshot(JsonElement root)
@@ -947,6 +1065,41 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     private void OnFrameworkUpdate(IFramework framework)
     {
+        while (pendingReadyCheckSounds.TryDequeue(out var soundCue))
+        {
+            switch (soundCue)
+            {
+                case ReadyCheckSoundCue.PartyLeadStarted:
+                    ReadyCheckSoundPlayer.PlayPartyLeadStarted(plugin.Configuration);
+                    break;
+                case ReadyCheckSoundCue.PartyLeadReady:
+                    ReadyCheckSoundPlayer.PlayPartyLeadResult(plugin.Configuration, true);
+                    break;
+                case ReadyCheckSoundCue.PartyLeadNotReady:
+                    ReadyCheckSoundPlayer.PlayPartyLeadResult(plugin.Configuration, false);
+                    break;
+                case ReadyCheckSoundCue.AlliancePartyReady:
+                    ReadyCheckSoundPlayer.PlayAlliancePartyResult(plugin.Configuration, true);
+                    break;
+                case ReadyCheckSoundCue.AlliancePartyNotReady:
+                    ReadyCheckSoundPlayer.PlayAlliancePartyResult(plugin.Configuration, false);
+                    break;
+            }
+        }
+
+        var playAllianceReadySound = false;
+        lock (stateLock)
+        {
+            if (pendingAllianceReadySoundAt is { } playAt && DateTimeOffset.UtcNow >= playAt)
+            {
+                pendingAllianceReadySoundAt = null;
+                playAllianceReadySound = true;
+            }
+        }
+
+        if (playAllianceReadySound)
+            ReadyCheckSoundPlayer.PlayAllianceReady(plugin.Configuration);
+
         while (pendingCommandExecutions.TryDequeue(out var pending))
         {
             try
@@ -1224,7 +1377,10 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 command.Command,
                 targetUserIds,
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
-                new Dictionary<string, ReadyCheckSummary>(StringComparer.OrdinalIgnoreCase));
+                new Dictionary<string, ReadyCheckSummary>(StringComparer.OrdinalIgnoreCase),
+                new HashSet<string>(StringComparer.OrdinalIgnoreCase),
+                new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+            pendingAllianceReadySoundAt = null;
             TouchCommandTrackerNoLock();
         }
     }
@@ -1383,6 +1539,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
                 commandId = latestCommand.CommandId;
                 latestCommand.ReadyCheckStatusByUserId[userId] = summary;
                 latestCommand.StatusByUserId.TryAdd(userId, "executed");
+                QueueReadyCheckCompletionSoundNoLock(userId, summary);
                 TouchCommandTrackerNoLock();
             }
 
@@ -2617,5 +2774,20 @@ public sealed class RealtimeRunRoomClient : IDisposable
         string CommandName,
         HashSet<string> TargetUserIds,
         Dictionary<string, string> StatusByUserId,
-        Dictionary<string, ReadyCheckSummary> ReadyCheckStatusByUserId);
+        Dictionary<string, ReadyCheckSummary> ReadyCheckStatusByUserId,
+        HashSet<string> CompletedReadyCheckSoundKeys,
+        HashSet<string> CompletedReadyCheckConfirmationSoundUserIds)
+    {
+        public bool ReadyCheckConfirmationStartedSoundQueued { get; set; }
+        public bool AllianceReadySoundQueued { get; set; }
+    }
+
+    private enum ReadyCheckSoundCue
+    {
+        PartyLeadStarted,
+        PartyLeadReady,
+        PartyLeadNotReady,
+        AlliancePartyReady,
+        AlliancePartyNotReady,
+    }
 }

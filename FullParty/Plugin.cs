@@ -47,6 +47,8 @@ public sealed class Plugin : IDalamudPlugin
     private ConfigWindow ConfigWindow { get; init; }
     private SettingsWindow SettingsWindow { get; init; }
     private MainWindow MainWindow { get; init; }
+    private DevWindow DevWindow { get; init; }
+    private ReadyCheckSimulationWindow ReadyCheckSimulationWindow { get; init; }
     private LiveRoomStatusOverlay LiveRoomStatusOverlay { get; init; }
     private readonly List<RunWindow> runWindows = [];
     private readonly List<ApplicationWindow> applicationWindows = [];
@@ -69,17 +71,21 @@ public sealed class Plugin : IDalamudPlugin
 
         ConfigWindow = new ConfigWindow(this);
         SettingsWindow = new SettingsWindow(this);
+        DevWindow = new DevWindow(this);
+        ReadyCheckSimulationWindow = new ReadyCheckSimulationWindow(this);
         MainWindow = new MainWindow(this);
         LiveRoomStatusOverlay = new LiveRoomStatusOverlay(this);
 
         WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(SettingsWindow);
+        WindowSystem.AddWindow(DevWindow);
+        WindowSystem.AddWindow(ReadyCheckSimulationWindow);
         WindowSystem.AddWindow(MainWindow);
         WindowSystem.AddWindow(LiveRoomStatusOverlay);
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Open FullParty. Use /fullparty debug for settings and auth debug info, or /fullparty players to dump party/alliance data."
+            HelpMessage = "Open FullParty. Use /fullparty debug for diagnostics, /fullparty dev for local UI tests, or /fullparty players to dump party/alliance data."
         });
 
         // Tell the UI system that we want our windows to be drawn through the window system
@@ -144,6 +150,12 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
 
+        if (args.Trim().Equals("dev", StringComparison.OrdinalIgnoreCase))
+        {
+            ToggleDevUi();
+            return;
+        }
+
         if (args.Trim().Equals("players", StringComparison.OrdinalIgnoreCase))
         {
             PartyListDebugDumper.Dump();
@@ -155,6 +167,11 @@ public sealed class Plugin : IDalamudPlugin
 
     public void ToggleConfigUi() => ConfigWindow.Toggle();
     public void ToggleSettingsUi() => SettingsWindow.Toggle();
+    public void ToggleDevUi() => DevWindow.Toggle();
+    internal void ShowReadyCheckPreview(ReadyCheckPreviewStyle style) => LiveRoomStatusOverlay.ShowReadyCheckPreview(style);
+    internal void DismissReadyCheckPreview() => LiveRoomStatusOverlay.DismissReadyCheckPreview();
+    internal void StartReadyCheckSimulation(bool allReady) => ReadyCheckSimulationWindow.Start(allReady);
+
     public void ToggleMainUi() => MainWindow.Toggle();
 
     internal static void ShowErrorToast(string message)

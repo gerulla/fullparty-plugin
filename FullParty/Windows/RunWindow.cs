@@ -117,7 +117,6 @@ public sealed class RunWindow : Window, IDisposable
     private bool applyRosterCompanionSizeNextDraw = true;
     private bool? lastOccultState;
     private GamePresenceList nearbyDetectionCache = GamePresenceList.Empty;
-    private string? readyCheckPromptPopupRequestId;
     private bool windowStylePushed;
     private Vector2 runContentClipMin;
     private Vector2 runContentClipMax;
@@ -197,7 +196,6 @@ public sealed class RunWindow : Window, IDisposable
         ImGui.Spacing();
 
         DrawLiveRoom();
-        DrawReadyCheckConfirmationPopup();
         DrawCountdownPickerPopup();
         DrawRosterCompanion(runWindowPosition, runWindowSize, isLoading);
     }
@@ -215,7 +213,6 @@ public sealed class RunWindow : Window, IDisposable
         DrawMiniPartyActions(detail?.CanModerate == true);
         ImGui.Spacing();
         DrawMiniLiveMembersSection();
-        DrawReadyCheckConfirmationPopup();
         DrawCountdownPickerPopup();
     }
 
@@ -318,12 +315,23 @@ public sealed class RunWindow : Window, IDisposable
             ImGui.TextUnformatted(TrimToWidth(liveRoom.GetSyncedPartyLabel(member), ImGui.GetContentRegionAvail().X));
 
             ImGui.TableNextColumn();
-            var commandText = liveRoom.TryGetReadyCheckSummary(member, out var summary)
-                ? $"{summary.Ready}/{summary.Total}"
-                : liveRoom.GetCommandStatus(member);
-            ImGui.TextColored(
-                GetLiveCommandStatusColor(commandText),
-                TrimToWidth(commandText, ImGui.GetContentRegionAvail().X));
+            if (liveRoom.TryGetReadyCheckSummary(member, out var summary))
+            {
+                if (!DrawFinalReadyCheckStatus(summary))
+                {
+                    var readyText = $"{summary.Ready}/{summary.Total}";
+                    ImGui.TextColored(
+                        GetLiveCommandStatusColor(readyText),
+                        TrimToWidth(readyText, ImGui.GetContentRegionAvail().X));
+                }
+            }
+            else
+            {
+                var commandText = liveRoom.GetCommandStatus(member);
+                ImGui.TextColored(
+                    GetLiveCommandStatusColor(commandText),
+                    TrimToWidth(commandText, ImGui.GetContentRegionAvail().X));
+            }
         }
 
         ImGui.EndTable();
@@ -430,8 +438,6 @@ public sealed class RunWindow : Window, IDisposable
         var panelHeight = showMiniWindowButton ? 212f : 158f;
         if (!string.IsNullOrWhiteSpace(checkInStatusMessage))
             panelHeight += 28f;
-        if (liveRoom.ReadyCheckConfirmationPrompt != null)
-            panelHeight += 112f;
 
         BeginRunPanel("party_actions", FontAwesomeIcon.Users, "Party Actions", panelHeight);
 
@@ -490,8 +496,6 @@ public sealed class RunWindow : Window, IDisposable
                 miniWindow.IsOpen = true;
         }
 
-        DrawReadyCheckConfirmationInline();
-
         if (!string.IsNullOrWhiteSpace(checkInStatusMessage))
         {
             ImGui.Spacing();
@@ -499,76 +503,6 @@ public sealed class RunWindow : Window, IDisposable
         }
 
         EndRunPanel();
-    }
-
-    private void DrawReadyCheckConfirmationInline()
-    {
-        var prompt = liveRoom.ReadyCheckConfirmationPrompt;
-        if (prompt == null)
-            return;
-
-        ImGui.Spacing();
-        ImGui.Separator();
-        ImGui.Spacing();
-        ImGui.TextColored(new Vector4(0.95f, 0.82f, 0.45f, 1f), "Ready check confirmation");
-        DrawReadyCheckConfirmationPrompt(prompt, false);
-    }
-
-    private void DrawReadyCheckConfirmationPopup()
-    {
-        const string PopupName = "Ready Check Confirmation##fullparty_ready_check_confirm";
-        var prompt = liveRoom.ReadyCheckConfirmationPrompt;
-        if (prompt == null)
-        {
-            readyCheckPromptPopupRequestId = null;
-            return;
-        }
-
-        if (!prompt.RequestId.Equals(readyCheckPromptPopupRequestId, StringComparison.Ordinal))
-        {
-            readyCheckPromptPopupRequestId = prompt.RequestId;
-            ImGui.OpenPopup(PopupName);
-        }
-
-        var popupOpen = true;
-        if (!ImGui.BeginPopupModal(PopupName, ref popupOpen, ImGuiWindowFlags.AlwaysAutoResize))
-            return;
-
-        DrawReadyCheckConfirmationPrompt(prompt, true);
-        if (!popupOpen)
-        {
-            liveRoom.ConfirmReadyCheck(false);
-            readyCheckPromptPopupRequestId = null;
-            ImGui.CloseCurrentPopup();
-        }
-
-        ImGui.EndPopup();
-    }
-
-    private void DrawReadyCheckConfirmationPrompt(FullPartyReadyCheckConfirmationPrompt prompt, bool closePopupOnAction)
-    {
-        ImGui.TextWrapped($"{prompt.InitiatorName} wants to start an alliance ready check.");
-        ImGui.TextWrapped("Confirm when you are ready for your party to receive the in-game ready check.");
-        ImGui.Spacing();
-        ImGui.TextDisabled($"Expires at {prompt.ExpiresAt:HH:mm:ss}.");
-        ImGui.Spacing();
-
-        if (ImGui.Button($"I'm Ready##fullparty_ready_check_confirm_ready_{(closePopupOnAction ? "popup" : "inline")}", new Vector2(110f, 0)))
-        {
-            liveRoom.ConfirmReadyCheck(true);
-            readyCheckPromptPopupRequestId = null;
-            if (closePopupOnAction)
-                ImGui.CloseCurrentPopup();
-        }
-
-        ImGui.SameLine();
-        if (ImGui.Button($"Not Ready##fullparty_ready_check_confirm_not_ready_{(closePopupOnAction ? "popup" : "inline")}", new Vector2(110f, 0)))
-        {
-            liveRoom.ConfirmReadyCheck(false);
-            readyCheckPromptPopupRequestId = null;
-            if (closePopupOnAction)
-                ImGui.CloseCurrentPopup();
-        }
     }
 
     private void OpenCountdownPicker()
@@ -2701,6 +2635,9 @@ public sealed class RunWindow : Window, IDisposable
             return;
         }
 
+        if (DrawFinalReadyCheckStatus(summary))
+            return;
+
         ImGui.BeginGroup();
         DrawReadyCheckCounter($"{summary.Ready}/{summary.Total}", ReadyCheckGlyph.Check, new Vector4(0.35f, 0.92f, 0.55f, 1f));
         ImGui.SameLine(0f, 8f);
@@ -2723,6 +2660,27 @@ public sealed class RunWindow : Window, IDisposable
                 ImGui.TextUnformatted($"Unknown: {summary.Unknown}");
             ImGui.EndTooltip();
         }
+    }
+
+    private static bool DrawFinalReadyCheckStatus(ReadyCheckSummary summary)
+    {
+        if (summary.Total == 0 || summary.Pending > 0)
+            return false;
+
+        if (summary.NotReady > 0)
+        {
+            ImGui.TextColored(
+                new Vector4(1f, 0.42f, 0.42f, 1f),
+                $"{summary.NotReady} Declined");
+        }
+        else
+        {
+            ImGui.TextColored(
+                new Vector4(0.35f, 0.92f, 0.55f, 1f),
+                "All ready");
+        }
+
+        return true;
     }
 
     private static void DrawReadyCheckCounter(string value, ReadyCheckGlyph glyph, Vector4 color)

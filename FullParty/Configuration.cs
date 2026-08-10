@@ -1,4 +1,4 @@
-﻿using Dalamud.Configuration;
+using Dalamud.Configuration;
 using System;
 using System.Collections.Generic;
 
@@ -14,6 +14,9 @@ public class Configuration : IPluginConfiguration
     public bool BypassLiveCommandRequirements { get; set; }
     public bool MovableLiveRoomStatus { get; set; }
     public bool ObviousReadyCheck { get; set; }
+    public bool MutePartyLeadReadyCheck { get; set; }
+    public bool MuteAllianceAllReadySound { get; set; }
+    public bool MuteAlliancePerPartyReadyCheck { get; set; }
     public bool RosterHiddenByDefault { get; set; }
     public string? ProtectedRefreshToken { get; set; }
     public List<string> FavoriteGroupSlugs { get; set; } = [];
