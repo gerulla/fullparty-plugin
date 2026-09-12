@@ -78,6 +78,26 @@ internal static class RunValidationSources
         return new GamePresenceList([.. members.Values]);
     }
 
+    public static GamePresenceList BuildCurrentPartyPresence(FullPartyRunDetail runDetail)
+    {
+        var snapshot = BuildCurrentPartySnapshot(runDetail);
+        if (snapshot == null)
+            return GamePresenceList.Empty;
+
+        return new GamePresenceList(snapshot.Members.Select(member =>
+        {
+            var character = member.CharacterId is { } id
+                ? runDetail.Slots.FirstOrDefault(slot => slot.AssignedCharacter?.Id == id)?.AssignedCharacter
+                : null;
+            return new GamePresenceMember(
+                character?.Name ?? member.Name ?? string.Empty,
+                character?.World ?? member.World,
+                member.ClassJob,
+                member.PhantomJob,
+                member.ResurrectionCharges);
+        }).ToList());
+    }
+
     public static GamePresenceList BuildNearbyPlayerPresence(FullPartyRunDetail runDetail)
     {
         var members = new Dictionary<string, GamePresenceMember>(StringComparer.OrdinalIgnoreCase);

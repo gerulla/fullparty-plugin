@@ -94,7 +94,7 @@ public class ConfigWindow : Window, IDisposable
 
         if (configuration.BypassLiveCommandRequirements)
         {
-            ImGui.TextWrapped("Debug only: while connected to a live room, Check Leads, Check Parties, and Countdown ignore local Occult/party/target detection checks.");
+            ImGui.TextWrapped("Debug only: while connected to a live room, Check Leads, Check Parties, and Countdown ignore local territory/party/target detection checks.");
         }
 
         var auth = plugin.AuthService;
@@ -205,10 +205,14 @@ public class ConfigWindow : Window, IDisposable
                 ? $"Duties as Assigned status {OccultCrescentStatusIds.DutiesAsAssigned}"
                 : "none";
         ImGui.Text($"Current territory ID: {territory.TerritoryId}");
+        ImGui.Text($"Supported run territory: {SupportedRunTerritory.CurrentName}");
+        ImGui.Text($"Instance party sync enabled: {(SupportedRunTerritory.IsCurrent() ? "Yes" : "No")}");
+        ImGui.Text($"Detected as Baldesion Arsenal: {(SupportedRunTerritory.IsBaldesionArsenal(territory.TerritoryId, Plugin.ClientState.MapId) ? "Yes" : "No")}");
+        ImGui.Text($"Detected as Delubrum Savage: {(SupportedRunTerritory.Current == RunTerritoryKind.DelubrumReginaeSavage ? "Yes" : "No")}");
         ImGui.Text($"Detected as Occult Crescent: {(territory.IsOccultCrescent ? "Yes" : "No")}");
         ImGui.Text($"Detected as Forked Tower: {(isForkedTower ? "Yes" : "No")}");
         ImGui.TextWrapped($"Forked Tower source: {forkedTowerSource}");
-        ImGui.TextWrapped($"Match source: {territory.MatchSource}");
+        ImGui.TextWrapped($"Match source: {(SupportedRunTerritory.IsCurrent() ? $"territory ID {territory.TerritoryId}" : "none")}");
         ImGui.Text($"PlaceName row ID: {territory.PlaceNameRowId}");
         ImGui.Text($"Runtime map ID: {Plugin.ClientState.MapId}");
         ImGui.Text($"Territory default map row ID: {territory.DefaultMapId}");
@@ -216,6 +220,7 @@ public class ConfigWindow : Window, IDisposable
             $"Occult Crescent territories: {OccultCrescentTerritory.SouthHornTerritoryId} (South Horn), {OccultCrescentTerritory.NorthHornTerritoryId} (North Horn).");
         ImGui.TextDisabled(
             $"Forked Tower detection: South Horn runtime maps {string.Join(", ", OccultCrescentTerritory.ForkedTowerMapIds)}.");
+        ImGui.TextDisabled("Hydatos/BA: territory 827, duty 639. Delubrum: territory 936, duty 760; Savage: territory 937, duty 761.");
 
         var localPlayer = Plugin.ObjectTable.LocalPlayer;
         if (localPlayer != null)
@@ -238,7 +243,7 @@ public class ConfigWindow : Window, IDisposable
             ImGui.SetClipboardText(contentFinderConditionId.ToString());
 
         ImGui.Text($"Duty started: {(Plugin.DutyState.IsDutyStarted ? "Yes" : "No")}");
-        ImGui.TextDisabled("Territory and duty IDs may remain South Horn inside nested content; compare runtime map ID and position too.");
+        ImGui.TextDisabled("All supported territories use numeric IDs. BA shares Hydatos' territory; Delubrum uses separate Normal/Savage territories.");
 
         ImGui.Spacing();
         ImGui.TextUnformatted("Runtime content director:");

@@ -8,14 +8,13 @@ namespace FullParty.Services;
 
 internal static class OccultCrescentTerritory
 {
-    internal const uint SouthHornTerritoryId = 1252;
+    internal const uint SouthHornTerritoryId = SupportedRunTerritory.SouthHornTerritoryId;
     internal const uint SouthHornDefaultMapId = 967;
-    internal const uint NorthHornTerritoryId = 1346;
+    internal const uint NorthHornTerritoryId = SupportedRunTerritory.NorthHornTerritoryId;
     internal const uint NorthHornDefaultMapId = 1135;
     internal static readonly uint[] TerritoryIds = [SouthHornTerritoryId, NorthHornTerritoryId];
     internal static readonly uint[] ForkedTowerMapIds = [968, 986];
 
-    private static readonly string[] TerritoryNameMatches = ["Occult Crescent", "South Horn", "North Horn"];
     private static readonly ClientLanguage[] DebugLanguages =
     [
         ClientLanguage.English,
@@ -42,7 +41,7 @@ internal static class OccultCrescentTerritory
 
     public static bool IsOccultCrescentTerritory(uint territoryId)
     {
-        return TerritoryIds.Contains(territoryId) || GetDebugInfo(territoryId).IsOccultCrescent;
+        return SupportedRunTerritory.GetKind(territoryId) == RunTerritoryKind.OccultCrescent;
     }
 
     public static TerritoryDebugInfo GetCurrentDebugInfo()
@@ -81,17 +80,6 @@ internal static class OccultCrescentTerritory
                 var placeName = GetPlaceName(info.PlaceNameRowId, language);
                 info.PlaceNames.Add(language.ToString(), placeName);
             }
-
-            var matchedName = info.PlaceNames.Values
-                .Append(info.DirectPlaceName)
-                .FirstOrDefault(IsOccultCrescentName);
-
-            info.IsOccultCrescent = isKnownOccultTerritory || matchedName != null;
-            info.MatchSource = isKnownOccultTerritory
-                ? $"territory ID {territoryId}"
-                : matchedName == null
-                    ? "none"
-                    : $"place name \"{matchedName}\"";
         }
         catch (Exception ex)
         {
@@ -109,12 +97,6 @@ internal static class OccultCrescentTerritory
         return Plugin.DataManager.GetExcelSheet<PlaceName>(language).TryGetRow(placeNameRowId, out var placeName)
             ? placeName.Name.ToString()
             : string.Empty;
-    }
-
-    private static bool IsOccultCrescentName(string? placeName)
-    {
-        return !string.IsNullOrWhiteSpace(placeName)
-            && TerritoryNameMatches.Any(match => placeName.Contains(match, StringComparison.OrdinalIgnoreCase));
     }
 }
 

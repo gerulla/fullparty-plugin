@@ -109,6 +109,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
         apiClient = plugin.ApiClient;
 
         Plugin.Framework.Update += OnFrameworkUpdate;
+        Plugin.ClientState.TerritoryChanged += OnTerritoryChanged;
     }
 
     public RealtimeRunRoomState State { get; private set; } = RealtimeRunRoomState.Disconnected;
@@ -279,9 +280,18 @@ public sealed class RealtimeRunRoomClient : IDisposable
         {
             partySnapshots.Clear();
             syncedPartyKeyByUserId.Clear();
+            PartySyncDebug = null;
+            lastPartySnapshotAttemptAt = DateTimeOffset.MinValue;
             if (!string.IsNullOrWhiteSpace(statusMessage))
                 PartySnapshotStatusMessage = statusMessage;
         }
+    }
+
+    private void OnTerritoryChanged(uint territoryId)
+    {
+        ClearPartySnapshots(SupportedRunTerritory.GetKind(territoryId) == RunTerritoryKind.None
+            ? SupportedRunTerritory.WaitingMessage
+            : $"{SupportedRunTerritory.GetName(SupportedRunTerritory.GetKind(territoryId))} detected; preparing party sync.");
     }
 
     public void Connect()
@@ -356,6 +366,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     public void Dispose()
     {
+        Plugin.ClientState.TerritoryChanged -= OnTerritoryChanged;
         Plugin.Framework.Update -= OnFrameworkUpdate;
         Disconnect();
     }
@@ -1041,7 +1052,7 @@ public sealed class RealtimeRunRoomClient : IDisposable
 
     private void HandlePartySnapshot(JsonElement root)
     {
-        if (!OccultCrescentTerritory.IsCurrent())
+        if (!SupportedRunTerritory.IsCurrent())
             return;
 
         var snapshot = ParsePartySnapshot(root);
@@ -1135,9 +1146,9 @@ public sealed class RealtimeRunRoomClient : IDisposable
         FullPartyLiveMember? currentMember;
         CancellationToken token;
 
-        if (!OccultCrescentTerritory.IsCurrent())
+        if (!SupportedRunTerritory.IsCurrent())
         {
-            SetPartySnapshotStatus("Party sync waits for Occult Crescent.");
+            SetPartySnapshotStatus(SupportedRunTerritory.WaitingMessage);
             return;
         }
 
@@ -1145,9 +1156,9 @@ public sealed class RealtimeRunRoomClient : IDisposable
         {
             var now = DateTimeOffset.UtcNow;
 
-            if (PartySnapshotStatusMessage == "Party sync waits for Occult Crescent.")
+            if (PartySnapshotStatusMessage == SupportedRunTerritory.WaitingMessage)
             {
-                PartySnapshotStatusMessage = "Occult Crescent detected; preparing party sync.";
+                PartySnapshotStatusMessage = $"{SupportedRunTerritory.CurrentName} detected; preparing party sync.";
                 lastPartySnapshotAttemptAt = DateTimeOffset.MinValue;
             }
 
@@ -1311,8 +1322,8 @@ public sealed class RealtimeRunRoomClient : IDisposable
         if (!IsBypassableLiveCommand(command) || plugin.Configuration.BypassLiveCommandRequirements)
             return null;
 
-        if (!OccultCrescentTerritory.IsCurrent())
-            return "Live commands require Occult Crescent. Enable the debug bypass to test elsewhere.";
+        if (!SupportedRunTerritory.IsCurrent())
+            return "Live commands require Occult Crescent, Hydatos/BA, or Delubrum Reginae. Enable the debug bypass to test elsewhere.";
 
         if (Plugin.PartyList.Length <= 0)
             return "Live commands require a detected party. Enable the debug bypass to test without one.";

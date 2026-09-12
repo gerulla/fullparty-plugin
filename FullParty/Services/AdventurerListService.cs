@@ -21,20 +21,37 @@ internal sealed unsafe class AdventurerListService : IDisposable
     private bool closeAfterRead;
     private bool isRefreshing;
 
+    public AdventurerListService()
+    {
+        Plugin.ClientState.TerritoryChanged += OnTerritoryChanged;
+    }
+
     public string StatusMessage { get; private set; } = "Adventurer List has not been refreshed yet.";
     public bool HasRequestedRefresh { get; private set; }
     public bool IsRefreshing => isRefreshing;
     public int Count => presence.Count;
 
-    public void ResetForOccultVisit()
+    private void OnTerritoryChanged(uint territoryId)
     {
+        Plugin.Framework.Update -= OnFrameworkUpdate;
+        refreshRequested = false;
+        framesUntilRead = 0;
+        isRefreshing = false;
+        closeAfterRead = false;
+        lastRefreshAt = null;
         presence = GamePresenceList.Empty;
         HasRequestedRefresh = false;
-        StatusMessage = "Adventurer List has not been refreshed for this Occult visit yet.";
+        StatusMessage = "Adventurer List has not been refreshed for this instance visit yet.";
     }
 
     public void RequestRefresh()
     {
+        if (!SupportedRunTerritory.IsCurrent())
+        {
+            StatusMessage = "Adventurer List refresh requires a supported instance.";
+            return;
+        }
+
         HasRequestedRefresh = true;
         refreshRequested = true;
         framesUntilRead = 0;
@@ -52,6 +69,7 @@ internal sealed unsafe class AdventurerListService : IDisposable
     public void Dispose()
     {
         Plugin.Framework.Update -= OnFrameworkUpdate;
+        Plugin.ClientState.TerritoryChanged -= OnTerritoryChanged;
     }
 
     private void OnFrameworkUpdate(IFramework framework)

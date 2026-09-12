@@ -127,7 +127,21 @@ public sealed record FullPartyRosterSlot(
     bool IsBench,
     bool IsFillIn,
     string? FilledGroupKey,
-    string? FilledGroupLabel);
+    string? FilledGroupLabel)
+{
+    public bool IsDuelist { get; init; }
+    public bool IsTrapper { get; init; }
+    public bool IsDarter { get; init; }
+    public string? RaidPositionKey { get; init; }
+    public string? RaidPosition { get; init; }
+    public FullPartyRosterHolsterLoadout? HolsterLoadout { get; init; }
+}
+
+public sealed record FullPartyRosterHolsterLoadout(
+    int? PrepopId,
+    int? RefillId,
+    string? PrepopLabel,
+    string? RefillLabel);
 
 public sealed record FullPartyRosterCharacter(
     long Id,

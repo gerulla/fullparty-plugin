@@ -300,8 +300,10 @@ public sealed class FullPartyApiClient
 
     private static FullPartyRosterSlot MapRosterSlot(RosterSlotDto slot)
     {
-        var classValue = slot.FieldValues.FirstOrDefault(field => field.FieldKey == "character_class")?.Value;
-        var phantomJobValue = slot.FieldValues.FirstOrDefault(field => field.FieldKey.Equals("phantom_job", StringComparison.OrdinalIgnoreCase))?.Value;
+        var classValue = GetRosterFieldValue(slot, "character_classes", "character_class");
+        var phantomJobValue = GetRosterFieldValue(slot, "phantom_jobs", "phantom_job");
+        var raidPositionValue = GetRosterFieldValue(slot, "raid_positions", "raid_position");
+        var holsterValue = GetRosterFieldValue(slot, "bozja_holsters", "holster_loadouts");
         return new FullPartyRosterSlot(
             slot.Id,
             slot.GroupKey,
@@ -338,7 +340,33 @@ public sealed class FullPartyApiClient
             slot.IsFillIn,
             slot.FilledGroupKey,
             slot.FilledGroupLabel?.En ??
-            (string.IsNullOrWhiteSpace(slot.FilledGroupKey) ? null : FormatGroupLabel(slot.FilledGroupKey)));
+            (string.IsNullOrWhiteSpace(slot.FilledGroupKey) ? null : FormatGroupLabel(slot.FilledGroupKey)))
+        {
+            IsDuelist = slot.IsDuelist,
+            IsTrapper = slot.IsTrapper,
+            IsDarter = slot.IsDarter,
+            RaidPositionKey = raidPositionValue?.Key,
+            RaidPosition = GetFieldDisplayName(raidPositionValue),
+            HolsterLoadout = holsterValue == null ? null : new FullPartyRosterHolsterLoadout(
+                holsterValue.PrepopId,
+                holsterValue.RefillId,
+                holsterValue.PrepopLabel?.En,
+                holsterValue.RefillLabel?.En),
+        };
+    }
+
+    private static SlotFieldValueDto? GetRosterFieldValue(RosterSlotDto slot, string source, string legacyKey)
+    {
+        var field = slot.FieldValues.FirstOrDefault(field =>
+                        source.Equals(field.Source, StringComparison.OrdinalIgnoreCase)) ??
+                    slot.FieldValues.FirstOrDefault(field =>
+                        string.IsNullOrWhiteSpace(field.Source) &&
+                        legacyKey.Equals(field.FieldKey, StringComparison.OrdinalIgnoreCase));
+
+        // Configured fields can contain scalar/array values; only decode the object sources we use.
+        return field?.Value.ValueKind == JsonValueKind.Object
+            ? field.Value.Deserialize<SlotFieldValueDto>()
+            : null;
     }
 
     private static FullPartyApplicationDetails? MapApplicationDetails(ApplicationDetailsDto? details)
@@ -479,7 +507,7 @@ public sealed class FullPartyApiClient
 
     private static string? GetFieldDisplayName(SlotFieldValueDto? value)
     {
-        return value?.Shorthand ?? value?.Name ?? value?.Key ?? value?.Label?.En;
+        return value?.Shorthand ?? value?.Name ?? value?.Label?.En ?? value?.Key;
     }
 
     private static string? FormatAnswerValue(JsonElement? value)
@@ -1126,6 +1154,15 @@ public sealed class FullPartyApiClient
         [JsonPropertyName("is_raid_leader")]
         public bool IsRaidLeader { get; set; }
 
+        [JsonPropertyName("is_duelist")]
+        public bool IsDuelist { get; set; }
+
+        [JsonPropertyName("is_trapper")]
+        public bool IsTrapper { get; set; }
+
+        [JsonPropertyName("is_darter")]
+        public bool IsDarter { get; set; }
+
         [JsonPropertyName("assigned_character")]
         public RosterCharacterDto? AssignedCharacter { get; set; }
 
@@ -1168,8 +1205,11 @@ public sealed class FullPartyApiClient
         [JsonPropertyName("field_key")]
         public string FieldKey { get; set; } = string.Empty;
 
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
         [JsonPropertyName("value")]
-        public SlotFieldValueDto? Value { get; set; }
+        public JsonElement Value { get; set; }
     }
 
     private sealed class SlotFieldValueDto
@@ -1194,6 +1234,18 @@ public sealed class FullPartyApiClient
 
         [JsonPropertyName("label")]
         public LocalizedStringDto? Label { get; set; }
+
+        [JsonPropertyName("prepop_id")]
+        public int? PrepopId { get; set; }
+
+        [JsonPropertyName("refill_id")]
+        public int? RefillId { get; set; }
+
+        [JsonPropertyName("prepop_label")]
+        public LocalizedStringDto? PrepopLabel { get; set; }
+
+        [JsonPropertyName("refill_label")]
+        public LocalizedStringDto? RefillLabel { get; set; }
 
         [JsonPropertyName("icon_id")]
         public int? IconId { get; set; }

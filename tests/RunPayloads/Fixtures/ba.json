@@ -1,0 +1,85 @@
+{
+  "data": {
+    "id": 7001,
+    "group_id": 42,
+    "status": "scheduled",
+    "name": "BA Learning Run",
+    "title": "BA Learning Run",
+    "starts_at": "2026-09-13T18:00:00+00:00",
+    "ends_at": "2026-09-13T20:30:00+00:00",
+    "duration_hours": 2.5,
+    "duration_minutes": 150,
+    "datacenter": "Light",
+    "target_prog_point_key": null,
+    "is_public": true,
+    "needs_application": true,
+    "allow_guest_applications": true,
+    "application_count": 56,
+    "activity_type": {
+      "id": 10,
+      "version_id": 14,
+      "name": { "en": "The Baldesion Arsenal" },
+      "display_name": "The Baldesion Arsenal",
+      "difficulty": "exploration",
+      "small_image_url": null,
+      "banner_image_url": null
+    },
+    "can_moderate": true,
+    "roster": {
+      "slots": [
+        {
+          "id": 81001,
+          "slot_kind": "roster",
+          "group_key": "party-a",
+          "group_label": { "en": "Party A" },
+          "filled_group_key": null,
+          "filled_group_label": [],
+          "slot_key": "slot-1",
+          "slot_label": { "en": "Slot 1" },
+          "position_in_group": 1,
+          "sort_order": 1,
+          "is_bench": false,
+          "is_fill_in": false,
+          "is_host": true,
+          "is_raid_leader": true,
+          "is_duelist": false,
+          "is_trapper": false,
+          "is_darter": true,
+          "assigned_character": {
+            "id": 501,
+            "name": "Aster Vale",
+            "world": "Lich",
+            "datacenter": "Light",
+            "avatar_url": null,
+            "user": { "id": 101, "name": "Aster", "avatar_url": null }
+          },
+          "field_values": [
+            {
+              "field_key": "character_class",
+              "field_label": { "en": "Character Class" },
+              "field_type": "single_select",
+              "source": "character_classes",
+              "value": { "id": 21, "name": "Warrior", "role": "tank", "shorthand": "WAR" }
+            },
+            {
+              "field_key": "raid_position",
+              "field_label": { "en": "Raid Position" },
+              "field_type": "single_select",
+              "source": "raid_positions",
+              "value": { "key": "mt", "label": { "en": "Main Tank" } }
+            }
+          ],
+          "assignment": {
+            "id": 91001,
+            "application_id": 61001,
+            "source": "application",
+            "attendance_status": "checked_in",
+            "assigned_at": "2026-09-12T15:00:00+00:00",
+            "checked_in_at": "2026-09-13T17:45:00+00:00",
+            "marked_missing_at": null
+          }
+        }
+      ]
+    }
+  }
+}

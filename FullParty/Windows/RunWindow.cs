@@ -56,7 +56,7 @@ internal sealed record ObservedSnapshotMember(
     FullPartyPartySnapshot Snapshot,
     FullPartyPartySnapshotMember Member);
 
-internal sealed record OccultPartyAssignment(
+internal sealed record InstancePartyAssignment(
     FullPartyPartySnapshot Snapshot,
     string GroupLabel,
     int PartyLeadCount);
@@ -74,9 +74,9 @@ internal sealed record RunCheckInSummary(
 internal sealed record ComputedPartySnapshots(
     IReadOnlyDictionary<string, FullPartyPartySnapshot> ByParty,
     IReadOnlyList<FullPartyPartySnapshot> Snapshots,
-    GamePresenceList OccultPresence,
-    int OccultPartyCount,
-    bool InOccult);
+    GamePresenceList InstancePresence,
+    int InstancePartyCount,
+    bool InSupportedInstance);
 
 internal sealed record ValidationSlotResult(
     FullPartyRosterCharacter? Character,
@@ -115,7 +115,6 @@ public sealed class RunWindow : Window, IDisposable
     private Vector2 rosterCompanionSize = new(RosterCompanionDefaultWidth, RosterCompanionDefaultHeight);
     private bool hasRosterCompanionSize;
     private bool applyRosterCompanionSizeNextDraw = true;
-    private bool? lastOccultState;
     private GamePresenceList nearbyDetectionCache = GamePresenceList.Empty;
     private bool windowStylePushed;
     private Vector2 runContentClipMin;
@@ -140,6 +139,7 @@ public sealed class RunWindow : Window, IDisposable
             ? RunRosterViewMode.None
             : RunRosterViewMode.Roster;
         plugin.WindowSystem.AddWindow(miniWindow);
+        Plugin.ClientState.TerritoryChanged += OnTerritoryChanged;
         ApplySizeConstraints();
         Size = new Vector2(RunWindowDefaultWidth, RunWindowDefaultHeight);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -148,6 +148,7 @@ public sealed class RunWindow : Window, IDisposable
 
     public void Dispose()
     {
+        Plugin.ClientState.TerritoryChanged -= OnTerritoryChanged;
         miniWindow.IsOpen = false;
         cancellation.Cancel();
         cancellation.Dispose();
@@ -471,7 +472,7 @@ public sealed class RunWindow : Window, IDisposable
             OpenCountdownPicker();
 
         var isCheckingIn = checkInTask is { IsCompleted: false };
-        var waitingForAdventurerList = OccultCrescentTerritory.IsCurrent() && plugin.AdventurerList.IsRefreshing;
+        var waitingForAdventurerList = SupportedRunTerritory.IsCurrent() && plugin.AdventurerList.IsRefreshing;
         var canCheckIn = detail != null && !isCheckingIn && !waitingForAdventurerList;
         var checkInLabel = isCheckingIn
             ? "Checking In..."
@@ -709,7 +710,7 @@ public sealed class RunWindow : Window, IDisposable
             ? "Connected to live room"
             : liveRoom.StatusMessage;
         drawList.AddText(rowStart + new Vector2(66f, 11f), FullPartyModernPalette.Color(statusColor), statusTitle);
-        var statusDetail = liveRoom.PartySnapshotStatusMessage ?? liveRoom.CommandStatusMessage ?? "Party sync waits for Occult Crescent.";
+        var statusDetail = liveRoom.PartySnapshotStatusMessage ?? liveRoom.CommandStatusMessage ?? SupportedRunTerritory.WaitingMessage;
         drawList.AddText(rowStart + new Vector2(66f, 36f), FullPartyModernPalette.Color(FullPartyModernPalette.Muted), TrimToWidth(statusDetail, MathF.Max(80f, ImGui.GetContentRegionAvail().X - 270f)));
 
         var actionWidth = liveRoom.IsActive ? 150f : 178f;
@@ -1527,8 +1528,8 @@ public sealed class RunWindow : Window, IDisposable
                     slot,
                     validationMember,
                     expectedObserved,
-                    computedSnapshots?.OccultPresence ?? GamePresenceList.Empty,
-                    computedSnapshots?.InOccult == true,
+                    computedSnapshots?.InstancePresence ?? GamePresenceList.Empty,
+                    computedSnapshots?.InSupportedInstance == true,
                     snapshot != null);
 
                 if (result == null && !rosterShowEmptySlots)
@@ -1801,7 +1802,10 @@ public sealed class RunWindow : Window, IDisposable
                 2f);
         }
 
-        if (hovered && validationMessages.Count > 0)
+        var hasAssignments = rosterSlot != null &&
+                             (rosterSlot.IsDuelist || rosterSlot.IsTrapper || rosterSlot.IsDarter ||
+                              !string.IsNullOrWhiteSpace(rosterSlot.RaidPosition) || rosterSlot.HolsterLoadout != null);
+        if (hovered && (validationMessages.Count > 0 || hasAssignments))
         {
             const float TooltipWidth = 320f;
             ImGui.SetNextWindowSizeConstraints(new Vector2(TooltipWidth, 0f), new Vector2(TooltipWidth, float.MaxValue));
@@ -1811,9 +1815,35 @@ public sealed class RunWindow : Window, IDisposable
             ImGui.Separator();
             foreach (var message in validationMessages)
                 ImGui.TextUnformatted(message);
+            if (hasAssignments)
+            {
+                if (validationMessages.Count > 0)
+                    ImGui.Separator();
+                DrawRosterAssignments(rosterSlot!);
+            }
             ImGui.PopTextWrapPos();
             ImGui.EndTooltip();
         }
+    }
+
+    private static void DrawRosterAssignments(FullPartyRosterSlot slot)
+    {
+        if (slot.IsDuelist)
+            ImGui.TextUnformatted("Duelist");
+        if (slot.IsTrapper)
+            ImGui.TextUnformatted("Trapper");
+        if (slot.IsDarter)
+            ImGui.TextUnformatted("Darter");
+        if (!string.IsNullOrWhiteSpace(slot.RaidPosition))
+            ImGui.TextUnformatted($"Raid position: {slot.RaidPosition}");
+
+        if (slot.HolsterLoadout is not { } holster)
+            return;
+
+        if (holster.PrepopId != null || !string.IsNullOrWhiteSpace(holster.PrepopLabel))
+            ImGui.TextUnformatted($"Pre-pop: {holster.PrepopLabel ?? $"Holster #{holster.PrepopId}"}");
+        if (holster.RefillId != null || !string.IsNullOrWhiteSpace(holster.RefillLabel))
+            ImGui.TextUnformatted($"Refill: {holster.RefillLabel ?? $"Holster #{holster.RefillId}"}");
     }
 
     private void DrawModernAuxiliaryRosterSection(
@@ -1901,7 +1931,7 @@ public sealed class RunWindow : Window, IDisposable
             ImGui.Spacing();
             ImGui.Separator();
             ImGui.Spacing();
-            if (computedSnapshots.InOccult)
+            if (computedSnapshots.InSupportedInstance)
             {
                 ImGui.TextDisabled(liveRoom.State == RealtimeRunRoomState.Connected
                     ? "Waiting for party lead snapshots to identify live parties."
@@ -1953,14 +1983,14 @@ public sealed class RunWindow : Window, IDisposable
                 var slot = displaySlots[row];
                 var actualMember = FindExpectedMemberInParty(runDetail, slot, snapshot);
                 var expectedObserved = FindObservedForSlot(slot, observedById, observedByName);
-                DrawValidationRosterSlot(runDetail, slot, actualMember, expectedObserved, computedSnapshots.OccultPresence, computedSnapshots.InOccult, snapshot != null);
+                DrawValidationRosterSlot(runDetail, slot, actualMember, expectedObserved, computedSnapshots.InstancePresence, computedSnapshots.InSupportedInstance, snapshot != null);
             }
         }
 
         ImGui.EndTable();
 
         DrawValidationDetectedPlayers(runDetail, parties, computedSnapshots);
-        DrawValidationStatusText(computedSnapshots.InOccult, computedSnapshots.Snapshots.Count, computedSnapshots.OccultPresence.Count, computedSnapshots.OccultPartyCount);
+        DrawValidationStatusText(computedSnapshots.InSupportedInstance, computedSnapshots.Snapshots.Count, computedSnapshots.InstancePresence.Count, computedSnapshots.InstancePartyCount);
     }
 
     private void DrawValidationDetectedPlayers(
@@ -2011,16 +2041,16 @@ public sealed class RunWindow : Window, IDisposable
         return $"{name} - {classJob} - {phantomJob}";
     }
 
-    private void DrawValidationStatusText(bool inOccult, int snapshotCount, int occultPresenceCount, int occultPartyCount)
+    private void DrawValidationStatusText(bool inSupportedInstance, int snapshotCount, int instancePresenceCount, int instancePartyCount)
     {
-        if (!inOccult && snapshotCount > 0)
+        if (!inSupportedInstance && snapshotCount > 0)
             return;
 
         ImGui.Spacing();
         ImGui.Separator();
         ImGui.Spacing();
 
-        if (inOccult)
+        if (inSupportedInstance)
         {
             if (plugin.AdventurerList.IsRefreshing)
                 ImGui.BeginDisabled();
@@ -2033,9 +2063,9 @@ public sealed class RunWindow : Window, IDisposable
 
             ImGui.Spacing();
             ImGui.TextDisabled(plugin.AdventurerList.StatusMessage);
-            ImGui.TextDisabled(occultPresenceCount == 0
-                ? "Validate: Occult mode, waiting for nearby or Adventurer List players."
-                : $"Validate: Occult mode, {occultPresenceCount} nearby/Adventurer List players known, {occultPartyCount} parties identified by party leads.");
+            ImGui.TextDisabled(instancePresenceCount == 0
+                ? "Validate: instance mode, waiting for player presence."
+                : $"Validate: instance mode, {instancePresenceCount} players known, {instancePartyCount} parties identified by party leads.");
             return;
         }
 
@@ -2049,11 +2079,11 @@ public sealed class RunWindow : Window, IDisposable
         FullPartyRosterSlot plannedSlot,
         FullPartyPartySnapshotMember? actualMember,
         ObservedSnapshotMember? expectedObserved,
-        GamePresenceList occultPresence,
-        bool useOccultPresence,
+        GamePresenceList instancePresence,
+        bool useInstancePresence,
         bool expectedPartySynced)
     {
-        var result = BuildValidationSlotResult(runDetail, plannedSlot, actualMember, expectedObserved, occultPresence, useOccultPresence, expectedPartySynced);
+        var result = BuildValidationSlotResult(runDetail, plannedSlot, actualMember, expectedObserved, instancePresence, useInstancePresence, expectedPartySynced);
         if (result == null)
         {
             DrawEmptyRosterSlot(plannedSlot);
@@ -2096,7 +2126,7 @@ public sealed class RunWindow : Window, IDisposable
         }
 
         if (!string.IsNullOrWhiteSpace(result.ClassJob) ||
-            (!useOccultPresence && !string.IsNullOrWhiteSpace(result.RosterSlot?.CharacterClass)))
+            (!useInstancePresence && !string.IsNullOrWhiteSpace(result.RosterSlot?.CharacterClass)))
         {
             iconRight -= 20f;
             classIconPosition = new Vector2(iconRight, min.Y + 7f);
@@ -2147,16 +2177,16 @@ public sealed class RunWindow : Window, IDisposable
         FullPartyRosterSlot plannedSlot,
         FullPartyPartySnapshotMember? actualMember,
         ObservedSnapshotMember? expectedObserved,
-        GamePresenceList occultPresence,
-        bool useOccultPresence,
+        GamePresenceList instancePresence,
+        bool useInstancePresence,
         bool expectedPartySynced)
     {
         var expectedCharacter = plannedSlot.AssignedCharacter;
-        var expectedPresence = expectedCharacter != null && useOccultPresence && occultPresence.TryFind(expectedCharacter, out var presence)
+        var expectedPresence = expectedCharacter != null && useInstancePresence && instancePresence.TryFind(expectedCharacter, out var presence)
             ? presence
             : null;
 
-        if (useOccultPresence && expectedCharacter != null && expectedPresence == null)
+        if (useInstancePresence && expectedCharacter != null && expectedPresence == null)
         {
             return new ValidationSlotResult(
                 expectedCharacter,
@@ -2173,31 +2203,31 @@ public sealed class RunWindow : Window, IDisposable
             if (expectedCharacter == null)
                 return null;
 
-            if (useOccultPresence)
+            if (useInstancePresence)
             {
-                var occultMessages = new List<string>();
-                var occultState = ValidationState.Warning;
-                string? occultClassJob = null;
-                string? occultPhantomJob = null;
+                var instanceMessages = new List<string>();
+                var instanceState = ValidationState.Warning;
+                string? instanceClassJob = null;
+                string? instancePhantomJob = null;
                 if (expectedObserved != null)
                 {
-                    occultClassJob = NormalizeClassJob(expectedObserved.Member.ClassJob);
-                    occultPhantomJob = expectedObserved.Member.PhantomJob;
+                    instanceClassJob = NormalizeClassJob(expectedObserved.Member.ClassJob);
+                    instancePhantomJob = expectedObserved.Member.PhantomJob;
                     if (expectedObserved.Snapshot.PartyKey.Equals(plannedSlot.GroupKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        occultState = ValidationState.Ok;
+                        instanceState = ValidationState.Ok;
                     }
                     else
                     {
-                        occultMessages.Add($"Wrong party: currently in {FormatObservedLocation(runDetail, expectedObserved, true)}.");
+                        instanceMessages.Add($"Wrong party: currently in {FormatObservedLocation(runDetail, expectedObserved, true)}.");
                     }
 
-                    AddClassValidationMessage(plannedSlot, occultClassJob, occultMessages);
-                    AddPhantomJobValidationMessage(runDetail, plannedSlot, expectedObserved.Member, occultMessages);
+                    AddClassValidationMessage(plannedSlot, instanceClassJob, instanceMessages);
+                    AddPhantomJobValidationMessage(runDetail, plannedSlot, expectedObserved.Member, instanceMessages);
                 }
                 else
                 {
-                    occultMessages.Add(expectedPartySynced
+                    instanceMessages.Add(expectedPartySynced
                         ? $"Present in nearby players or Adventurer List, but not in the synced {plannedSlot.GroupLabel} party."
                         : $"Present in nearby players or Adventurer List; waiting for a party lead snapshot for {plannedSlot.GroupLabel}.");
                 }
@@ -2206,10 +2236,10 @@ public sealed class RunWindow : Window, IDisposable
                     expectedCharacter,
                     plannedSlot,
                     expectedCharacter.Name,
-                    occultClassJob,
-                    occultPhantomJob,
-                    occultMessages.Count == 0 ? occultState : ValidationState.Warning,
-                    occultMessages);
+                    instanceClassJob,
+                    instancePhantomJob,
+                    instanceMessages.Count == 0 ? instanceState : ValidationState.Warning,
+                    instanceMessages);
             }
 
             var missingMessages = new List<string>();
@@ -2219,7 +2249,7 @@ public sealed class RunWindow : Window, IDisposable
             if (expectedObserved != null)
             {
                 state = ValidationState.Warning;
-                missingMessages.Add(useOccultPresence
+                missingMessages.Add(useInstancePresence
                     ? $"Wrong place: currently in {FormatObservedLocation(runDetail, expectedObserved, false)}."
                     : $"Wrong party: currently in {FormatObservedLocation(runDetail, expectedObserved, true)}.");
                 classJob = NormalizeClassJob(expectedObserved.Member.ClassJob);
@@ -2236,7 +2266,7 @@ public sealed class RunWindow : Window, IDisposable
             }
             else
             {
-                missingMessages.Add(useOccultPresence
+                missingMessages.Add(useInstancePresence
                     ? "Missing from nearby players and Adventurer List."
                     : "Missing from alliance/party list.");
             }
@@ -2275,7 +2305,7 @@ public sealed class RunWindow : Window, IDisposable
             messages.Add($"Expected {expectedCharacter.Name}; found {actualDisplayName}.");
             if (expectedObserved != null)
             {
-                messages.Add(useOccultPresence
+                messages.Add(useInstancePresence
                     ? $"Expected player is currently in {FormatObservedLocation(runDetail, expectedObserved, false)}."
                     : $"Expected player is currently in {FormatObservedLocation(runDetail, expectedObserved, true)}.");
             }
@@ -2285,7 +2315,7 @@ public sealed class RunWindow : Window, IDisposable
             }
             else
             {
-                messages.Add(useOccultPresence
+                messages.Add(useInstancePresence
                     ? "Expected player is missing from nearby players and Adventurer List."
                     : "Expected player is missing from alliance/party list.");
             }
@@ -2300,7 +2330,7 @@ public sealed class RunWindow : Window, IDisposable
                 messages);
         }
 
-        if (useOccultPresence)
+        if (useInstancePresence)
         {
             AddClassValidationMessage(plannedSlot, actualClassJob, messages);
             AddPhantomJobValidationMessage(runDetail, plannedSlot, actualMember, messages);
@@ -2385,6 +2415,9 @@ public sealed class RunWindow : Window, IDisposable
         string? actualPhantomJob,
         ICollection<string> messages)
     {
+        if (!OccultCrescentTerritory.IsCurrent())
+            return;
+
         var expectedPhantomJob = NormalizePhantomJob(plannedSlot.PhantomJob);
         if (expectedPhantomJob == null)
             return;
@@ -3173,26 +3206,25 @@ public sealed class RunWindow : Window, IDisposable
     private ComputedPartySnapshots BuildComputedPartySnapshots(
         FullPartyRunDetail runDetail,
         IReadOnlyList<IReadOnlyList<FullPartyRosterSlot>> parties,
-        bool requestOccultRefresh)
+        bool requestInstanceRefresh)
     {
-        var inOccult = OccultCrescentTerritory.IsCurrent();
-        ObserveOccultState(inOccult);
-        if (inOccult)
+        var inSupportedInstance = SupportedRunTerritory.IsCurrent();
+        if (inSupportedInstance)
             UpdateNearbyDetectionCache(runDetail);
 
-        var occultPresence = inOccult
-            ? BuildOccultPresence(runDetail, requestOccultRefresh, nearbyDetectionCache)
+        var instancePresence = inSupportedInstance
+            ? BuildInstancePresence(runDetail, requestInstanceRefresh, nearbyDetectionCache)
             : GamePresenceList.Empty;
-        var sourceSnapshots = inOccult
-            ? BuildOccultSourceSnapshots(runDetail)
+        var sourceSnapshots = inSupportedInstance
+            ? BuildInstanceSourceSnapshots(runDetail)
             : RunValidationSources.BuildLocalPartySnapshots(runDetail, parties);
-        var occultPartyAssignments = inOccult
-            ? BuildOccultPartyAssignments(runDetail, sourceSnapshots, occultPresence)
-            : new Dictionary<string, OccultPartyAssignment>(StringComparer.OrdinalIgnoreCase);
-        var snapshotsByParty = inOccult
-            ? occultPartyAssignments.ToDictionary(pair => pair.Key, pair => pair.Value.Snapshot, StringComparer.OrdinalIgnoreCase)
+        var instancePartyAssignments = inSupportedInstance
+            ? BuildInstancePartyAssignments(runDetail, sourceSnapshots, instancePresence)
+            : new Dictionary<string, InstancePartyAssignment>(StringComparer.OrdinalIgnoreCase);
+        var snapshotsByParty = inSupportedInstance
+            ? instancePartyAssignments.ToDictionary(pair => pair.Key, pair => pair.Value.Snapshot, StringComparer.OrdinalIgnoreCase)
             : sourceSnapshots.ToDictionary(snapshot => snapshot.PartyKey, StringComparer.OrdinalIgnoreCase);
-        if (inOccult)
+        if (inSupportedInstance)
         {
             snapshotsByParty = snapshotsByParty.ToDictionary(
                 pair => pair.Key,
@@ -3207,28 +3239,17 @@ public sealed class RunWindow : Window, IDisposable
         return new ComputedPartySnapshots(
             snapshotsByParty,
             computedSnapshots,
-            occultPresence,
-            occultPartyAssignments.Count,
-            inOccult);
+            instancePresence,
+            instancePartyAssignments.Count,
+            inSupportedInstance);
     }
 
-    private void ObserveOccultState(bool inOccult)
+    private void OnTerritoryChanged(uint territoryId)
     {
-        if (lastOccultState == inOccult)
-            return;
-
-        if (inOccult)
-        {
-            liveRoom.ClearPartySnapshots("Entered Occult Crescent; discarded pre-Occult party sync.");
-            plugin.AdventurerList.ResetForOccultVisit();
-        }
-
         nearbyDetectionCache = GamePresenceList.Empty;
-
-        lastOccultState = inOccult;
     }
 
-    private IReadOnlyList<FullPartyPartySnapshot> BuildOccultSourceSnapshots(FullPartyRunDetail runDetail)
+    private IReadOnlyList<FullPartyPartySnapshot> BuildInstanceSourceSnapshots(FullPartyRunDetail runDetail)
     {
         var snapshots = liveRoom.PartySnapshots.ToList();
         var currentPartySnapshot = RunValidationSources.BuildCurrentPartySnapshot(runDetail);
@@ -3238,12 +3259,12 @@ public sealed class RunWindow : Window, IDisposable
         return snapshots;
     }
 
-    private GamePresenceList BuildOccultPresence(
+    private GamePresenceList BuildInstancePresence(
         FullPartyRunDetail runDetail,
-        bool requestOccultRefresh,
+        bool requestInstanceRefresh,
         GamePresenceList nearbyPresence)
     {
-        if (requestOccultRefresh &&
+        if (requestInstanceRefresh &&
             !plugin.AdventurerList.HasRequestedRefresh &&
             !plugin.AdventurerList.IsRefreshing &&
             RunValidationSources.HasMissingActiveRosterPresence(runDetail, nearbyPresence))
@@ -3253,6 +3274,7 @@ public sealed class RunWindow : Window, IDisposable
 
         return RunValidationSources.MergePresence(
             plugin.AdventurerList.GetPresence(runDetail),
+            RunValidationSources.BuildCurrentPartyPresence(runDetail),
             nearbyPresence);
     }
 
@@ -3291,12 +3313,12 @@ public sealed class RunWindow : Window, IDisposable
         return snapshot with { Members = members };
     }
 
-    private static IReadOnlyDictionary<string, OccultPartyAssignment> BuildOccultPartyAssignments(
+    private static IReadOnlyDictionary<string, InstancePartyAssignment> BuildInstancePartyAssignments(
         FullPartyRunDetail runDetail,
         IReadOnlyList<FullPartyPartySnapshot> snapshots,
         GamePresenceList presence)
     {
-        var assignments = new Dictionary<string, OccultPartyAssignment>(StringComparer.OrdinalIgnoreCase);
+        var assignments = new Dictionary<string, InstancePartyAssignment>(StringComparer.OrdinalIgnoreCase);
         foreach (var snapshot in snapshots)
         {
             var isLocalSnapshot = snapshot.SenderUserId == 0;
@@ -3341,7 +3363,7 @@ public sealed class RunWindow : Window, IDisposable
                 selectedGroup.PartyLeadCount > existing.PartyLeadCount ||
                 (selectedGroup.PartyLeadCount == existing.PartyLeadCount && snapshot.CapturedAt > existing.Snapshot.CapturedAt))
             {
-                assignments[selectedGroup.GroupKey] = new OccultPartyAssignment(
+                assignments[selectedGroup.GroupKey] = new InstancePartyAssignment(
                     snapshot with { PartyKey = selectedGroup.GroupKey },
                     selectedGroup.GroupLabel,
                     selectedGroup.PartyLeadCount);
@@ -3616,7 +3638,7 @@ public sealed class RunWindow : Window, IDisposable
             return;
         }
 
-        if (OccultCrescentTerritory.IsCurrent() && !plugin.AdventurerList.HasRequestedRefresh)
+        if (SupportedRunTerritory.IsCurrent() && !plugin.AdventurerList.HasRequestedRefresh)
         {
             var nearbyPresence = RunValidationSources.BuildNearbyPlayerPresence(detail);
             if (RunValidationSources.HasMissingActiveRosterPresence(detail, nearbyPresence))
@@ -3688,8 +3710,8 @@ public sealed class RunWindow : Window, IDisposable
 
     private RunCheckInSelection BuildRunCheckInSelection(FullPartyRunDetail runDetail)
     {
-        var presence = OccultCrescentTerritory.IsCurrent()
-            ? BuildOccultPresence(runDetail, false, UpdateNearbyDetectionCache(runDetail))
+        var presence = SupportedRunTerritory.IsCurrent()
+            ? BuildInstancePresence(runDetail, false, UpdateNearbyDetectionCache(runDetail))
             : RunValidationSources.BuildLocalPartyPresence(runDetail);
         var assignedSlots = runDetail.Slots
             .Where(slot => slot.AssignedCharacter != null)
@@ -3711,7 +3733,7 @@ public sealed class RunWindow : Window, IDisposable
     {
         RefreshRun();
 
-        if (OccultCrescentTerritory.IsCurrent())
+        if (SupportedRunTerritory.IsCurrent())
             plugin.AdventurerList.RequestRefresh();
     }
 
